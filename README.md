@@ -28,7 +28,7 @@ docs/                 详细文档
 - 不支持 日服曲库、日服牌子/进度或官服曲目资源导入。
 - 曲库只使用 落雪/水鱼 数据。
 - 拟合/自算 B50 的 B15 按水鱼曲库里最新的 `basic_info.from` 大版本划分；如果曲库版本名先于代码更新，可用 `MAIMAI_LOCAL_CURRENT_VERSIONS` 或 `MAIMAI_CURRENT_VERSIONS` 覆盖。
-- 仓库只保留自定义“雪峰”牌子所需的背景图和四张称号图；其余绘图图片不随源码分发。
+- 仓库只保留自定义“雪峰”牌子及其渲染所需的组件图片；其余绘图图片不随源码分发。
 - 文档、测试和插件包中的账号/群号示例使用脱敏占位值。
 
 ## 通用行为
@@ -92,7 +92,7 @@ python scripts/update_all_data.py
 
 ## 静态资源
 
-公开源码仅内置自定义“雪峰”牌子的 5 张图片，其他图片已从当前目录和公开分支历史中移除。绘图所需的字体、评分图等静态资源需从 [maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX) 下载，解压后放入 `maimaidx_render_mcp/static/`；这些本地图片默认会被 Git 忽略：
+公开源码仅内置自定义“雪峰”牌子及其渲染依赖的 20 张图片，其他图片已从当前目录和公开分支历史中移除。绘图所需的字体、评分图等静态资源需从 [maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX) 下载，解压后放入 `maimaidx_render_mcp/static/`；这些本地图片默认会被 Git 忽略：
 
 - [Cloudreve](https://cloud.yuzuchan.moe/f/34s7/Resource%20CN1.55.7z)
 - [OneDrive](https://yuzuai-my.sharepoint.com/:u:/g/personal/yuzu_yuzuchan_moe/IQBGKHie6MAaTZy3rME7Q-ruAVKgXDCKROqz5e25KtMeeVY?e=53eC6a)
