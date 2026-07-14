@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.git/
+.DS_Store
+._*
+data/music_data.json
+data/maidata_cn.json

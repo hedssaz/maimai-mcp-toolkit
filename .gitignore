@@ -1,0 +1,43 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+._*
+.cache/
+logs/
+*.egg-info/
+uv.lock
+qq-identity-cache/
+
+# Refreshed maimai data source snapshots.
+# These files are kept in the repo as pinned snapshots; local refreshes can be
+# hidden with `git update-index --skip-worktree` and committed explicitly with
+# `git update-index --no-skip-worktree` + `git add -f` when needed.
+data/lxns_song_list.json
+data/lxns_alias_list.json
+data/music_alias.json
+data/dxdata.json
+data/official_music_data.json
+data/divingfish_song_list.json
+data/dxrating_aliases.json
+data/dxrating_tags.json
+data/divingfish_chart_stats.json
+data/maimaidxplate.json
+data/pinyin_aliases.json
+data/extracted_music_resources/
+
+# Large binary assets (generated or downloadable)
+maimaidx_render_mcp/static/mai/cover/
+maimaidx_render_mcp/static/mai/rating/
+maimaidx_render_mcp/static/**/*.[pP][nN][gG]
+maimaidx_render_mcp/static/**/*.[jJ][pP][gG]
+maimaidx_render_mcp/static/**/*.[jJ][pP][eE][gG]
+maimaidx_render_mcp/static/**/*.[wW][eE][bB][pP]
+maimaidx_render_mcp/static/**/*.[gG][iI][fF]
+maimaidx_render_mcp/static/**/*.[bB][mM][pP]
+maimaidx_render_mcp/static/**/*.[sS][vV][gG]
+maimaidx_render_mcp/static/*.ttf
+maimaidx_render_mcp/static/*.otf
+maimai-images/
+outputs/
+player_cache/
+player-cache/
