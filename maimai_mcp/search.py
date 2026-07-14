@@ -29,6 +29,7 @@ DEFAULT_ARTIST_ALIAS_PATH = PACKAGE_ROOT / "data" / "artist_aliases.json"
 DEFAULT_CHARTER_ALIAS_PATH = PACKAGE_ROOT / "data" / "charter_aliases.json"
 PINYIN_ALIAS_TTL_SECONDS = 30 * 60
 PINYIN_ALIAS_FORMAT_VERSION = 2
+_SEARCH_SOURCE_REVISION: tuple[tuple[str, int, int], ...] | None = None
 
 DIFFICULTIES = ("Basic", "Advanced", "Expert", "Master", "Re:MASTER")
 DIFFICULTY_INDEX_BY_NAME = {
@@ -430,13 +431,87 @@ def load_search_context(
     return data, alias_map, pinyin_alias_map, chart_stats
 
 
+def _source_file_revision(path: Path) -> tuple[str, int, int]:
+    resolved = Path(path).expanduser().resolve(strict=False)
+    try:
+        stat = resolved.stat()
+    except OSError:
+        return str(resolved), 0, 0
+    return str(resolved), int(stat.st_mtime_ns), int(stat.st_size)
+
+
+def search_source_revision(
+    *,
+    data_path: Path = DEFAULT_DATA_PATH,
+    alias_path: Path = DEFAULT_ALIAS_PATH,
+    chart_stats_path: Path = DEFAULT_CHART_STATS_PATH,
+    pinyin_alias_path: Path = DEFAULT_PINYIN_ALIAS_PATH,
+    artist_alias_path: Path = DEFAULT_ARTIST_ALIAS_PATH,
+    charter_alias_path: Path = DEFAULT_CHARTER_ALIAS_PATH,
+) -> tuple[tuple[str, int, int], ...]:
+    """返回公开曲库、别名和统计文件的版本，用于常驻进程失效缓存。"""
+
+    paths = (
+        data_path,
+        alias_path,
+        chart_stats_path,
+        pinyin_alias_path,
+        artist_alias_path,
+        charter_alias_path,
+        DEFAULT_DIVINGFISH_DATA_PATH,
+        DEFAULT_CUSTOM_ALIAS_PATH,
+        DEFAULT_YUZU_ALIAS_PATH,
+        DEFAULT_LEGACY_ALIAS_CSV_PATH,
+        DEFAULT_S2T_PATH,
+        DEFAULT_T2S_PATH,
+    )
+    revisions: dict[str, tuple[str, int, int]] = {}
+    for path in paths:
+        revision = _source_file_revision(path)
+        revisions[revision[0]] = revision
+    return tuple(revisions[key] for key in sorted(revisions))
+
+
+def refresh_search_caches_if_sources_changed(
+    *,
+    data_path: Path = DEFAULT_DATA_PATH,
+    alias_path: Path = DEFAULT_ALIAS_PATH,
+    chart_stats_path: Path = DEFAULT_CHART_STATS_PATH,
+    pinyin_alias_path: Path = DEFAULT_PINYIN_ALIAS_PATH,
+    artist_alias_path: Path = DEFAULT_ARTIST_ALIAS_PATH,
+    charter_alias_path: Path = DEFAULT_CHARTER_ALIAS_PATH,
+) -> bool:
+    """源文件被外部刷新后清空内存缓存；返回本次是否发生失效。"""
+
+    global _SEARCH_SOURCE_REVISION
+    revision = search_source_revision(
+        data_path=data_path,
+        alias_path=alias_path,
+        chart_stats_path=chart_stats_path,
+        pinyin_alias_path=pinyin_alias_path,
+        artist_alias_path=artist_alias_path,
+        charter_alias_path=charter_alias_path,
+    )
+    previous = _SEARCH_SOURCE_REVISION
+    if previous is None:
+        _SEARCH_SOURCE_REVISION = revision
+        return False
+    if previous == revision:
+        return False
+    clear_search_caches()
+    _SEARCH_SOURCE_REVISION = revision
+    return True
+
+
 def clear_search_caches() -> None:
+    global _SEARCH_SOURCE_REVISION
     load_single_music_data.cache_clear()
     load_music_data.cache_clear()
     load_chart_stats.cache_clear()
     load_name_alias_map.cache_clear()
     load_search_context.cache_clear()
     pinyin_query_needles.cache_clear()
+    _SEARCH_SOURCE_REVISION = None
 
 
 def source_label_for_music(music: dict[str, Any]) -> str:
@@ -3049,6 +3124,15 @@ def collect_song_results(
         raise SearchError("is_new_source only supports cn in this branch")
     if released_after not in (None, "") or released_before not in (None, ""):
         raise SearchError("released_after/released_before filters require dxdata and are not supported in this branch")
+
+    refresh_search_caches_if_sources_changed(
+        data_path=data_path,
+        alias_path=alias_path,
+        chart_stats_path=chart_stats_path,
+        pinyin_alias_path=pinyin_alias_path,
+        artist_alias_path=artist_alias_path,
+        charter_alias_path=charter_alias_path,
+    )
 
     ds_low, ds_high = parse_ds_range(ds=ds, ds_min=ds_min, ds_max=ds_max)
     fit_diff_low, fit_diff_high, fit_diff_high_inclusive = parse_fit_diff_filter(

@@ -11,11 +11,17 @@ from PIL import Image
 import maimaidx_render_mcp.server as server
 from maimaidx_render_mcp.maimaidx import maimaidx_music_info as music_info
 from maimaidx_render_mcp.maimaidx.image import image_to_base64
-from maimaidx_render_mcp.maimaidx.maimaidx_model import BasicInfo, Music
+from maimaidx_render_mcp.maimaidx.maimaidx_model import BasicInfo, Music, PlayInfoDefault
 from maimaidx_render_mcp.shim.mai_music import music_from_search_song
 
 
 class MaimaidxRenderMusicInfoTests(unittest.TestCase):
+    def test_music_info_level_ds_text_keeps_decimal_constants(self) -> None:
+        self.assertEqual(music_info._level_ds_text("5", 5.0), "5(5.0)")
+        self.assertEqual(music_info._level_ds_text("8", 8), "8(8.0)")
+        self.assertEqual(music_info._level_ds_text("12", 12.4), "12(12.4)")
+        self.assertEqual(music_info._level_ds_text("", 14.0), "14.0")
+
     def test_search_result_preserves_known_total_when_note_parts_are_unknown(self) -> None:
         music = music_from_search_song({
             "id": "1820",
@@ -164,6 +170,53 @@ class MaimaidxRenderMusicInfoTests(unittest.TestCase):
 
         self.assertEqual([label for label, _music, _song in variants], ["standard", "dx"])
         self.assertEqual([music.type for _label, music, _song in variants], ["SD", "DX"])
+
+    def test_dual_chart_record_matching_keeps_standard_and_dx_scores_separate(self) -> None:
+        standard_args = {"query": "Selector", "songType": "standard"}
+        standard_music, standard_song = server._resolve_music(standard_args)
+        dx_args = {"query": "Selector", "songType": "dx"}
+        dx_music, dx_song = server._resolve_music(dx_args)
+        standard_lookup_ids = music_info._score_lookup_ids(
+            server._music_score_query_id(standard_args, standard_music, standard_song),
+            standard_music,
+        )
+        dx_lookup_ids = music_info._score_lookup_ids(
+            server._music_score_query_id(dx_args, dx_music, dx_song),
+            dx_music,
+        )
+        standard_record = PlayInfoDefault(
+            id=574,
+            title="Selector",
+            type="SD",
+            level="13+",
+            level_index=3,
+            ds=13.8,
+            achievements=97.1234,
+            dxScore=111,
+            fc="",
+            fs="",
+            ra=1,
+            rate="s",
+        )
+        dx_record = PlayInfoDefault(
+            id=10574,
+            title="Selector",
+            type="DX",
+            level="13+",
+            level_index=3,
+            ds=13.9,
+            achievements=100.9876,
+            dxScore=222,
+            fc="",
+            fs="",
+            ra=2,
+            rate="sss",
+        )
+
+        self.assertTrue(music_info._record_matches_music(standard_record, standard_music, standard_lookup_ids))
+        self.assertFalse(music_info._record_matches_music(dx_record, standard_music, standard_lookup_ids))
+        self.assertFalse(music_info._record_matches_music(standard_record, dx_music, dx_lookup_ids))
+        self.assertTrue(music_info._record_matches_music(dx_record, dx_music, dx_lookup_ids))
 
     def test_render_music_info_auto_expands_standard_dx_song(self) -> None:
         b50_calls: list[tuple[int, bool]] = []

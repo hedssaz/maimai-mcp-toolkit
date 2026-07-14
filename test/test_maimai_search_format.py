@@ -28,8 +28,8 @@ class MaimaiSearchFormatTests(unittest.TestCase):
         self.assertIn("ID ST#835 / DX#10835", text)
         self.assertIn("谱面 ST/DX", text)
         self.assertIn("命中 别名(精确): 相信彩虹", text)
-        self.assertIn("ST #835: Bas 4 / Mst 13/13.4", text)
-        self.assertIn("DX #10835: Bas 2 / Mst 13", text)
+        self.assertIn("ST #835: Bas 4/4.0 / Mst 13/13.4", text)
+        self.assertIn("DX #10835: Bas 2/2.0 / Mst 13/13.0", text)
         self.assertNotIn("STANDARD", text)
 
     def test_verbose_output_uses_st_dx_chart_labels(self):
@@ -40,6 +40,7 @@ class MaimaiSearchFormatTests(unittest.TestCase):
         self.assertIn("命中 别名(精确): 相信彩虹", text)
         self.assertIn("ST#835 Master", text)
         self.assertIn("DX#10835 Master", text)
+        self.assertIn("DX#10835 Master 等级 13 定数 13.0", text)
         self.assertNotIn("STANDARD", text)
 
     def test_dx_only_compact_output_uses_five_digit_chart_id(self):

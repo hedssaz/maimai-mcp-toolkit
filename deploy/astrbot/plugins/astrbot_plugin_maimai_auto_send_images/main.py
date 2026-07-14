@@ -63,6 +63,26 @@ def _message_event_decorator() -> Callable[[Callable[..., Any]], Callable[..., A
     return lambda func: func
 
 
+def _is_ambiguous_napcat_send_timeout(exc: BaseException) -> bool:
+    """识别 NapCat 已提交消息、但等待发送回执超时的异常。"""
+
+    parts = [str(exc)]
+    for attribute in ("message", "wording"):
+        value = getattr(exc, attribute, None)
+        if value:
+            parts.append(str(value))
+    parts.extend(str(value) for value in getattr(exc, "args", ()) if value)
+    text = " ".join(parts).casefold()
+    compact = re.sub(r"\s+", "", text)
+    retcode = str(getattr(exc, "retcode", "") or "").strip()
+    has_retcode = retcode == "1200" or "retcode=1200" in compact or "retcode:1200" in compact
+    has_send_method = (
+        "nodeikernelmsgservice/sendmsg" in compact
+        or "serviceandmethod:nodeikernelmsgservice/sendmsg" in compact
+    )
+    return has_retcode and "timeout" in text and has_send_method
+
+
 @dataclass
 class SentState:
     paths: list[str] = field(default_factory=list)
@@ -214,6 +234,7 @@ class MaimaiAutoSendImagesPlugin(Star):
             return
 
         sent_paths: list[str] = []
+        uncertain_paths: list[str] = []
         send_started_at = time.perf_counter()
         for path in result.image_paths:
             if self._is_recent_duplicate(event, path):
@@ -221,13 +242,23 @@ class MaimaiAutoSendImagesPlugin(Star):
             try:
                 await self._send_image(event, path)
             except Exception as exc:
+                if _is_ambiguous_napcat_send_timeout(exc):
+                    uncertain_paths.append(path)
+                    self._mark_recent_duplicate(event, path)
+                    logger.warning(
+                        "maimai direct-render image send acknowledgement timed out; delivery unknown, suppress fallback: path=%s error=%s",
+                        path,
+                        exc,
+                    )
+                    continue
                 logger.warning("maimai direct-render image send failed: path=%s error=%s", path, exc)
                 continue
             self._mark_recent_duplicate(event, path)
             sent_paths.append(path)
 
-        if sent_paths:
-            self._remember_sent_paths(event, sent_paths)
+        handled_paths = [*sent_paths, *uncertain_paths]
+        if handled_paths:
+            self._remember_sent_paths(event, handled_paths)
         elif result.text:
             await event.send(event.plain_result(result.text))
         else:
@@ -235,9 +266,10 @@ class MaimaiAutoSendImagesPlugin(Star):
         finished_at = time.perf_counter()
         if self._config_bool("direct_render_log_timing", True):
             logger.info(
-                "maimai direct-render finished: tool=%s images=%d text_len=%d parse_ms=%.1f mcp_ms=%.1f send_ms=%.1f total_ms=%.1f",
+                "maimai direct-render finished: tool=%s images=%d uncertain_images=%d text_len=%d parse_ms=%.1f mcp_ms=%.1f send_ms=%.1f total_ms=%.1f",
                 tool_name,
                 len(sent_paths),
+                len(uncertain_paths),
                 len(result.text or ""),
                 (parsed_at - started_at) * 1000,
                 (mcp_finished_at - mcp_started_at) * 1000,
@@ -266,28 +298,41 @@ class MaimaiAutoSendImagesPlugin(Star):
         paths = self._extract_image_paths(tool_result)
         max_images = max(1, int(self.config.get("max_images_per_tool", 8) or 8))
         sent_paths: list[str] = []
+        uncertain_paths: list[str] = []
         for path in paths[:max_images]:
             if self._is_recent_duplicate(event, path):
                 continue
             try:
                 await self._send_image(event, path)
             except Exception as exc:
+                if _is_ambiguous_napcat_send_timeout(exc):
+                    uncertain_paths.append(path)
+                    self._mark_recent_duplicate(event, path)
+                    logger.warning(
+                        "maimai auto-send tool image acknowledgement timed out; delivery unknown: tool=%s path=%s error=%s",
+                        tool_name,
+                        path,
+                        exc,
+                    )
+                    continue
                 logger.warning("maimai auto-send tool image send failed: tool=%s path=%s error=%s", tool_name, path, exc)
                 continue
             self._mark_recent_duplicate(event, path)
             sent_paths.append(path)
 
-        if not sent_paths:
+        handled_paths = [*sent_paths, *uncertain_paths]
+        if not handled_paths:
             return
-        self._remember_sent_paths(event, sent_paths)
+        self._remember_sent_paths(event, handled_paths)
         if self._config_bool("suppress_tool_result_paths", True):
-            self._suppress_tool_result_paths(tool_result, sent_paths)
+            self._suppress_tool_result_paths(tool_result, handled_paths)
         if self._config_bool("direct_render_log_timing", True):
             logger.info(
-                "maimai auto-send tool result: tool=%s paths=%d sent=%d",
+                "maimai auto-send tool result: tool=%s paths=%d sent=%d uncertain=%d",
                 tool_name,
                 len(paths),
                 len(sent_paths),
+                len(uncertain_paths),
             )
 
     @filter.on_using_llm_tool()

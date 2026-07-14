@@ -11,6 +11,60 @@ from maimai_mcp.search import collect_song_results, list_versions, search_songs,
 
 
 class MaimaiSearchTests(unittest.TestCase):
+    def test_search_cache_is_invalidated_when_public_source_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            data_path = root / "songs.json"
+            alias_path = root / "aliases.json"
+            chart_stats_path = root / "stats.json"
+            pinyin_alias_path = root / "pinyin.json"
+            artist_alias_path = root / "artists.json"
+            charter_alias_path = root / "charters.json"
+            data_path.write_text("[]", encoding="utf-8")
+            alias_path.write_text("{}", encoding="utf-8")
+            chart_stats_path.write_text('{"charts": {}}', encoding="utf-8")
+            pinyin_alias_path.write_text(
+                '{"version": 2, "aliases": []}',
+                encoding="utf-8",
+            )
+            artist_alias_path.write_text("{}", encoding="utf-8")
+            charter_alias_path.write_text("{}", encoding="utf-8")
+
+            search_module.clear_search_caches()
+            self.assertFalse(
+                search_module.refresh_search_caches_if_sources_changed(
+                    data_path=data_path,
+                    alias_path=alias_path,
+                    chart_stats_path=chart_stats_path,
+                    pinyin_alias_path=pinyin_alias_path,
+                    artist_alias_path=artist_alias_path,
+                    charter_alias_path=charter_alias_path,
+                )
+            )
+            search_module.load_search_context(
+                data_path,
+                alias_path,
+                chart_stats_path,
+                pinyin_alias_path,
+                search_module.current_pinyin_alias_bucket(),
+            )
+            self.assertGreater(search_module.load_search_context.cache_info().currsize, 0)
+
+            data_path.write_text("[{}]", encoding="utf-8")
+
+            self.assertTrue(
+                search_module.refresh_search_caches_if_sources_changed(
+                    data_path=data_path,
+                    alias_path=alias_path,
+                    chart_stats_path=chart_stats_path,
+                    pinyin_alias_path=pinyin_alias_path,
+                    artist_alias_path=artist_alias_path,
+                    charter_alias_path=charter_alias_path,
+                )
+            )
+            self.assertEqual(search_module.load_search_context.cache_info().currsize, 0)
+            search_module.clear_search_caches()
+
     def test_numeric_query_still_prefers_exact_song_id(self) -> None:
         result = search_songs(query="1663", limit=5)
 

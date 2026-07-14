@@ -941,6 +941,18 @@ def fmt(value: Any, fallback: str = "-") -> str:
     return str(value)
 
 
+def format_ds(value: Any, fallback: str = "-") -> str:
+    """格式化谱面定数；整数定数也保留一位小数。"""
+    if value in (None, "", [], {}):
+        return fallback
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    text = f"{numeric:.4f}".rstrip("0").rstrip(".")
+    return f"{text}.0" if numeric.is_integer() else text
+
+
 def format_regions(regions: dict[str, Any] | None) -> str:
     if not isinstance(regions, dict):
         return "-"
@@ -1020,7 +1032,7 @@ def format_source_differences(song: dict[str, Any]) -> str:
         if ds:
             if "ds" not in field_values:
                 field_values["ds"] = {}
-            field_values["ds"][label] = "/".join(fmt(v) for v in ds)
+            field_values["ds"][label] = "/".join(format_ds(v) for v in ds)
     # 只显示有差异的字段
     pieces: list[str] = []
     for key, values in field_values.items():
@@ -1107,7 +1119,7 @@ def format_chart(chart: dict[str, Any], song: dict[str, Any] | None = None) -> s
     chart_id = chart_display_id(song or {}, chart)
     chart_type_piece = f"{chart_type}#{chart_id}" if chart_id else chart_type
     difficulty = fmt(chart.get("difficulty"))
-    fit_diff = fmt(chart.get("fit_diff"))
+    fit_diff = format_ds(chart.get("fit_diff"))
     fit_delta = fmt(chart.get("fit_delta"))
     fit_label = fmt(chart.get("fit_label"), "")
     fit_piece = f"拟合 {fit_diff}, 差值 {fit_delta}"
@@ -1128,7 +1140,7 @@ def format_chart(chart: dict[str, Any], song: dict[str, Any] | None = None) -> s
     extras_piece = f" | {' '.join(extras)}" if extras else ""
     return (
         f"- {source} {chart_type_piece} {difficulty} 等级 {fmt(chart.get('level'))} "
-        f"定数 {fmt(chart.get('ds'))} | {fit_piece} | {format_notes(chart.get('notes'))} | "
+        f"定数 {format_ds(chart.get('ds'))} | {fit_piece} | {format_notes(chart.get('notes'))} | "
         f"谱师 {fmt(chart.get('charter'))}{extras_piece}"
     )
 
@@ -1244,19 +1256,19 @@ def dedupe_charts_by_difficulty(charts: list[dict[str, Any]]) -> list[dict[str, 
 
 
 def format_chart_compact(chart: dict[str, Any]) -> str:
-    """单张谱面的一段（用在难度行里）：`Mst 14 / 14.0 (拟合 14.38 虚低)`。"""
+    """单张谱面的一段（用在难度行里）：`Mst 14/14.0 (拟合 14.38 虚低)`。"""
     difficulty = chart.get("difficulty") or ""
     short = DIFFICULTY_SHORT.get(str(difficulty), str(difficulty)[:3])
     level = fmt(chart.get("level"))
-    ds = fmt(chart.get("ds"))
+    ds = format_ds(chart.get("ds"))
     fit_diff = chart.get("fit_diff")
     fit_label = chart.get("fit_label")
     fit_piece = ""
     if isinstance(fit_diff, (int, float)):
         label_part = f" {fit_label}" if isinstance(fit_label, str) and fit_label else ""
         fit_piece = f" (拟合 {fit_diff:.2f}{label_part})"
-    # level 和 ds 同值就只显示一次，省一截
-    head = f"{level}" if str(level) == ds else f"{level}/{ds}"
+    # level 是等级标签，ds 是定数；即使数值相同也要分别显示。
+    head = level if ds == "-" else f"{level}/{ds}"
     return f"{short} {head}{fit_piece}"
 
 

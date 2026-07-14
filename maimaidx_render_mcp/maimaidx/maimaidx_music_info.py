@@ -78,7 +78,23 @@ def _normalize_match_text(value: object) -> str:
     return normalize_text(str(value or ""))
 
 
+def _score_chart_type(value: object) -> str | None:
+    text = str(value or "").strip().upper()
+    if text in {"SD", "ST", "STD", "STANDARD"}:
+        return "standard"
+    if text == "DX":
+        return "dx"
+    if text in {"UTAGE", "宴", "宴会场"}:
+        return "utage"
+    return None
+
+
 def _record_matches_music(record: PlayInfoDefault | PlayInfoDev, music: Music, lookup_ids: list[str]) -> bool:
+    record_type = _score_chart_type(getattr(record, "type", ""))
+    music_type = _score_chart_type(music.type)
+    if record_type and music_type and record_type != music_type:
+        return False
+
     record_id = getattr(record, "song_id", None)
     if record_id not in (None, ""):
         if str(record_id) in lookup_ids:
@@ -91,8 +107,6 @@ def _record_matches_music(record: PlayInfoDefault | PlayInfoDev, music: Music, l
     music_title = _normalize_match_text(music.title)
     if not record_title or record_title != music_title:
         return False
-    record_type = str(getattr(record, "type", "") or "").upper()
-    music_type = str(music.type or "").upper()
     return not music_type or not record_type or record_type == music_type
 
 
@@ -277,16 +291,21 @@ def _display_genre(value) -> str:
     return GENRE_DISPLAY_NAMES.get(genre, genre)
 
 
+def _format_ds_text(ds_value: float) -> str:
+    text = f"{ds_value:.4f}".rstrip("0").rstrip(".")
+    return f"{text}.0" if ds_value.is_integer() else text
+
+
 def _level_ds_text(level, ds) -> str:
     level_text = _known_text(level)
     ds_value = _known_positive_number(ds)
     if level_text and ds_value is not None:
-        ds_text = f"{ds_value:.1f}".rstrip("0").rstrip(".")
+        ds_text = _format_ds_text(ds_value)
         return f"{level_text}({ds_text})"
     if level_text:
         return level_text
     if ds_value is not None:
-        return f"{ds_value:.1f}".rstrip("0").rstrip(".")
+        return _format_ds_text(ds_value)
     return ""
 
 

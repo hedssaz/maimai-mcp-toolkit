@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 import sys
@@ -8,6 +9,7 @@ import types
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.direct_render import (
     COMMAND_HELP_TEXT,
@@ -116,6 +118,7 @@ install_astrbot_stubs()
 from deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main import (  # noqa: E402
     AstrBotToolMcpClient,
     MaimaiAutoSendImagesPlugin,
+    _is_ambiguous_napcat_send_timeout,
 )
 
 
@@ -1263,7 +1266,93 @@ class DirectRenderAstrBotEventTest(unittest.TestCase):
         plugin = object.__new__(MaimaiAutoSendImagesPlugin)
         plugin.config = {}
         plugin.context = types.SimpleNamespace(get_config=lambda umo="": {"admins_id": [SENDER_QQ]})
+        plugin._sent_by_event = {}
+        plugin._recent_path_keys = {}
         return plugin
+
+    def test_napcat_ack_timeout_is_delivery_unknown(self) -> None:
+        class NapCatSendTimeoutError(Exception):
+            retcode = 1200
+            message = "Timeout: NTEvent serviceAndMethod:NodeIKernelMsgService/sendMsg"
+            wording = message
+
+        self.assertTrue(_is_ambiguous_napcat_send_timeout(NapCatSendTimeoutError("send timeout")))
+        self.assertFalse(_is_ambiguous_napcat_send_timeout(TimeoutError("ordinary timeout")))
+
+    def test_direct_render_ack_timeout_does_not_fall_back_or_retry(self) -> None:
+        class NapCatSendTimeoutError(Exception):
+            retcode = 1200
+            message = "Timeout: NTEvent serviceAndMethod:NodeIKernelMsgService/sendMsg"
+            wording = message
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            first = Path(temp_dir) / "first.png"
+            second = Path(temp_dir) / "second.png"
+            first.write_bytes(b"\x89PNG\r\n\x1a\n")
+            second.write_bytes(b"\x89PNG\r\n\x1a\n")
+            plugin = self.plugin()
+            plugin._direct_mcp_client = lambda: object()
+            plugin._direct_command_text = lambda _event: "歌曲信息"
+            attempted: list[str] = []
+
+            async def timeout_after_submit(_event: Any, path: str) -> None:
+                attempted.append(path)
+                raise NapCatSendTimeoutError("send timeout")
+
+            plugin._send_image = timeout_after_submit
+            event = DummyEvent([Plain("歌曲信息")])
+            command = DirectCommand("render_maimai_music_info", {})
+
+            async def fake_handle(*_args: Any, **_kwargs: Any) -> Any:
+                return types.SimpleNamespace(
+                    image_paths=(str(first), str(second)),
+                    text="不应发送的失败回退文本",
+                )
+
+            with (
+                patch(
+                    "deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.parse_direct_render_command",
+                    return_value=command,
+                ),
+                patch(
+                    "deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.handle_direct_command",
+                    side_effect=fake_handle,
+                ),
+            ):
+                asyncio.run(plugin.on_direct_render_message(event))
+
+            self.assertEqual(attempted, [str(first), str(second)])
+            state = plugin._sent_by_event[plugin._event_key(event)]
+            self.assertEqual(state.paths, [str(first), str(second)])
+
+    def test_tool_result_ack_timeout_is_recorded_and_suppressed(self) -> None:
+        class NapCatSendTimeoutError(Exception):
+            retcode = 1200
+            message = "Timeout: NTEvent serviceAndMethod:NodeIKernelMsgService/sendMsg"
+            wording = message
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            image = Path(temp_dir) / "result.png"
+            image.write_bytes(b"\x89PNG\r\n\x1a\n")
+            plugin = self.plugin()
+
+            async def timeout_after_submit(_event: Any, _path: str) -> None:
+                raise NapCatSendTimeoutError("send timeout")
+
+            plugin._send_image = timeout_after_submit
+            event = DummyEvent([Plain("b50")])
+            tool = types.SimpleNamespace(name="render_maimai_b50")
+            result = types.SimpleNamespace(
+                isError=False,
+                structuredContent={"imagePath": str(image)},
+                content=[types.SimpleNamespace(text=str(image))],
+            )
+
+            asyncio.run(plugin.on_llm_tool_respond(event, tool, {}, result))
+
+            state = plugin._sent_by_event[plugin._event_key(event)]
+            self.assertEqual(state.paths, [str(image)])
+            self.assertNotIn(str(image), result.content[0].text)
 
     def test_maimai_subagent_results_are_handled_by_default(self) -> None:
         plugin = self.plugin()
