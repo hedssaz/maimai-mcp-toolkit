@@ -171,6 +171,12 @@ class MaimaidxRenderMusicInfoTests(unittest.TestCase):
         self.assertEqual([label for label, _music, _song in variants], ["standard", "dx"])
         self.assertEqual([music.type for _label, music, _song in variants], ["SD", "DX"])
 
+    def test_explicit_dx_query_id_still_auto_expands_both_chart_types(self) -> None:
+        variants = server._resolve_music_variants({"query": "10574"})
+
+        self.assertEqual([label for label, _music, _song in variants], ["standard", "dx"])
+        self.assertEqual([music.type for _label, music, _song in variants], ["SD", "DX"])
+
     def test_dual_chart_record_matching_keeps_standard_and_dx_scores_separate(self) -> None:
         standard_args = {"query": "Selector", "songType": "standard"}
         standard_music, standard_song = server._resolve_music(standard_args)
