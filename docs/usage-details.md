@@ -12,6 +12,61 @@ The repository is intentionally split into several stdio MCP servers:
 - `maimai_score_mcp.server`: song-name to player-score bridge.
 - `maimai_update_mcp.server`: direct-plugin fallback for official raw score import and Diving-Fish upload.
 
+## 落雪 OAuth 绑定边界
+
+`lxns_oauth_mcp.server` 是独立的本地 stdio MCP，只处理落雪 OAuth 授权链接、绑定、绑定状态和解绑。授权 state、令牌和待拍一拍确认记录保存在独立的本地 SQLite 中，不依赖成绩存储。该 MCP 不查成绩、不接入 SEGA 官方成绩接口，也不包含日服数据或功能。
+
+启动入口：
+
+```bash
+python -m lxns_oauth_mcp.server
+```
+
+客户端 ID、客户端密钥和回调地址只能通过运行环境注入，不要写入源码、插件配置或打包文件。空占位模板如下：
+
+```dotenv
+LXNS_OAUTH_CLIENT_ID=
+LXNS_OAUTH_CLIENT_SECRET=
+LXNS_OAUTH_REDIRECT_URI=
+```
+
+AstrBot 插件默认把 OAuth SQLite 放到 `direct_render_data_dir` 下的私密运行目录；也可通过 `LXNS_OAUTH_DB` 覆盖。覆盖路径必须位于专用目录中：新目录会以 `0700` 创建，已存在目录也必须已经是 `0700`，程序不会改写共享目录权限。数据库、WAL 与 SHM 文件会收紧为 `0600`。部署复制和 Docker 构建会排除源码树中的 OAuth 私密运行目录，避免把本地令牌带进部署包。
+
+## 群内绑定流程
+
+- `lxns bind` 创建授权链接。配置回调桥时，插件在授权链接确认生成后才开始轮询；收到回调后仅暂存令牌，必须由原用户在原适配器、原会话中拍一拍当前机器人才会完成绑定。
+- `lxns bind <code>`、`lxns bind code=...` 与 `lxns bind <完整回调 URL>` 可以在群里手工提交授权结果。只有明确的 `lxns bind` 命令才会解析 code，普通消息中的裸 code 不会被捕获。
+- `lxns status` 只显示当前是否已绑定或等待确认，不返回令牌或账号资料。
+- `lxns unbind` 删除对应授权状态、令牌和待确认记录。
+
+AstrBot 插件的 OAuth 子进程与回调配置项为：
+
+- `direct_render_oauth_module`：OAuth MCP 模块，默认为 `lxns_oauth_mcp.server`。
+- `direct_render_lxns_callback_poll_url`：回调桥轮询地址；留空时仅使用手工提交流程。
+- `direct_render_lxns_callback_poll_token`：回调桥共享 Token，同时用于签名 state 和 Bearer 轮询鉴权；UTF-8 编码后至少 32 字节。
+- `direct_render_lxns_callback_timeout_seconds`：整个回调等待的超时时间。
+- `direct_render_lxns_callback_poll_interval_seconds`：两次轮询之间的间隔。
+- `direct_render_lxns_callback_http_timeout_seconds`：单次轮询请求的超时时间。
+- `direct_render_lxns_poke_confirm_timeout_seconds`：回调到达后等待原用户拍一拍确认的超时时间。
+
+## 回调桥部署
+
+回调桥程序为 `scripts/lxns_oauth_callback_bridge.py`，配套文件为 `deploy/lxns-oauth-callback.env.example`、`deploy/lxns-oauth-callback.nginx.conf` 和 `deploy/lxns-oauth-callback.service`；模板不包含任何实例信息。先在环境文件中设置 `LXNS_CALLBACK_TOKEN=`，其 UTF-8 编码长度至少为 32 字节，再使回调桥与插件的共享 Token 保持一致。反向代理需将授权回调和 Bot 轮询分别转发到模板中的回调路径与轮询路径；两者均关闭访问日志，轮询端点还必须使用 Bearer 鉴权。
+
+回调桥对同一 state 只保留第一个 code，且只允许成功消费一次；已消费记录保留墓碑，重复回调不会重新激活绑定流程。
+
+`direct_render_lxns_callback_timeout_seconds` 与回调桥的 `LXNS_CALLBACK_TTL_SECONDS` 应保持一致；默认均为 600 秒。轮询响应只返回是否就绪、授权 code 和接收时间，不回显 state。
+
+## 插件可复现打包
+
+插件 ZIP 只从固定白名单取文件，并统一时间戳、权限和压缩元数据。修改插件源码后执行：
+
+```bash
+python scripts/package_astrbot_plugin.py --force
+```
+
+脚本会校验成员白名单、CRC、文件字节与两个 ZIP 的一致性，只在两个临时包都校验成功后才覆盖原包。
+
 ## AstrBot layout
 
 Recommended host layout:
@@ -55,6 +110,8 @@ If a future Diving-Fish version name appears before this code knows its order, s
 ## Static resources
 
 `maimaidx-render` uses maimaiDX/Yuzu static resources. If the open package does not include the resource pack, download it once:
+
+当前公开分支的目录和可达历史中只保留自定义“雪峰”牌子完成渲染必需的 20 张图片；其余图片需在部署时按需提供，且默认不纳入 Git。
 
 ```bash
 curl -L -o Resource.7z https://cloud.yuzuchan.moe/f/nXt6/Resource.7z

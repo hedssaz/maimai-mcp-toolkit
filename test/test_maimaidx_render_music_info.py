@@ -5,8 +5,10 @@ import os
 import tempfile
 import unittest
 import asyncio
+from pathlib import Path
+from unittest.mock import patch
 
-from PIL import Image
+from PIL import Image, ImageFont
 
 import maimaidx_render_mcp.server as server
 from maimaidx_render_mcp.maimaidx import maimaidx_music_info as music_info
@@ -119,13 +121,33 @@ class MaimaidxRenderMusicInfoTests(unittest.TestCase):
             stats=[],
         )
 
-        image = asyncio.run(
-            music_info.draw_music_info(
-                music,
-                cover_image=Image.new("RGBA", (300, 300), (20, 40, 60, 255)),
-                display_id="999",
+        with tempfile.TemporaryDirectory() as temp_dir:
+            asset_dir = Path(temp_dir)
+            Image.new("RGBA", (1200, 1250), (255, 255, 255, 255)).save(
+                asset_dir / "song_bg.png"
             )
-        )
+            Image.new("RGBA", (249, 120), (0, 0, 0, 0)).save(
+                asset_dir / "logo.png"
+            )
+            fallback_font = ImageFont.load_default()
+            with (
+                patch.object(music_info, "maimaidir", asset_dir),
+                patch(
+                    "maimaidx_render_mcp.maimaidx.image.ImageFont.truetype",
+                    return_value=fallback_font,
+                ),
+            ):
+                image = asyncio.run(
+                    music_info.draw_music_info(
+                        music,
+                        cover_image=Image.new(
+                            "RGBA",
+                            (300, 300),
+                            (20, 40, 60, 255),
+                        ),
+                        display_id="999",
+                    )
+                )
 
         self.assertIsInstance(image, str)
         self.assertGreater(len(image), 100)

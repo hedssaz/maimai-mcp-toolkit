@@ -65,6 +65,11 @@ EXCLUDED_FILES = {
     "b50-image-style.json",
 }
 
+PRIVATE_RUNTIME_PATHS = {
+    "data/.lxns-oauth",
+    "lxns-oauth-callback",
+}
+
 OLD_CODE_DIRS = (
     "diving-fish-b50-mcp",
     "maimai-local-search",
@@ -173,9 +178,15 @@ def copy_project(project_dir: Path, target_dir: Path) -> None:
                 ignored.add(name)
                 continue
             try:
-                rel = path.resolve().relative_to(project_dir).as_posix()
+                rel = path.relative_to(project_dir).as_posix()
             except ValueError:
                 rel = ""
+            if rel in PRIVATE_RUNTIME_PATHS or any(
+                rel.startswith(f"{private_path}/")
+                for private_path in PRIVATE_RUNTIME_PATHS
+            ):
+                ignored.add(name)
+                continue
             if rel == "maimaidx_render_mcp/static":
                 ignored.add(name)
             if rel == "data/custom_aliases.json":

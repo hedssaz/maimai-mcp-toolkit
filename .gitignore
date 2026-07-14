@@ -7,6 +7,8 @@ logs/
 *.egg-info/
 uv.lock
 qq-identity-cache/
+data/.lxns-oauth/
+lxns-oauth-callback/
 
 # Refreshed maimai data source snapshots.
 # These files are kept in the repo as pinned snapshots; local refreshes can be
@@ -39,5 +41,4 @@ maimaidx_render_mcp/static/*.ttf
 maimaidx_render_mcp/static/*.otf
 maimai-images/
 outputs/
-player_cache/
 player-cache/

@@ -15,7 +15,10 @@ maimaidx_render_mcp/  maimaiDX 绘图渲染（B50卡、曲目信息、分数列�
 qq_identity_mcp/      QQ 号 ↔ 水鱼用户名绑定查询
 maimai_score_mcp/     单曲成绩查询
 maimai_update_mcp/    官服 raw 成绩 → 水鱼上传
+lxns_oauth.py         落雪 OAuth 授权、状态与令牌存储核心
+lxns_oauth_mcp/       落雪 OAuth 绑定/状态/解绑 MCP
 group_b50_mcp/        群友 B50 排行榜
+player_cache/         B50 与完整成绩的本地运行时缓存后端
 scripts/              数据刷新、部署安装脚本
 data/                 曲库/别名/定数 JSON 快照
 test/                 测试用例
@@ -27,9 +30,11 @@ docs/                 详细文档
 - 保留官服 raw 成绩导出转换并上传到 Diving-Fish `/player/update_records` 的工作流。
 - 不支持 日服曲库、日服牌子/进度或官服曲目资源导入。
 - 曲库只使用 落雪/水鱼 数据。
+- 落雪 OAuth 仅用于本地绑定、绑定状态和解绑；授权状态与令牌保存在独立的本地 SQLite 中，不查成绩、不接入 SEGA 官方成绩接口，也不包含日服功能。
 - 拟合/自算 B50 的 B15 按水鱼曲库里最新的 `basic_info.from` 大版本划分；如果曲库版本名先于代码更新，可用 `MAIMAI_LOCAL_CURRENT_VERSIONS` 或 `MAIMAI_CURRENT_VERSIONS` 覆盖。
 - 仓库只保留自定义“雪峰”牌子及其渲染所需的组件图片；其余绘图图片不随源码分发。
 - 文档、测试和插件包中的账号/群号示例使用脱敏占位值。
+- `player-cache/` 只保存部署实例运行时缓存，默认忽略且不会随源码、Docker 构建或插件包分发。
 
 ## 通用行为
 
@@ -46,6 +51,7 @@ python -m diving_fish_b50_mcp.server
 python -m maimaidx_render_mcp.server
 python -m qq_identity_mcp.server
 python -m maimai_score_mcp.server
+python -m lxns_oauth_mcp.server
 ```
 
 官服成绩上传直连 fallback 入口：
@@ -80,10 +86,36 @@ python -m maimai_update_mcp.server
 }
 ```
 
+## 落雪 OAuth 绑定
+
+AstrBot 插件同时支持回调确认和手工提交两种绑定方式：
+
+- 发送 `lxns bind` 生成授权链接。配置回调桥后，插件会轮询回调结果，且只允许原用户在原适配器、原会话中拍一拍当前机器人完成确认。
+- 发送 `lxns bind <code>`、`lxns bind code=...` 或 `lxns bind <完整回调 URL>` 可手工完成绑定。
+- `lxns status` 只返回绑定/待确认状态，`lxns unbind` 会删除对应授权状态、令牌和待确认记录。
+
+落雪 OAuth 客户端 ID、客户端密钥与回调地址只从运行环境读取，仓库不提供实例默认值：
+
+```dotenv
+LXNS_OAUTH_CLIENT_ID=
+LXNS_OAUTH_CLIENT_SECRET=
+LXNS_OAUTH_REDIRECT_URI=
+```
+
+插件使用 `direct_render_oauth_module` 选择 OAuth MCP 模块。自动回调确认还需设置 `direct_render_lxns_callback_poll_url`、`direct_render_lxns_callback_poll_token` 和 `direct_render_lxns_callback_timeout_seconds`；其中共享 Token 的 UTF-8 编码长度不得少于 32 字节。插件默认把 OAuth SQLite 放在 AstrBot 运行数据目录，部署复制与 Docker 构建会排除源码树内的 OAuth 私密运行目录。回调桥提供通用环境变量、Nginx 和 systemd 部署模板，详细说明见 [docs/usage-details.md](docs/usage-details.md)。
+
 ## 数据刷新
 
 ```bash
 python scripts/update_all_data.py
+```
+
+## 插件打包
+
+修改 AstrBot 插件源码后，用固定文件白名单重建两个内容一致的可复现 ZIP：
+
+```bash
+python scripts/package_astrbot_plugin.py --force
 ```
 
 ## 更多说明

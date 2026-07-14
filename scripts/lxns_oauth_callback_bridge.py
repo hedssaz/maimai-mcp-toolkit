@@ -269,7 +269,6 @@ class CallbackStore:
                             result = {
                                 "ok": True,
                                 "ready": True,
-                                "state": str(row["state"]),
                                 "code": code,
                                 "receivedAt": int(row["received_at"]),
                             }
@@ -277,7 +276,6 @@ class CallbackStore:
                         result = {
                             "ok": True,
                             "ready": True,
-                            "state": str(row["state"]),
                             "code": code,
                             "receivedAt": int(row["received_at"]),
                         }

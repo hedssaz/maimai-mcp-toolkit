@@ -96,6 +96,45 @@
     "default": "maimai_update_mcp.server",
     "hint": "mai bind / mai update 直连回退到子进程 MCP 时使用；插件会强制绕过 AstrBot Agent 工具管理器。"
   },
+  "direct_render_oauth_module": {
+    "description": "直连落雪 OAuth MCP 模块",
+    "type": "string",
+    "default": "lxns_oauth_mcp.server",
+    "hint": "lxns bind / status / unbind 使用独立 OAuth MCP；插件会强制绕过 AstrBot Agent 工具管理器。"
+  },
+  "direct_render_lxns_callback_poll_url": {
+    "description": "落雪 OAuth 回调桥轮询地址",
+    "type": "string",
+    "default": "",
+    "hint": "留空时使用手工复制授权 code 的流程；配置后，授权回调到达时会等待原用户拍一拍确认。"
+  },
+  "direct_render_lxns_callback_poll_token": {
+    "description": "落雪 OAuth 回调桥共享 Token",
+    "type": "string",
+    "default": "",
+    "hint": "必须与回调桥一致且 UTF-8 编码后至少 32 字节；同时用于 HMAC state 签名和轮询 Bearer 鉴权。"
+  },
+  "direct_render_lxns_callback_timeout_seconds": {
+    "description": "落雪 OAuth 回调等待秒数",
+    "type": "int",
+    "default": 600
+  },
+  "direct_render_lxns_callback_poll_interval_seconds": {
+    "description": "落雪 OAuth 回调轮询间隔秒数",
+    "type": "int",
+    "default": 2
+  },
+  "direct_render_lxns_callback_http_timeout_seconds": {
+    "description": "落雪 OAuth 回调桥单次请求超时秒数",
+    "type": "int",
+    "default": 10
+  },
+  "direct_render_lxns_poke_confirm_timeout_seconds": {
+    "description": "落雪 OAuth 拍一拍确认等待秒数",
+    "type": "int",
+    "default": 300,
+    "hint": "回调只暂存授权，原用户必须在原适配器、原会话中拍当前机器人后才会正式绑定。"
+  },
   "direct_render_output_dir": {
     "description": "直连绘图输出目录",
     "type": "string",

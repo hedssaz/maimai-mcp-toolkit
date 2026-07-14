@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import hmac
 import json
 import re
 import sys
@@ -14,7 +16,10 @@ from unittest.mock import patch
 from deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.direct_render import (
     COMMAND_HELP_TEXT,
     DirectCommand,
+    DirectHandleResult,
     TargetContext,
+    default_mcp_env,
+    direct_mcp_config_from_mapping,
     format_search_candidates,
     handle_direct_command,
     parse_direct_render_command,
@@ -31,8 +36,18 @@ class Plain:
 class At:
     type = "At"
 
-    def __init__(self, qq: str):
-        self.qq = qq
+    def __init__(self, qq: str | int):
+        self.qq = str(qq)
+
+
+class Poke:
+    type = "Poke"
+
+    def __init__(self, target: str):
+        self._target = target
+
+    def target_id(self) -> str:
+        return self._target
 
 
 def install_astrbot_stubs() -> None:
@@ -64,6 +79,8 @@ def install_astrbot_stubs() -> None:
         return decorator
 
     filter_module.EventMessageType = EventMessageType
+    filter_module.CustomFilter = type("CustomFilter", (), {})
+    filter_module.custom_filter = decorator_factory
     filter_module.event_message_type = decorator_factory
     filter_module.on_using_llm_tool = decorator_factory
     filter_module.on_llm_tool_respond = decorator_factory
@@ -94,6 +111,7 @@ def install_astrbot_stubs() -> None:
     )
     components_module.Plain = Plain
     components_module.At = At
+    components_module.Poke = Poke
 
     core_module = sys.modules.setdefault("astrbot.core", types.ModuleType("astrbot.core"))
     agent_module = sys.modules.setdefault("astrbot.core.agent", types.ModuleType("astrbot.core.agent"))
@@ -119,6 +137,7 @@ from deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main import (
     AstrBotToolMcpClient,
     MaimaiAutoSendImagesPlugin,
     _is_ambiguous_napcat_send_timeout,
+    _is_qq_poke_to_self,
 )
 
 
@@ -248,7 +267,138 @@ class DummyEvent:
         return self._group_id
 
 
+class InteractiveDummyEvent(DummyEvent):
+    def __init__(
+        self,
+        chain: list[Any],
+        *,
+        raw_message: Any = None,
+        **kwargs: Any,
+    ):
+        super().__init__(chain, **kwargs)
+        self.message_obj = types.SimpleNamespace(raw_message=raw_message, message_id="message-id")
+        self.sent: list[Any] = []
+        self.stopped = False
+        self.llm_enabled = True
+
+    async def send(self, result: Any) -> None:
+        self.sent.append(result)
+
+    def plain_result(self, text: str) -> dict[str, Any]:
+        return {"type": "plain", "text": text}
+
+    def chain_result(self, chain: list[Any]) -> dict[str, Any]:
+        return {"type": "chain", "chain": chain}
+
+    def should_call_llm(self, enabled: bool) -> None:
+        self.llm_enabled = enabled
+
+    def stop_event(self) -> None:
+        self.stopped = True
+
+    def get_platform_name(self) -> str:
+        return "aiocqhttp"
+
+
 class DirectRenderParserTest(unittest.TestCase):
+    def test_lxns_oauth_commands_use_dedicated_server(self) -> None:
+        bind = parse("lxns bind")
+        self.assertEqual(bind.server, "oauth")
+        self.assertEqual(bind.tool_name, "maimai_lxns_oauth_url")
+        self.assertEqual(bind.arguments, {"qq": SENDER_QQ})
+
+        manual = parse("lxns bind one-time-oauth-code")
+        self.assertEqual(manual.server, "oauth")
+        self.assertEqual(manual.tool_name, "maimai_lxns_bind_code")
+        self.assertEqual(manual.arguments, {"qq": SENDER_QQ, "code": "one-time-oauth-code"})
+
+        callback_url = "https://callback.example/lxns/callback?code=secret-code&state=opaque-state"
+        callback = parse(f"lxns bind {callback_url}")
+        self.assertEqual(callback.server, "oauth")
+        self.assertEqual(callback.tool_name, "maimai_lxns_bind_code")
+        self.assertEqual(callback.arguments, {"qq": SENDER_QQ, "code": callback_url})
+
+        status = parse("lxns status")
+        self.assertEqual((status.server, status.tool_name, status.arguments), (
+            "oauth",
+            "maimai_lxns_status",
+            {"qq": SENDER_QQ},
+        ))
+        unbind = parse("lxns unbind")
+        self.assertEqual((unbind.server, unbind.tool_name, unbind.arguments), (
+            "oauth",
+            "maimai_lxns_unbind",
+            {"qq": SENDER_QQ},
+        ))
+
+    def test_lxns_oauth_does_not_capture_bare_codes_or_friend_commands(self) -> None:
+        self.assertIsNone(parse_direct_render_command("one-time-oauth-code", context()))
+        attached = parse("lxns bindone-time-oauth-code")
+        self.assertEqual(attached.tool_name, "direct_render_syntax_error")
+        self.assertEqual(attached.server, "oauth")
+        friend = parse("lxns friend 123456789")
+        self.assertEqual(friend.tool_name, "direct_render_syntax_error")
+        self.assertEqual(friend.server, "oauth")
+        self.assertNotIn("friend", friend.arguments)
+        too_long = parse(f"lxns bind {'x' * 2049}")
+        self.assertEqual(too_long.tool_name, "direct_render_syntax_error")
+        self.assertEqual(too_long.server, "oauth")
+
+    def test_lxns_oauth_requires_sender_identity(self) -> None:
+        command = parse_direct_render_command("lxns bind", TargetContext())
+
+        self.assertIsNotNone(command)
+        self.assertEqual(command.tool_name, "direct_render_syntax_error")
+        self.assertEqual(command.server, "oauth")
+        self.assertIn("无法识别发送者", command.error_text)
+
+    def test_direct_oauth_config_uses_isolated_module(self) -> None:
+        config = direct_mcp_config_from_mapping({})
+        custom = direct_mcp_config_from_mapping({"direct_render_oauth_module": "custom_oauth.server"})
+
+        self.assertEqual(config.oauth_module, "lxns_oauth_mcp.server")
+        self.assertEqual(custom.oauth_module, "custom_oauth.server")
+
+        schema_path = (
+            Path(__file__).resolve().parents[1]
+            / "deploy"
+            / "astrbot"
+            / "plugins"
+            / "astrbot_plugin_maimai_auto_send_images"
+            / "_conf_schema.json"
+        )
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        for key in (
+            "direct_render_oauth_module",
+            "direct_render_lxns_callback_poll_url",
+            "direct_render_lxns_callback_poll_token",
+            "direct_render_lxns_callback_timeout_seconds",
+            "direct_render_lxns_callback_poll_interval_seconds",
+            "direct_render_lxns_callback_http_timeout_seconds",
+            "direct_render_lxns_poke_confirm_timeout_seconds",
+        ):
+            self.assertIn(key, schema)
+
+    def test_lxns_oauth_db_defaults_to_data_dir_and_extra_env_can_override(self) -> None:
+        default_path = "/AstrBot/data/maimai-config/.lxns-oauth/oauth.sqlite3"
+        custom_path = "/test-data/maimai-config/.lxns-oauth/oauth.sqlite3"
+        override_path = "/test-secrets/oauth.sqlite3"
+
+        self.assertEqual(default_mcp_env()["LXNS_OAUTH_DB"], default_path)
+        self.assertEqual(
+            direct_mcp_config_from_mapping({"direct_render_data_dir": "/test-data"}).env["LXNS_OAUTH_DB"],
+            custom_path,
+        )
+        self.assertEqual(
+            direct_mcp_config_from_mapping(
+                {
+                    "direct_render_data_dir": "/test-data",
+                    "direct_render_extra_env_json": json.dumps({"LXNS_OAUTH_DB": override_path}),
+                }
+            ).env["LXNS_OAUTH_DB"],
+            override_path,
+        )
+
     def test_b50_target_syntax(self) -> None:
         self.assertEqual(parse("b50").arguments, {"qq": SENDER_QQ})
         self.assertEqual(parse("b50 123456").arguments, {"username": "123456"})
@@ -1268,7 +1418,423 @@ class DirectRenderAstrBotEventTest(unittest.TestCase):
         plugin.context = types.SimpleNamespace(get_config=lambda umo="": {"admins_id": [SENDER_QQ]})
         plugin._sent_by_event = {}
         plugin._recent_path_keys = {}
+        plugin._lxns_oauth_poll_tasks = {}
         return plugin
+
+    def test_lxns_callback_state_is_hmac_signed_and_contains_no_qq(self) -> None:
+        plugin = self.plugin()
+        plugin.config = {
+            "direct_render_lxns_callback_poll_url": "https://callback.example/lxns/poll",
+            "direct_render_lxns_callback_poll_token": "shared-secret-token-0123456789abcdef",
+        }
+        event = InteractiveDummyEvent([Plain("lxns bind")], private=True)
+        command = parse("lxns bind")
+
+        with (
+            patch(
+                "deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.time.time",
+                return_value=1_800_000_000,
+            ),
+            patch(
+                "deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.secrets.token_urlsafe",
+                return_value="opaque-nonce-12345678901234567890",
+            ),
+        ):
+            updated = plugin._with_lxns_oauth_event_context(event, command)
+
+        state = updated.arguments["state"]
+        payload, signature = state.rsplit(".", 1)
+        expected = hmac.new(
+            b"shared-secret-token-0123456789abcdef",
+            payload.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()[:32]
+        self.assertEqual(signature, expected)
+        self.assertNotIn(SENDER_QQ, state)
+        self.assertEqual(updated.server, "oauth")
+
+        plugin.config["direct_render_lxns_callback_poll_token"] = "too-short"
+        unsigned = plugin._with_lxns_oauth_event_context(event, command)
+        self.assertEqual(unsigned.tool_name, "direct_render_syntax_error")
+        self.assertNotIn("state", unsigned.arguments)
+        plugin._maybe_schedule_lxns_oauth_poll(
+            event,
+            DirectCommand(
+                "maimai_lxns_oauth_url",
+                {"qq": SENDER_QQ, "state": "untrusted-state"},
+                server="oauth",
+            ),
+            DirectHandleResult(text="打开授权链接", oauth_url_ready=True),
+        )
+        self.assertEqual(plugin._lxns_oauth_poll_tasks, {})
+
+    def test_lxns_oauth_url_ttl_matches_clamped_callback_timeout(self) -> None:
+        plugin = self.plugin()
+        event = InteractiveDummyEvent([Plain("lxns bind")], private=True)
+
+        for configured_timeout, expected_ttl in ((20, 60), (725, 725), (5000, 1800)):
+            with self.subTest(configured_timeout=configured_timeout):
+                plugin.config = {
+                    "direct_render_lxns_callback_poll_url": "https://callback.example/lxns/poll",
+                    "direct_render_lxns_callback_poll_token": "shared-secret-token-0123456789abcdef",
+                    "direct_render_lxns_callback_timeout_seconds": configured_timeout,
+                }
+                updated = plugin._with_lxns_oauth_event_context(event, parse("lxns bind"))
+
+                self.assertEqual(updated.arguments["ttlSeconds"], expected_ttl)
+
+    def test_lxns_url_and_manual_bind_receive_the_same_event_context(self) -> None:
+        plugin = self.plugin()
+        event = InteractiveDummyEvent(
+            [Plain("lxns bind")],
+            group_id=GROUP_ID,
+            unified_msg_origin=f"aiocqhttp:GroupMessage:{GROUP_ID}",
+        )
+
+        link = plugin._with_lxns_oauth_event_context(event, parse("lxns bind"))
+        manual = plugin._with_lxns_oauth_event_context(
+            event,
+            parse("lxns bind one-time-oauth-code"),
+        )
+
+        expected_context = {
+            "qq": SENDER_QQ,
+            "adapterId": "aiocqhttp",
+            "groupId": GROUP_ID,
+            "botQq": SELF_QQ,
+        }
+        self.assertEqual(link.arguments, expected_context)
+        self.assertEqual(
+            manual.arguments,
+            {**expected_context, "code": "one-time-oauth-code"},
+        )
+
+    def test_lxns_poll_starts_only_after_url_success_and_is_unique_per_user(self) -> None:
+        async def scenario() -> None:
+            plugin = self.plugin()
+            plugin.config = {
+                "direct_render_lxns_callback_poll_url": "https://callback.example/lxns/poll",
+                "direct_render_lxns_callback_poll_token": "shared-secret-token-0123456789abcdef",
+            }
+            event = InteractiveDummyEvent([Plain("lxns bind")], private=True)
+            command = DirectCommand(
+                "maimai_lxns_oauth_url",
+                {"qq": SENDER_QQ, "state": "opaque-state"},
+                server="oauth",
+            )
+            calls: list[tuple[str, str]] = []
+
+            async def wait_forever(_event: Any, qq: str, state: str) -> None:
+                calls.append((qq, state))
+                await asyncio.Event().wait()
+
+            plugin._poll_lxns_oauth_callback = wait_forever
+            plugin._maybe_schedule_lxns_oauth_poll(
+                event,
+                command,
+                DirectHandleResult(text="生成失败", oauth_url_ready=False),
+            )
+            self.assertEqual(plugin._lxns_oauth_poll_tasks, {})
+
+            plugin._maybe_schedule_lxns_oauth_poll(
+                event,
+                command,
+                DirectHandleResult(text="打开授权链接", oauth_url_ready=True),
+            )
+            while len(calls) < 1:
+                await asyncio.sleep(0)
+            first = plugin._lxns_oauth_poll_tasks[SENDER_QQ]
+
+            plugin._maybe_schedule_lxns_oauth_poll(
+                event,
+                command,
+                DirectHandleResult(text="打开新授权链接", oauth_url_ready=True),
+            )
+            while len(calls) < 2:
+                await asyncio.sleep(0)
+            second = plugin._lxns_oauth_poll_tasks[SENDER_QQ]
+            await asyncio.sleep(0)
+
+            self.assertIsNot(first, second)
+            self.assertTrue(first.cancelled())
+            self.assertFalse(second.done())
+            self.assertEqual(len(plugin._lxns_oauth_poll_tasks), 1)
+
+            await plugin.terminate()
+            self.assertTrue(second.cancelled())
+            self.assertEqual(plugin._lxns_oauth_poll_tasks, {})
+
+        asyncio.run(scenario())
+
+    def test_lxns_callback_is_staged_with_original_chat_context(self) -> None:
+        async def scenario() -> None:
+            plugin = self.plugin()
+            plugin.config = {"direct_render_lxns_poke_confirm_timeout_seconds": 300}
+            client = FakeMcpClient(
+                {
+                    ("oauth", "maimai_lxns_prepare_poke"): {
+                        "isError": False,
+                        "structuredContent": {"pending": True},
+                        "content": [{"type": "text", "text": "pending"}],
+                    }
+                }
+            )
+            plugin._direct_mcp_client = lambda: client
+            event = InteractiveDummyEvent(
+                [Plain("lxns bind")],
+                group_id=GROUP_ID,
+                unified_msg_origin=f"aiocqhttp:GroupMessage:{GROUP_ID}",
+            )
+
+            with patch("deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.logger.info") as log_info:
+                await plugin._prepare_lxns_oauth_callback_poke(
+                    event,
+                    SENDER_QQ,
+                    "opaque-state",
+                    "one-time-code",
+                )
+
+            self.assertEqual(
+                client.calls,
+                [
+                    (
+                        "oauth",
+                        "maimai_lxns_prepare_poke",
+                        {
+                            "qq": SENDER_QQ,
+                            "code": "one-time-code",
+                            "state": "opaque-state",
+                            "adapterId": "aiocqhttp",
+                            "groupId": GROUP_ID,
+                            "botQq": SELF_QQ,
+                            "ttlSeconds": 300,
+                        },
+                    )
+                ],
+            )
+            self.assertIn("已收到落雪授权", event.sent[0]["chain"][1].text)
+            log_dump = repr(log_info.call_args_list)
+            self.assertNotIn("opaque-state", log_dump)
+            self.assertNotIn("one-time-code", log_dump)
+
+        asyncio.run(scenario())
+
+    def test_original_context_poke_confirms_pending_lxns_binding(self) -> None:
+        async def scenario() -> None:
+            plugin = self.plugin()
+            plugin.config = {
+                "direct_render_lxns_callback_poll_url": "https://callback.example/lxns/poll",
+                "direct_render_lxns_callback_poll_token": "shared-secret-token-0123456789abcdef",
+            }
+            client = FakeMcpClient(
+                {
+                    ("oauth", "maimai_lxns_confirm_poke"): {
+                        "isError": False,
+                        "structuredContent": {"confirmed": True, "status": "confirmed"},
+                        "content": [{"type": "text", "text": "confirmed"}],
+                    }
+                }
+            )
+            plugin._direct_mcp_client = lambda: client
+            event = InteractiveDummyEvent(
+                [Poke(SELF_QQ)],
+                raw_message={"post_type": "notice", "sub_type": "poke", "target_id": SELF_QQ},
+                group_id=GROUP_ID,
+                unified_msg_origin=f"aiocqhttp:GroupMessage:{GROUP_ID}",
+            )
+
+            self.assertTrue(_is_qq_poke_to_self(event))
+            await plugin.confirm_lxns_oauth_on_poke(event)
+
+            self.assertEqual(
+                client.calls,
+                [
+                    (
+                        "oauth",
+                        "maimai_lxns_confirm_poke",
+                        {
+                            "qq": SENDER_QQ,
+                            "adapterId": "aiocqhttp",
+                            "groupId": GROUP_ID,
+                            "botQq": SELF_QQ,
+                        },
+                    )
+                ],
+            )
+            self.assertTrue(event.stopped)
+            self.assertFalse(event.llm_enabled)
+            self.assertEqual(event.sent[0]["chain"][0].qq, SENDER_QQ)
+            self.assertIn("落雪绑定成功", event.sent[0]["chain"][1].text)
+
+            wrong_target = InteractiveDummyEvent(
+                [Poke("222222")],
+                raw_message={"post_type": "notice", "sub_type": "poke", "target_id": "222222"},
+                group_id=GROUP_ID,
+                unified_msg_origin=f"aiocqhttp:GroupMessage:{GROUP_ID}",
+            )
+            self.assertFalse(_is_qq_poke_to_self(wrong_target))
+
+        asyncio.run(scenario())
+
+    def test_lxns_native_at_uses_keyword_argument_and_falls_back_safely(self) -> None:
+        async def scenario() -> None:
+            plugin = self.plugin()
+            components = sys.modules["astrbot.api.message_components"]
+            original_at = components.At
+
+            class KeywordOnlyAt:
+                type = "At"
+
+                def __init__(self, *, qq: str | int):
+                    self.qq = str(qq)
+
+            event = InteractiveDummyEvent([Plain("lxns bind")], group_id=GROUP_ID)
+            components.At = KeywordOnlyAt
+            try:
+                await plugin._send_text_with_optional_at(event, SENDER_QQ, "请拍一拍机器人。")
+            finally:
+                components.At = original_at
+            self.assertEqual(event.sent[0]["chain"][0].qq, SENDER_QQ)
+
+            class BrokenAt:
+                def __init__(self, *, qq: str | int):
+                    del qq
+                    raise RuntimeError("component unavailable")
+
+            fallback_event = InteractiveDummyEvent([Plain("lxns bind")], group_id=GROUP_ID)
+            components.At = BrokenAt
+            try:
+                await plugin._send_text_with_optional_at(fallback_event, SENDER_QQ, "请拍一拍机器人。")
+            finally:
+                components.At = original_at
+            self.assertEqual(
+                fallback_event.sent,
+                [{"type": "plain", "text": f"@{SENDER_QQ} 请拍一拍机器人。"}],
+            )
+
+        asyncio.run(scenario())
+
+    def test_lxns_commands_and_unmatched_codes_are_redacted_from_logs(self) -> None:
+        async def scenario() -> None:
+            plugin = self.plugin()
+            plugin.config = {
+                "direct_render_log_timing": False,
+                "direct_render_log_unmatched": True,
+                "direct_render_lxns_callback_poll_url": "https://callback.example/lxns/poll",
+                "direct_render_lxns_callback_poll_token": "shared-secret-token-0123456789abcdef",
+            }
+            client = FakeMcpClient(
+                {
+                    ("oauth", "maimai_lxns_bind_code"): {
+                        "isError": False,
+                        "content": [{"type": "text", "text": "绑定成功"}],
+                    },
+                    ("oauth", "maimai_lxns_oauth_url"): {
+                        "isError": False,
+                        "content": [{"type": "text", "text": "授权服务暂不可用"}],
+                    },
+                    ("upload", "maimai_bind_import_token"): {
+                        "isError": False,
+                        "content": [{"type": "text", "text": "token 已绑定"}],
+                    },
+                    ("upload", "maimai_update_records"): {
+                        "isError": False,
+                        "content": [{"type": "text", "text": "导入完成"}],
+                    },
+                }
+            )
+            plugin._direct_mcp_client = lambda: client
+            secret = "secret-one-time-code"
+            upload_token = "secret-upload-token"
+            qr_content = "secret-qr-content"
+            malformed_oauth = "secret malformed oauth code"
+            malformed_upload = "secret-upload-token with-space"
+            origin = f"aiocqhttp:GroupMessage:{GROUP_ID}"
+            event = InteractiveDummyEvent(
+                [Plain(f"lxns bind {secret}")],
+                message_str=f"lxns bind {secret}",
+                group_id=GROUP_ID,
+                unified_msg_origin=origin,
+            )
+            unmatched = InteractiveDummyEvent(
+                [Plain(secret)],
+                message_str=secret,
+                group_id=GROUP_ID,
+                unified_msg_origin=origin,
+            )
+            link_event = InteractiveDummyEvent(
+                [Plain("lxns bind")],
+                message_str="lxns bind",
+                group_id=GROUP_ID,
+                unified_msg_origin=origin,
+            )
+            upload_bind_event = InteractiveDummyEvent(
+                [Plain(f"mai bind {upload_token}")],
+                message_str=f"mai bind {upload_token}",
+                group_id=GROUP_ID,
+                unified_msg_origin=origin,
+            )
+            upload_qr_event = InteractiveDummyEvent(
+                [Plain(f"mai update {qr_content}")],
+                message_str=f"mai update {qr_content}",
+                group_id=GROUP_ID,
+                unified_msg_origin=origin,
+            )
+            malformed_oauth_event = InteractiveDummyEvent(
+                [Plain(f"lxns bind {malformed_oauth}")],
+                message_str=f"lxns bind {malformed_oauth}",
+                group_id=GROUP_ID,
+                unified_msg_origin=origin,
+            )
+            malformed_upload_event = InteractiveDummyEvent(
+                [Plain(f"mai bind {malformed_upload}")],
+                message_str=f"mai bind {malformed_upload}",
+                group_id=GROUP_ID,
+                unified_msg_origin=origin,
+            )
+
+            with (
+                patch("deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.logger.info") as log_info,
+                patch("deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.logger.debug") as log_debug,
+                patch(
+                    "deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.time.time",
+                    return_value=1_800_000_000,
+                ),
+                patch(
+                    "deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.secrets.token_urlsafe",
+                    return_value="opaque-log-test-nonce-1234567890",
+                ),
+            ):
+                await plugin.on_direct_render_message(event)
+                await plugin.on_direct_render_message(unmatched)
+                await plugin.on_direct_render_message(link_event)
+                await plugin.on_direct_render_message(upload_bind_event)
+                await plugin.on_direct_render_message(upload_qr_event)
+                await plugin.on_direct_render_message(malformed_oauth_event)
+                await plugin.on_direct_render_message(malformed_upload_event)
+
+            logs = repr(log_info.call_args_list) + repr(log_debug.call_args_list)
+            state_payload = "lxns.1800000000.opaque-log-test-nonce-1234567890"
+            state_signature = hmac.new(
+                b"shared-secret-token-0123456789abcdef",
+                state_payload.encode("utf-8"),
+                hashlib.sha256,
+            ).hexdigest()[:32]
+            for sensitive in (
+                secret,
+                f"lxns bind {secret}",
+                f"{state_payload}.{state_signature}",
+                "shared-secret-token-0123456789abcdef",
+                SENDER_QQ,
+                upload_token,
+                qr_content,
+                malformed_oauth,
+                malformed_upload,
+            ):
+                self.assertNotIn(sensitive, logs)
+            self.assertNotIn(origin, logs)
+
+        asyncio.run(scenario())
 
     def test_napcat_ack_timeout_is_delivery_unknown(self) -> None:
         class NapCatSendTimeoutError(Exception):
@@ -1803,6 +2369,65 @@ class DirectRenderHandleTest(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result.image_paths)
         self.assertEqual(result.text, COMMAND_HELP_TEXT)
         self.assertEqual(client.calls, [])
+
+    async def test_oauth_url_result_marks_callback_ready_only_when_url_exists(self) -> None:
+        success = FakeMcpClient(
+            {
+                ("oauth", "maimai_lxns_oauth_url"): {
+                    "isError": False,
+                    "structuredContent": {"url": "https://lxns.example/oauth/authorize?state=opaque"},
+                    "content": [{"type": "text", "text": "打开授权链接"}],
+                }
+            }
+        )
+        missing_url = FakeMcpClient(
+            {
+                ("oauth", "maimai_lxns_oauth_url"): {
+                    "isError": False,
+                    "content": [{"type": "text", "text": "暂时无法生成授权链接"}],
+                }
+            }
+        )
+
+        ready = await handle_direct_command(parse("lxns bind"), success)
+        not_ready = await handle_direct_command(parse("lxns bind"), missing_url)
+
+        self.assertTrue(ready.oauth_url_ready)
+        self.assertFalse(not_ready.oauth_url_ready)
+        self.assertEqual(success.calls[0][0], "oauth")
+
+    async def test_oauth_server_bypasses_registered_astrbot_tool(self) -> None:
+        tool = FakeAstrBotTool(
+            type(
+                "ToolResult",
+                (),
+                {
+                    "isError": False,
+                    "structuredContent": {"url": "https://wrong.example/"},
+                    "content": [type("TextItem", (), {"type": "text", "text": "wrong"})()],
+                },
+            )()
+        )
+        fallback = FakeMcpClient(
+            {
+                ("oauth", "maimai_lxns_oauth_url"): {
+                    "isError": False,
+                    "structuredContent": {"url": "https://right.example/authorize"},
+                    "content": [{"type": "text", "text": "right"}],
+                }
+            }
+        )
+        client = AstrBotToolMcpClient(
+            FakeAstrBotContext(FakeToolManager({"maimai_lxns_oauth_url": tool})),
+            {"direct_render_timeout_seconds": 7},
+            fallback,  # type: ignore[arg-type]
+        )
+
+        result = await handle_direct_command(parse("lxns bind"), client)
+
+        self.assertEqual(result.text, "right")
+        self.assertEqual(tool.calls, [])
+        self.assertEqual(fallback.calls, [("oauth", "maimai_lxns_oauth_url", {"qq": SENDER_QQ})])
 
     async def test_today_maimai_passes_configured_offset(self) -> None:
         client = FakeMcpClient(

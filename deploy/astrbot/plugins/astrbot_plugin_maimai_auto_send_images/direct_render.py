@@ -9,6 +9,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
+from urllib.parse import urlparse
 
 from .image_paths import (
     collect_paths_from_mapping,
@@ -136,6 +137,12 @@ COMMAND_HELP_TEXT = """命令说明
 2. mai update <二维码解析内容>
 3. mai update <二维码解析内容> --keyship <keyship> --logoutid 2 --title-ver 1.55.00
 
+落雪 OAuth：
+1. lxns bind：获取授权链接
+2. lxns bind <授权code或回调URL>：手工完成绑定
+3. lxns status：查看绑定状态
+4. lxns unbind：解除绑定
+
 群排行：
 1. rank
 2. rank10
@@ -200,6 +207,7 @@ class DirectMcpConfig:
     search_module: str = "maimai_mcp.server"
     group_module: str = "group_b50_mcp.server"
     upload_module: str = "maimai_update_mcp.server"
+    oauth_module: str = "lxns_oauth_mcp.server"
     timeout_seconds: float = 90.0
     upload_timeout_seconds: float = 300.0
     env: dict[str, str] = field(default_factory=dict)
@@ -209,6 +217,7 @@ class DirectMcpConfig:
 class DirectHandleResult:
     image_paths: tuple[str, ...] = ()
     text: str = ""
+    oauth_url_ready: bool = False
 
 
 @dataclass(frozen=True)
@@ -234,6 +243,7 @@ def parse_direct_render_command(text: str, context: TargetContext) -> DirectComm
 
     for parser in (
         _parse_help,
+        _parse_lxns_oauth_workflow,
         _parse_maimai_update_workflow,
         _parse_today_maimai,
         _parse_musicrank,
@@ -307,13 +317,18 @@ async def handle_direct_command(
     if result.get("isError"):
         return DirectHandleResult(text=extract_mcp_text(result).strip() or "MCP 调用失败。")
 
+    oauth_url_ready = (
+        command.server == "oauth"
+        and command.tool_name == "maimai_lxns_oauth_url"
+        and _oauth_result_has_url(result)
+    )
     mappings = parse_prefix_mappings(path_prefix_mappings)
     paths = extract_existing_image_paths(result, mappings)[: max(1, max_images)]
     text = extract_mcp_text(result).strip()
     text = compact_direct_group_text(command, result, text)
     if paths:
-        return DirectHandleResult(image_paths=tuple(paths))
-    return DirectHandleResult(text=text)
+        return DirectHandleResult(image_paths=tuple(paths), oauth_url_ready=oauth_url_ready)
+    return DirectHandleResult(text=text, oauth_url_ready=oauth_url_ready)
 
 
 def compact_direct_group_text(command: DirectCommand, result: dict[str, Any], text: str) -> str:
@@ -610,6 +625,60 @@ def _parse_help(body: str, context: TargetContext) -> DirectCommand | None:
     )
 
 
+def _parse_lxns_oauth_workflow(body: str, context: TargetContext) -> DirectCommand | None:
+    lowered = body.casefold()
+    if lowered == "lxns" or lowered.startswith("lxns "):
+        rest = normalize_command_text(body[4:])
+    else:
+        return None
+
+    if not context.sender_qq:
+        return _syntax_error(
+            "命令语法错误：当前会话无法识别发送者 QQ，不能绑定落雪。",
+            server="oauth",
+        )
+
+    action, separator, action_rest = rest.partition(" ")
+    action = action.casefold()
+
+    if action == "bind":
+        code_or_url = action_rest.strip() if separator else ""
+        if not code_or_url:
+            return _render("maimai_lxns_oauth_url", {"qq": context.sender_qq}, server="oauth")
+        if len(code_or_url) > 2048 or any(char.isspace() for char in code_or_url):
+            return _syntax_error(
+                "命令语法错误：授权 code 或回调 URL 不能包含空白字符。",
+                server="oauth",
+            )
+        return _render(
+            "maimai_lxns_bind_code",
+            {"qq": context.sender_qq, "code": code_or_url},
+            server="oauth",
+        )
+
+    if action == "status":
+        if separator and action_rest.strip():
+            return _syntax_error(
+                "命令语法错误：lxns status 不需要额外参数。",
+                server="oauth",
+            )
+        return _render("maimai_lxns_status", {"qq": context.sender_qq}, server="oauth")
+
+    if action == "unbind":
+        if separator and action_rest.strip():
+            return _syntax_error(
+                "命令语法错误：lxns unbind 不需要额外参数。",
+                server="oauth",
+            )
+        return _render("maimai_lxns_unbind", {"qq": context.sender_qq}, server="oauth")
+
+    return _syntax_error(
+        "命令语法错误：落雪绑定请使用 lxns bind / lxns bind <授权code或回调URL> / "
+        "lxns status / lxns unbind。",
+        server="oauth",
+    )
+
+
 def _parse_maimai_update_workflow(body: str, context: TargetContext) -> DirectCommand | None:
     lowered = body.casefold()
     if lowered == "mai" or lowered.startswith("mai "):
@@ -722,17 +791,17 @@ def _parse_search_filter_lookup(body: str, context: TargetContext) -> DirectComm
         ("charter", ("谱师查歌", "譜師查歌", "search charter"), "谱师查歌需要谱师名，例如 谱师查歌 Jack。"),
         ("bpm", ("bpm查歌", "BPM查歌", "search bpm"), "bpm查歌需要 BPM 或范围，例如 bpm查歌 180-200。"),
     )
-    for field, commands, error_text in cases:
+    for search_field, commands, error_text in cases:
         rest = _strip_leading_command(body, *commands)
         if rest is None:
             continue
         rest = rest.strip()
         if not rest:
             return _syntax_error(f"命令语法错误：{error_text}")
-        value = _normalize_bpm_filter(rest) if field == "bpm" else rest
+        value = _normalize_bpm_filter(rest) if search_field == "bpm" else rest
         return _render(
             "search_maimai_songs",
-            {field: value, "limit": 20, "format": "compact"},
+            {search_field: value, "limit": 20, "format": "compact"},
             server="search",
         )
     return None
@@ -1291,8 +1360,13 @@ def _render(tool_name: str, args: dict[str, Any], *, server: str = "render") -> 
     return DirectCommand(tool_name=tool_name, arguments=args, server=server)
 
 
-def _syntax_error(text: str) -> DirectCommand:
-    return DirectCommand(tool_name="direct_render_syntax_error", arguments={}, error_text=text)
+def _syntax_error(text: str, *, server: str = "render") -> DirectCommand:
+    return DirectCommand(
+        tool_name="direct_render_syntax_error",
+        arguments={},
+        server=server,
+        error_text=text,
+    )
 
 
 def _group_rank_requires_group_text() -> str:
@@ -1779,6 +1853,33 @@ def extract_mcp_text(result: dict[str, Any]) -> str:
     return "\n".join(texts)
 
 
+def _oauth_result_has_url(result: dict[str, Any]) -> bool:
+    candidates: list[Any] = [
+        result.get("url"),
+        result.get("authorizeUrl"),
+        result.get("authorizationUrl"),
+    ]
+    for key in ("structuredContent", "structured_content"):
+        structured = result.get(key)
+        if isinstance(structured, dict):
+            candidates.extend(
+                (
+                    structured.get("url"),
+                    structured.get("authorizeUrl"),
+                    structured.get("authorizationUrl"),
+                )
+            )
+    text = extract_mcp_text(result)
+    candidates.extend(re.findall(r"https?://[^\s<>]+", text, flags=re.IGNORECASE))
+    for candidate in candidates:
+        if not isinstance(candidate, str):
+            continue
+        parsed = urlparse(candidate.strip())
+        if parsed.scheme in {"http", "https"} and parsed.netloc:
+            return True
+    return False
+
+
 def extract_existing_image_paths(result: dict[str, Any], mappings: Any = ()) -> list[str]:
     raw_paths: list[str] = []
     raw_paths.extend(collect_paths_from_mapping(result.get("structuredContent")))
@@ -2016,6 +2117,9 @@ class DirectMcpClient:
         elif server == "upload":
             module = self.config.upload_module
             timeout = self.config.upload_timeout_seconds
+        elif server == "oauth":
+            module = self.config.oauth_module
+            timeout = self.config.timeout_seconds
         else:
             module = self.config.render_module
             timeout = self.config.timeout_seconds
@@ -2103,6 +2207,7 @@ def direct_mcp_config_from_mapping(config: Any) -> DirectMcpConfig:
         search_module=str(_config_value(config, "direct_render_search_module", "maimai_mcp.server")),
         group_module=str(_config_value(config, "direct_render_group_module", "group_b50_mcp.server")),
         upload_module=str(_config_value(config, "direct_render_upload_module", "maimai_update_mcp.server")),
+        oauth_module=str(_config_value(config, "direct_render_oauth_module", "lxns_oauth_mcp.server")),
         timeout_seconds=timeout,
         upload_timeout_seconds=upload_timeout,
         env=env,
@@ -2114,6 +2219,7 @@ def default_mcp_env(project_cwd: str = DEFAULT_PROJECT_DIR) -> dict[str, str]:
         "DIVING_FISH_MCP_TOKEN_FILE": DEFAULT_SECRET_FILE,
         "PLAYER_CACHE_DIR": DEFAULT_PLAYER_CACHE_DIR,
         "QQ_IDENTITY_CACHE_DIR": DEFAULT_QQ_IDENTITY_CACHE_DIR,
+        "LXNS_OAUTH_DB": f"{DEFAULT_DATA_DIR}/maimai-config/.lxns-oauth/oauth.sqlite3",
         "MAIMAI_IMPORT_TOKEN_BINDINGS_FILE": f"{DEFAULT_DATA_DIR}/maimai-config/.maimai-import-token-bindings.json",
         "MAIMAI_UPDATE_RECORDS_OUTPUT_DIR": f"{DEFAULT_DATA_DIR}/maimai-record-imports",
         "MAIMAI_LOCAL_SEARCH_MCP_ARGS": json.dumps(["-m", "maimai_mcp.server"]),
@@ -2129,6 +2235,7 @@ def _config_env(config: Any, data_dir: str, project_cwd: str) -> dict[str, str]:
         "DIVING_FISH_MCP_TOKEN_FILE": f"{data_dir}/maimai-config/.diving-fish-mcp-secrets.json",
         "PLAYER_CACHE_DIR": f"{data_dir}/player-cache",
         "QQ_IDENTITY_CACHE_DIR": f"{data_dir}/qq-identity-cache",
+        "LXNS_OAUTH_DB": f"{data_dir}/maimai-config/.lxns-oauth/oauth.sqlite3",
         "MAIMAI_IMPORT_TOKEN_BINDINGS_FILE": f"{data_dir}/maimai-config/.maimai-import-token-bindings.json",
         "MAIMAI_UPDATE_RECORDS_OUTPUT_DIR": f"{data_dir}/maimai-record-imports",
         "MAIMAI_LOCAL_SEARCH_MCP_ARGS": json.dumps(["-m", "maimai_mcp.server"]),

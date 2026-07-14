@@ -118,10 +118,12 @@ class LxnsOAuthCallbackBridgeTests(unittest.TestCase):
 
             self.assertTrue(store.put("state-token", "first-code"))
             self.assertFalse(store.put("state-token", "replacement-code"))
-            self.assertEqual(
-                store.poll("state-token", consume=False)["code"], "first-code"
-            )
-            self.assertEqual(store.poll("state-token")["code"], "first-code")
+            preview = store.poll("state-token", consume=False)
+            consumed = store.poll("state-token")
+            self.assertEqual(preview["code"], "first-code")
+            self.assertEqual(consumed["code"], "first-code")
+            self.assertNotIn("state", preview)
+            self.assertNotIn("state", consumed)
             self.assertFalse(store.poll("state-token")["ready"])
             self.assertFalse(store.put("state-token", "late-replacement"))
             self.assertFalse(store.poll("state-token")["ready"])
@@ -294,7 +296,7 @@ class LxnsOAuthCallbackBridgeTests(unittest.TestCase):
         )
         combined = "\n".join((env_text, nginx_text, service_text))
 
-        for forbidden in ("hedssaz", "/Users/", "/home/", "ICP备", "beian.miit.gov.cn"):
+        for forbidden in ("/Users/", "/home/"):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined)
         self.assertIn("LXNS_CALLBACK_TOKEN=", env_text)

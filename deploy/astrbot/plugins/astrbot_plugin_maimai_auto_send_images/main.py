@@ -1,12 +1,21 @@
 from __future__ import annotations
 
+import asyncio
+from collections.abc import Mapping
+from contextlib import suppress
+from dataclasses import dataclass, field, replace
+import hashlib
+import hmac
 import json
 import os
 import re
+import secrets
 import time
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
+from urllib.error import HTTPError, URLError
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+from urllib.request import Request, urlopen
 
 from mcp.types import CallToolResult, TextContent
 
@@ -63,6 +72,94 @@ def _message_event_decorator() -> Callable[[Callable[..., Any]], Callable[..., A
     return lambda func: func
 
 
+def _custom_filter_decorator(filter_type: type[Any], *, priority: int) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    custom_filter = getattr(filter, "custom_filter", None)
+    if callable(custom_filter):
+        return custom_filter(filter_type, priority=priority)
+    return lambda func: func
+
+
+def _event_get(raw_event: Any, key: str) -> Any:
+    if raw_event is None:
+        return None
+    if isinstance(raw_event, Mapping):
+        value = raw_event.get(key)
+        if value is not None:
+            return value
+    value = getattr(raw_event, key, None)
+    if value is not None:
+        return value
+    try:
+        return raw_event[key]
+    except Exception:
+        return None
+
+
+def _normalized_id(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _is_poke_component(component: Any) -> bool:
+    poke_type = getattr(Comp, "Poke", None) if Comp is not None else None
+    if poke_type is not None and isinstance(component, poke_type):
+        return True
+    return str(getattr(component, "type", "")).lower().endswith("poke")
+
+
+def _poke_component_target_id(component: Any) -> str | None:
+    target_id = None
+    target_id_method = getattr(component, "target_id", None)
+    if callable(target_id_method):
+        target_id = target_id_method()
+    if not target_id:
+        target_id = getattr(component, "id", None) or getattr(component, "qq", None)
+    return _normalized_id(target_id)
+
+
+def _poke_event_target_id(event: AstrMessageEvent) -> str | None:
+    message_obj = getattr(event, "message_obj", None)
+    raw_event = getattr(message_obj, "raw_message", None)
+    target_id = _normalized_id(_event_get(raw_event, "target_id"))
+    if target_id:
+        return target_id
+    for component in event.get_messages() or []:
+        if _is_poke_component(component):
+            return _poke_component_target_id(component)
+    return None
+
+
+def _is_qq_poke_to_self(event: AstrMessageEvent) -> bool:
+    platform_getter = getattr(event, "get_platform_name", None)
+    if callable(platform_getter):
+        try:
+            if platform_getter() != "aiocqhttp":
+                return False
+        except Exception:
+            return False
+    message_obj = getattr(event, "message_obj", None)
+    raw_event = getattr(message_obj, "raw_message", None)
+    post_type = _event_get(raw_event, "post_type")
+    sub_type = _event_get(raw_event, "sub_type")
+    if post_type is not None and post_type != "notice":
+        return False
+    if sub_type is not None and sub_type != "poke":
+        return False
+    has_poke_component = any(_is_poke_component(component) for component in event.get_messages() or [])
+    if not has_poke_component and sub_type != "poke":
+        return False
+    self_id = _normalized_id(event.get_self_id())
+    target_id = _poke_event_target_id(event)
+    return bool(self_id and target_id and self_id == target_id)
+
+
+class LxnsOauthPokeConfirmFilter(getattr(filter, "CustomFilter", object)):
+    def filter(self, event: AstrMessageEvent, _cfg: Any) -> bool:
+        return _is_qq_poke_to_self(event)
+
+
 def _is_ambiguous_napcat_send_timeout(exc: BaseException) -> bool:
     """识别 NapCat 已提交消息、但等待发送回执超时的异常。"""
 
@@ -83,6 +180,18 @@ def _is_ambiguous_napcat_send_timeout(exc: BaseException) -> bool:
     return has_retcode and "timeout" in text and has_send_method
 
 
+def _is_sensitive_direct_command_text(value: Any) -> bool:
+    """识别即使解析失败也不得记录原文的直连命令。"""
+
+    text = normalize_command_text(str(value or "")).casefold()
+    return (
+        text == "lxns"
+        or text.startswith("lxns ")
+        or text.startswith("mai bind")
+        or text.startswith("mai update")
+    )
+
+
 @dataclass
 class SentState:
     paths: list[str] = field(default_factory=list)
@@ -96,7 +205,7 @@ class AstrBotToolMcpClient:
         self.fallback = fallback
 
     async def call_tool(self, server: str, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
-        if server == "upload":
+        if server in {"upload", "oauth"}:
             return await self.fallback.call_tool(server, tool_name, arguments)
 
         tool = self._tool(tool_name)
@@ -169,6 +278,285 @@ class MaimaiAutoSendImagesPlugin(Star):
         self.config = config or {}
         self._sent_by_event: dict[str, SentState] = {}
         self._recent_path_keys: dict[str, float] = {}
+        self._lxns_oauth_poll_tasks: dict[str, asyncio.Task[Any]] = {}
+
+    @_custom_filter_decorator(LxnsOauthPokeConfirmFilter, priority=200)
+    async def confirm_lxns_oauth_on_poke(self, event: AstrMessageEvent):
+        if not self._config_bool("enabled", True) or not self._config_bool("direct_render_enabled", True):
+            return
+        if not self._lxns_callback_mode_enabled():
+            return
+        qq = self._sender_id(event)
+        oauth_context = self._lxns_oauth_event_context(event)
+        if not qq or not all(oauth_context.values()):
+            return
+        try:
+            result = await self._direct_mcp_client().call_tool(
+                "oauth",
+                "maimai_lxns_confirm_poke",
+                {
+                    "qq": qq,
+                    **oauth_context,
+                },
+            )
+        except DirectRenderError:
+            logger.warning("LXNS OAuth poke confirmation check failed")
+            return
+        if result.get("isError"):
+            logger.warning("LXNS OAuth poke confirmation returned an error")
+            return
+        structured = result.get("structuredContent") if isinstance(result, dict) else None
+        if not isinstance(structured, dict):
+            return
+        status = str(structured.get("status") or "")
+        if structured.get("confirmed"):
+            await self._send_text_with_optional_at(event, qq, "落雪绑定成功。")
+        elif status == "expired":
+            await self._send_text_with_optional_at(event, qq, "落雪授权确认已超时，请重新发送 lxns bind。")
+        else:
+            return
+        self._disable_llm(event)
+        self._stop_event(event)
+
+    def _with_lxns_oauth_event_context(self, event: AstrMessageEvent, command: Any) -> Any:
+        tool_name = getattr(command, "tool_name", "")
+        if tool_name not in {"maimai_lxns_oauth_url", "maimai_lxns_bind_code"}:
+            return command
+        arguments = getattr(command, "arguments", {}) or {}
+        if not isinstance(arguments, dict):
+            return command
+        updated = dict(arguments)
+        oauth_context = self._lxns_oauth_event_context(event)
+        if not all(oauth_context.values()):
+            return replace(
+                command,
+                tool_name="direct_render_syntax_error",
+                arguments={},
+                error_text="落雪 OAuth 无法识别当前会话上下文，请换一个可识别的会话重试。",
+            )
+        updated.update(oauth_context)
+        if tool_name == "maimai_lxns_oauth_url" and self._lxns_callback_poll_url():
+            token = self._lxns_callback_shared_token()
+            if not self._lxns_callback_token_is_valid(token):
+                logger.error("LXNS OAuth callback mode requires a shared token of at least 32 UTF-8 bytes")
+                return replace(
+                    command,
+                    tool_name="direct_render_syntax_error",
+                    arguments={},
+                    error_text="落雪 OAuth 回调配置无效，请联系管理员检查共享 Token。",
+                )
+            updated["ttlSeconds"] = self._lxns_callback_timeout_seconds()
+            if not updated.get("state"):
+                issued_at = int(time.time())
+                nonce = secrets.token_urlsafe(24)
+                payload = f"lxns.{issued_at}.{nonce}"
+                signature = hmac.new(
+                    token.encode("utf-8"),
+                    payload.encode("utf-8"),
+                    hashlib.sha256,
+                ).hexdigest()[:32]
+                updated["state"] = f"{payload}.{signature}"
+        try:
+            return replace(command, arguments=updated)
+        except Exception:
+            return command
+
+    def _lxns_oauth_event_context(self, event: AstrMessageEvent) -> dict[str, str]:
+        adapter_id = self._adapter_id(event)
+        bot_qq = self._self_id(event)
+        conversation_id = self._group_id(event)
+        if not conversation_id:
+            origin = str(getattr(event, "unified_msg_origin", "") or "").strip()
+            stable_source = origin or ":".join((adapter_id, self._sender_id(event), bot_qq))
+            if stable_source.strip(":"):
+                digest = hashlib.sha256(stable_source.encode("utf-8")).hexdigest()[:32]
+                conversation_id = f"private:{digest}"
+        return {
+            "adapterId": adapter_id,
+            "groupId": conversation_id,
+            "botQq": bot_qq,
+        }
+
+    def _maybe_schedule_lxns_oauth_poll(self, event: AstrMessageEvent, command: Any, result: Any) -> None:
+        if getattr(command, "tool_name", "") != "maimai_lxns_oauth_url":
+            return
+        if not bool(getattr(result, "oauth_url_ready", False)):
+            return
+        if not self._lxns_callback_mode_enabled():
+            return
+        arguments = getattr(command, "arguments", {}) or {}
+        if not isinstance(arguments, dict):
+            return
+        qq = str(arguments.get("qq") or self._sender_id(event) or "").strip()
+        state = str(arguments.get("state") or "").strip()
+        if not qq or not state:
+            return
+        tasks = getattr(self, "_lxns_oauth_poll_tasks", None)
+        if not isinstance(tasks, dict):
+            tasks = {}
+            self._lxns_oauth_poll_tasks = tasks
+        previous = tasks.get(qq)
+        if previous is not None and not previous.done():
+            previous.cancel()
+        task = asyncio.create_task(self._poll_lxns_oauth_callback(event, qq, state))
+        tasks[qq] = task
+        task.add_done_callback(lambda completed, user=qq: self._on_lxns_oauth_poll_task_done(user, completed))
+
+    def _on_lxns_oauth_poll_task_done(self, qq: str, task: asyncio.Task[Any]) -> None:
+        tasks = getattr(self, "_lxns_oauth_poll_tasks", None)
+        if isinstance(tasks, dict) and tasks.get(qq) is task:
+            tasks.pop(qq, None)
+        try:
+            task.result()
+        except asyncio.CancelledError:
+            return
+        except Exception as exc:
+            logger.error("LXNS OAuth callback poll task failed: type=%s", type(exc).__name__)
+
+    async def _poll_lxns_oauth_callback(self, event: AstrMessageEvent, qq: str, state: str) -> None:
+        timeout_seconds = float(self._lxns_callback_timeout_seconds())
+        interval_seconds = max(
+            1.0,
+            min(30.0, float(self.config.get("direct_render_lxns_callback_poll_interval_seconds", 2) or 2)),
+        )
+        deadline = time.monotonic() + timeout_seconds
+        while time.monotonic() < deadline:
+            try:
+                payload = await asyncio.to_thread(self._poll_lxns_callback_once, state)
+            except Exception:
+                await asyncio.sleep(interval_seconds)
+                continue
+            if payload.get("ready") and payload.get("code"):
+                await self._prepare_lxns_oauth_callback_poke(event, qq, state, str(payload["code"]))
+                return
+            await asyncio.sleep(interval_seconds)
+        await self._send_text_with_optional_at(event, qq, "落雪授权等待超时，请重新发送 lxns bind。")
+
+    def _poll_lxns_callback_once(self, state: str) -> dict[str, Any]:
+        poll_url = self._lxns_callback_poll_url()
+        token = self._lxns_callback_shared_token()
+        if not poll_url or not self._lxns_callback_token_is_valid(token):
+            return {"ok": False, "ready": False}
+        url = self._url_with_query(poll_url, {"state": state})
+        request = Request(
+            url,
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        timeout = max(
+            2.0,
+            min(30.0, float(self.config.get("direct_render_lxns_callback_http_timeout_seconds", 10) or 10)),
+        )
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                raw = response.read(1024 * 1024)
+        except HTTPError as exc:
+            raise RuntimeError(f"回调桥返回 HTTP {exc.code}") from exc
+        except URLError as exc:
+            raise RuntimeError("回调桥网络请求失败") from exc
+        try:
+            data = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError("回调桥返回格式无效") from exc
+        if not isinstance(data, dict):
+            raise RuntimeError("回调桥返回格式无效")
+        if data.get("ok") is False:
+            raise RuntimeError("回调桥拒绝了轮询请求")
+        return data
+
+    def _url_with_query(self, url: str, query: dict[str, str]) -> str:
+        parsed = urlparse(url)
+        pairs = parse_qsl(parsed.query, keep_blank_values=True)
+        pairs.extend((key, value) for key, value in query.items() if value)
+        return urlunparse(parsed._replace(query=urlencode(pairs)))
+
+    async def _prepare_lxns_oauth_callback_poke(
+        self,
+        event: AstrMessageEvent,
+        qq: str,
+        state: str,
+        code: str,
+    ) -> None:
+        ttl_seconds = max(
+            60,
+            min(1800, int(self.config.get("direct_render_lxns_poke_confirm_timeout_seconds", 300) or 300)),
+        )
+        oauth_context = self._lxns_oauth_event_context(event)
+        if not all(oauth_context.values()):
+            await self._send_text_with_optional_at(event, qq, "落雪授权处理失败，请重新发起绑定。")
+            return
+        try:
+            result = await self._direct_mcp_client().call_tool(
+                "oauth",
+                "maimai_lxns_prepare_poke",
+                {
+                    "qq": qq,
+                    "code": code,
+                    "state": state,
+                    **oauth_context,
+                    "ttlSeconds": ttl_seconds,
+                },
+            )
+        except DirectRenderError:
+            await self._send_text_with_optional_at(event, qq, "落雪授权处理失败，请重新发起绑定。")
+            return
+        structured = result.get("structuredContent") if isinstance(result, dict) else None
+        if result.get("isError") or not isinstance(structured, dict) or not structured.get("pending"):
+            await self._send_text_with_optional_at(event, qq, "落雪授权处理失败，请重新发起绑定。")
+            return
+        minutes = max(1, (ttl_seconds + 59) // 60)
+        await self._send_text_with_optional_at(
+            event,
+            qq,
+            f"已收到落雪授权，请在 {minutes} 分钟内拍一拍机器人完成绑定。",
+        )
+
+    async def _send_text_with_optional_at(self, event: AstrMessageEvent, qq: str, text: str) -> None:
+        qq = str(qq or "").strip()
+        native_at_failed = False
+        if qq and not self._is_private_chat(event) and Comp is not None:
+            at_cls = getattr(Comp, "At", None)
+            plain_cls = getattr(Comp, "Plain", None)
+            if at_cls is not None and plain_cls is not None:
+                at_values: list[str | int] = [qq]
+                if qq.isdigit():
+                    at_values.append(int(qq))
+                for value in at_values:
+                    try:
+                        chain = [at_cls(qq=value), plain_cls(f" {text}")]
+                        chain_result = getattr(event, "chain_result", None)
+                        await event.send(chain_result(chain) if callable(chain_result) else chain)
+                        return
+                    except Exception:
+                        native_at_failed = True
+        if native_at_failed:
+            logger.warning("Failed to send native At component for an LXNS OAuth notice")
+        prefix = f"@{qq} " if qq and not self._is_private_chat(event) else ""
+        await event.send(event.plain_result(prefix + text))
+
+    def _lxns_callback_poll_url(self) -> str:
+        return str(self.config.get("direct_render_lxns_callback_poll_url", "") or "").strip()
+
+    def _lxns_callback_shared_token(self) -> str:
+        return str(self.config.get("direct_render_lxns_callback_poll_token", "") or "").strip()
+
+    def _lxns_callback_token_is_valid(self, token: str) -> bool:
+        return len(token.encode("utf-8")) >= 32
+
+    def _lxns_callback_timeout_seconds(self) -> int:
+        try:
+            configured = int(self.config.get("direct_render_lxns_callback_timeout_seconds", 600) or 600)
+        except (TypeError, ValueError):
+            configured = 600
+        return max(60, min(1800, configured))
+
+    def _lxns_callback_mode_enabled(self) -> bool:
+        return bool(
+            self._lxns_callback_poll_url()
+            and self._lxns_callback_token_is_valid(self._lxns_callback_shared_token())
+        )
 
     @_message_event_decorator()
     async def on_direct_render_message(self, event: AstrMessageEvent):
@@ -200,21 +588,26 @@ class MaimaiAutoSendImagesPlugin(Star):
         command = parse_direct_render_command(command_text, context)
         if command is None:
             if self._config_bool("direct_render_log_unmatched", False):
-                logger.debug(
-                    "maimai direct-render wake did not match a command: origin=%s text=%r",
-                    getattr(event, "unified_msg_origin", ""),
-                    command_text,
-                )
+                logger.debug("maimai direct-render wake did not match a command")
             return
 
+        command = self._with_lxns_oauth_event_context(event, command)
         tool_name = command.render_tool_name or command.tool_name
-        logger.info(
-            "maimai direct-render matched: origin=%s tool=%s text=%r args=%s",
-            getattr(event, "unified_msg_origin", ""),
-            tool_name,
-            command_text,
-            command.search_arguments or command.arguments,
-        )
+        if command.server in {"oauth", "upload"} or _is_sensitive_direct_command_text(
+            command_text
+        ):
+            logger.info(
+                "maimai direct-render matched sensitive command: tool=%s",
+                tool_name,
+            )
+        else:
+            logger.info(
+                "maimai direct-render matched: origin=%s tool=%s text=%r args=%s",
+                getattr(event, "unified_msg_origin", ""),
+                tool_name,
+                command_text,
+                command.search_arguments or command.arguments,
+            )
         self._disable_llm(event)
         client = self._direct_mcp_client()
         try:
@@ -228,8 +621,17 @@ class MaimaiAutoSendImagesPlugin(Star):
             )
             mcp_finished_at = time.perf_counter()
         except DirectRenderError as exc:
-            logger.warning("maimai direct-render MCP failed: tool=%s error=%s", tool_name, exc)
-            await event.send(event.plain_result(f"直连绘图失败：{exc}"))
+            if command.server in {"oauth", "upload"}:
+                logger.warning("maimai direct-render sensitive MCP failed: tool=%s", tool_name)
+                error_text = (
+                    "落雪 OAuth 操作失败，请稍后重试。"
+                    if command.server == "oauth"
+                    else "成绩导入操作失败，请稍后重试。"
+                )
+            else:
+                logger.warning("maimai direct-render MCP failed: tool=%s error=%s", tool_name, exc)
+                error_text = f"直连绘图失败：{exc}"
+            await event.send(event.plain_result(error_text))
             self._stop_event(event)
             return
 
@@ -263,6 +665,7 @@ class MaimaiAutoSendImagesPlugin(Star):
             await event.send(event.plain_result(result.text))
         else:
             await event.send(event.plain_result("绘图完成，但没有找到可发送的图片。"))
+        self._maybe_schedule_lxns_oauth_poll(event, command, result)
         finished_at = time.perf_counter()
         if self._config_bool("direct_render_log_timing", True):
             logger.info(
@@ -988,6 +1391,17 @@ class MaimaiAutoSendImagesPlugin(Star):
                 stopper()
             except Exception:
                 pass
+
+    async def terminate(self) -> None:
+        task_mapping = getattr(self, "_lxns_oauth_poll_tasks", {})
+        tasks = list(task_mapping.values()) if isinstance(task_mapping, dict) else list(task_mapping or [])
+        for task in tasks:
+            task.cancel()
+        for task in tasks:
+            with suppress(asyncio.CancelledError):
+                await task
+        if isinstance(task_mapping, dict):
+            task_mapping.clear()
 
     def _is_plain_component(self, item: Any) -> bool:
         if Comp is not None and isinstance(item, getattr(Comp, "Plain", ())):

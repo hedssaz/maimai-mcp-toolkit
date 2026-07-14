@@ -10,7 +10,7 @@ import warnings
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from PIL import Image
+from PIL import Image, ImageFont
 
 import maimaidx_render_mcp.server as server
 from maimaidx_render_mcp.maimaidx import category
@@ -135,7 +135,12 @@ class MaimaidxRenderExtraToolsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 os.environ["MAIMAIDX_RENDER_OUTPUT_DIR"] = tmpdir
-                result = player_score._draw_music_global_data_fallback(music, 3)
+                fallback_font = ImageFont.load_default()
+                with patch(
+                    "maimaidx_render_mcp.maimaidx.image.ImageFont.truetype",
+                    return_value=fallback_font,
+                ):
+                    result = player_score._draw_music_global_data_fallback(music, 3)
                 saved = server._ok_image(result)
             finally:
                 if old_output_dir is None:
@@ -870,15 +875,30 @@ class MaimaidxRenderExtraToolsTests(unittest.TestCase):
             query_calls.append(arguments)
             return b50
 
+        captured_draw: dict[str, object] = {}
+
+        class FakeDrawBest:
+            def __init__(self, userinfo, qqid=None):
+                captured_draw["userinfo"] = userinfo
+                captured_draw["qqid"] = qqid
+
+            async def draw(self):
+                return Image.new("RGBA", (16, 16), (255, 255, 255, 255))
+
         old_output_dir = os.environ.get("MAIMAIDX_RENDER_OUTPUT_DIR")
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 os.environ["MAIMAIDX_RENDER_OUTPUT_DIR"] = tmpdir
                 with patch("diving_fish_b50_mcp.server.query_b50", side_effect=fake_query_b50):
-                    with patch("maimaidx_render_mcp.server._schedule_b50_cache_enrichment") as schedule_enrich:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter("ignore", ResourceWarning)
-                            result = server._render_b50({"qq": "123456"})
+                    with (
+                        patch("maimaidx_render_mcp.server.DrawBest", FakeDrawBest),
+                        patch(
+                            "maimaidx_render_mcp.server._schedule_b50_cache_enrichment"
+                        ) as schedule_enrich,
+                        warnings.catch_warnings(),
+                    ):
+                        warnings.simplefilter("ignore", ResourceWarning)
+                        result = server._render_b50({"qq": "123456"})
                 schedule_enrich.assert_called_once()
                 self.assertEqual(schedule_enrich.call_args.args[0], "123456")
                 self.assertIs(schedule_enrich.call_args.args[1], b50)
@@ -887,6 +907,16 @@ class MaimaidxRenderExtraToolsTests(unittest.TestCase):
                 payload = json.loads(result["content"][0]["text"])
                 self.assertTrue(os.path.exists(payload["imagePath"]))
                 self.assertEqual(payload["mimeType"], "image/png")
+                rendered_user = captured_draw["userinfo"]
+                self.assertEqual(captured_draw["qqid"], 123456)
+                self.assertEqual(
+                    [item.song_id for item in rendered_user.charts.sd],
+                    [8, 11475],
+                )
+                self.assertEqual(
+                    [(item.fc, item.fs) for item in rendered_user.charts.sd],
+                    [("", ""), ("", "")],
+                )
                 self.assertEqual(
                     query_calls,
                     [{"qq": "123456", "includeChartMetadata": False, "timeoutMs": 30000}],
@@ -1069,7 +1099,12 @@ class MaimaidxRenderExtraToolsTests(unittest.TestCase):
                 server._rating_ranking_data = fake_draw
                 os.environ["MAIMAIDX_RENDER_OUTPUT_DIR"] = tmpdir
 
-                result = server._render_rating_ranking({"username": "tester"})
+                fallback_font = ImageFont.load_default()
+                with patch(
+                    "maimaidx_render_mcp.maimaidx.image.ImageFont.truetype",
+                    return_value=fallback_font,
+                ):
+                    result = server._render_rating_ranking({"username": "tester"})
                 self.assertFalse(result.get("isError"))
                 payload = json.loads(result["content"][0]["text"])
                 self.assertTrue(os.path.exists(payload["imagePath"]))
@@ -1100,7 +1135,14 @@ class MaimaidxRenderExtraToolsTests(unittest.TestCase):
                 server.maiApi = FakeMaiApi()
                 os.environ["MAIMAIDX_RENDER_OUTPUT_DIR"] = tmpdir
 
-                result = server._render_rating_ranking({"startRank": 31, "endRank": 60})
+                fallback_font = ImageFont.load_default()
+                with patch(
+                    "maimaidx_render_mcp.maimaidx.image.ImageFont.truetype",
+                    return_value=fallback_font,
+                ):
+                    result = server._render_rating_ranking(
+                        {"startRank": 31, "endRank": 60}
+                    )
                 self.assertFalse(result.get("isError"))
                 payload = json.loads(result["content"][0]["text"])
                 self.assertTrue(os.path.exists(payload["imagePath"]))
