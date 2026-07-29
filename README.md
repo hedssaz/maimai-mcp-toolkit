@@ -2,7 +2,7 @@
 
 本仓库是一组本地 stdio MCP 工具，用于 maimai 查歌、查分、群榜、绘图和水鱼成绩上传工作流。
 
-没有日服曲目和科技传成绩功能
+没有日服曲目和科技传成绩功能（大概）
 
 绘图能力来自 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)，本项目在其绘图代码和资源接口上接入本地 MCP 数据源。
 
