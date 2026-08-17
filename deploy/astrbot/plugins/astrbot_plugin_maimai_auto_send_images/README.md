@@ -21,8 +21,6 @@
 
 常用命令包括 b50、拟合b50、minfo 歌名、ginfo紫 歌名、歌名是什么歌、id296、随个dx紫13、今日舞萌、13+定数表、桃极完成表、13+sss未完成表 2、14+分数列表、我要上分、rank10、musicrank紫白系、divingfishrank 1-30。`拟合b50` 会用拟合定数重算单曲 rating 后重排 B50；`我要上分` 默认使用旧版 `ds - fit_diff` 拟合定数分桶随机算法；MCP 工具显式传 `algorithm:"expected"` 时才启用实验期望收益算法。
 
-成绩导入直连命令只由本插件处理，不会交给 AstrBot Agent 工具管理器：`mai bind <水鱼成绩导入token>` 会把 token 绑定到发送者 QQ；`mai update <二维码解析内容>` 会调用本仓库的 SDGB155 raw dump 脚本登录、拉取成绩、登出，再调用转换脚本生成水鱼 `/player/update_records` payload 并上传。`mai update` 支持在二维码内容后追加 `--keyship <keyship>`、`--logoutid <1或2>`、`--title-ver <标题服务器版本>`。
-
 ## 落雪 OAuth 绑定
 
 落雪 OAuth 绑定由独立的本地 SQLite 保存授权状态、令牌和待确认记录。这部分只提供绑定、状态和解绑，不查成绩、不接入 SEGA 官方成绩接口，也不包含日服功能。
@@ -58,7 +56,6 @@ LXNS_OAUTH_REDIRECT_URI=
 - `direct_render_python`: 调用 MCP 使用的 Python 命令。
 - `direct_render_use_astrbot_mcp`: 默认启用，优先复用 AstrBot 已连接 MCP，找不到工具时才回退到子进程调用。
 - `direct_render_group_module`: 群榜直连回退子进程 MCP 模块，默认 `group_b50_mcp.server`。
-- `direct_render_upload_module`: 成绩导入直连回退子进程 MCP 模块，默认 `maimai_update_mcp.server`；插件会强制绕过 AstrBot Agent 工具管理器。
 - `direct_render_oauth_module`: 落雪 OAuth 直连回退子进程 MCP 模块，默认 `lxns_oauth_mcp.server`。
 - `direct_render_lxns_callback_poll_url`: 落雪 OAuth 回调桥轮询地址；留空时只使用手工提交流程。
 - `direct_render_lxns_callback_poll_token`: 回调桥共享 Token，UTF-8 编码后至少 32 字节。
@@ -66,9 +63,6 @@ LXNS_OAUTH_REDIRECT_URI=
 - `direct_render_lxns_callback_poll_interval_seconds`: 回调桥轮询间隔。
 - `direct_render_lxns_callback_http_timeout_seconds`: 回调桥单次请求超时时间。
 - `direct_render_lxns_poke_confirm_timeout_seconds`: 回调到达后等待原用户拍一拍确认的超时时间。
-- `direct_render_upload_timeout_seconds`: 成绩导入直连超时时间，默认 `300` 秒。
-- `direct_render_import_token_bindings_file`: 水鱼 Import-Token 绑定文件，默认 `direct_render_data_dir/maimai-config/.maimai-import-token-bindings.json`。
-- `direct_render_update_records_output_dir`: 成绩导入中间文件目录，默认 `direct_render_data_dir/maimai-record-imports`。
 - `direct_render_today_offset`: 今日舞萌偏移值，默认 `0` 按原项目结果；改成其他整数会加到日期项上，让本 Bot 的今日人品和推荐歌区别于其他 Bot。
 - `direct_render_log_timing`: 默认启用，记录直连绘图分段耗时和自动发图结果。
 - `direct_render_log_unmatched`: 默认关闭，临时开启后记录已唤醒但未匹配直连命令的消息。

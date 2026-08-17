@@ -10,7 +10,6 @@ The repository is intentionally split into several stdio MCP servers:
 - `qq_identity_mcp.server`: QQ/NapCat identity cache.
 - `group_b50_mcp.server`: group B50 and group song-score ranking orchestration.
 - `maimai_score_mcp.server`: song-name to player-score bridge.
-- `maimai_update_mcp.server`: direct-plugin fallback for official raw score import and Diving-Fish upload.
 
 ## 落雪 OAuth 绑定边界
 
@@ -120,23 +119,6 @@ mkdir -p /opt/qqbot/data/maimai-yuzu-static
 ```
 
 The current branch does not import official music resources and does not download dxrating/dxdata covers.
-
-## Official raw score import
-
-Raw official user data can be converted to Diving-Fish `/player/update_records` payloads:
-
-```bash
-python scripts/convert_official_raw_records.py raw_full_data.json -o update_records.json --report update_records_report.json --pretty
-```
-
-The direct upload workflow is:
-
-1. `scripts/sdgb155_full_dump_logout_tool.py` logs in by QR, dumps official raw JSON, and logs out.
-2. `scripts/convert_official_raw_records.py` converts raw official records to Diving-Fish payload.
-3. `scripts/maimai_update_records_workflow.py` stores QQ-bound Import-Token and uploads to Diving-Fish.
-4. `maimai_update_mcp.server` exists only as direct-plugin fallback and should not be added to a global Agent prompt.
-
-The converter deliberately uses only `data/divingfish_song_list.json` for title/type lookup. It does not use official music data or dxdata.
 
 ## Local source refresh
 

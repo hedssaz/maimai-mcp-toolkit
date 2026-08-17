@@ -49,15 +49,6 @@
 
 上分推荐直连默认走旧版 `legacy` 拟合定数分桶随机算法；只有显式通过 MCP/Agent 传 `algorithm:"expected"` 时才启用实验期望收益算法。
 
-成绩导入：
-1. mai bind <水鱼成绩导入token>
-2. mai update <二维码解析内容>
-3. mai update <二维码解析内容> --keyship <keyship>
-4. mai update <二维码解析内容> --logoutid 1
-5. mai update <二维码解析内容> --title-ver 1.55.00
-
-`mai bind` 会把 Import-Token 绑定到发送者 QQ；`mai update` 会自动登录账号、获取 raw JSON、登出账号、转换成水鱼 `/player/update_records` payload 并上传。这个 workflow MCP 只允许直连插件调用，不加入 Agent 工具列表。
-
 群排行：
 1. rank
 2. rank10

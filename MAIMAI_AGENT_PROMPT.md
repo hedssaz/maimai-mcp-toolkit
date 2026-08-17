@@ -8,7 +8,6 @@
 - 不调用 `query_chart_history`，不传 `server:"jp"`，不使用 `region_has:"日服"`、`region_missing:"日服"`、`tag`、`tag_exclude`、`released_after`、`released_before` 这类依赖 dxdata/dxrating 的过滤。
 - 曲库来源只包括 LXNS/国服、Diving-Fish、水鱼统计、Yuzu 别名和本地自定义数据。
 - 绘图来自 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)。曲绘只使用本地数字 ID 静态资源，不从 dxrating/dxdata 下载封面。
-- 本分支保留官服 raw 成绩导出转换并上传到 Diving-Fish `/player/update_records` 的直连工作流；该能力只走直连插件/fallback，不加入普通 Agent 全局工具路由。
 
 ## 目标解析
 

@@ -1,7 +1,7 @@
 [project]
 name = "maimai-mcp-toolkit"
 version = "0.1.0"
-description = "Local stdio MCP tools for maimai DX song search, score query, group ranking, rendering, and Diving-Fish upload workflow."
+description = "Local stdio MCP tools for maimai DX song search, score query, group ranking, and rendering."
 requires-python = ">=3.10"
 dependencies = [
   "mcp>=1.0",
@@ -9,7 +9,6 @@ dependencies = [
   "pydantic>=2.0",
   "numpy>=1.24",
   "pypinyin>=0.50",
-  "pycryptodome>=3.20",
   "requests>=2.31",
 ]
 
@@ -28,7 +27,6 @@ diving-fish-b50 = "diving_fish_b50_mcp.server:main"
 maimaidx-render = "maimaidx_render_mcp.server:main"
 qq-identity = "qq_identity_mcp.server:main"
 maimai-score = "maimai_score_mcp.server:main"
-maimai-update = "maimai_update_mcp.server:main"
 group-b50 = "group_b50_mcp.server:main"
 
 [build-system]

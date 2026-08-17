@@ -132,11 +132,6 @@ COMMAND_HELP_TEXT = """命令说明
 2. 我要在13+上分
 3. 我要上5分
 
-成绩导入：
-1. mai bind <水鱼成绩导入token>
-2. mai update <二维码解析内容>
-3. mai update <二维码解析内容> --keyship <keyship> --logoutid 2 --title-ver 1.55.00
-
 落雪 OAuth：
 1. lxns bind：获取授权链接
 2. lxns bind <授权code或回调URL>：手工完成绑定
@@ -206,10 +201,8 @@ class DirectMcpConfig:
     render_module: str = "maimaidx_render_mcp.server"
     search_module: str = "maimai_mcp.server"
     group_module: str = "group_b50_mcp.server"
-    upload_module: str = "maimai_update_mcp.server"
     oauth_module: str = "lxns_oauth_mcp.server"
     timeout_seconds: float = 90.0
-    upload_timeout_seconds: float = 300.0
     env: dict[str, str] = field(default_factory=dict)
 
 
@@ -244,7 +237,6 @@ def parse_direct_render_command(text: str, context: TargetContext) -> DirectComm
     for parser in (
         _parse_help,
         _parse_lxns_oauth_workflow,
-        _parse_maimai_update_workflow,
         _parse_today_maimai,
         _parse_musicrank,
         _parse_rank,
@@ -677,68 +669,6 @@ def _parse_lxns_oauth_workflow(body: str, context: TargetContext) -> DirectComma
         "lxns status / lxns unbind。",
         server="oauth",
     )
-
-
-def _parse_maimai_update_workflow(body: str, context: TargetContext) -> DirectCommand | None:
-    lowered = body.casefold()
-    if lowered == "mai" or lowered.startswith("mai "):
-        rest = normalize_command_text(body[3:])
-    else:
-        return None
-
-    if not context.sender_qq:
-        return _syntax_error("命令语法错误：当前会话无法识别发送者 QQ，不能绑定或上传成绩。")
-
-    bind_rest = _strip_leading_command(rest, "bind")
-    if bind_rest is not None:
-        token = bind_rest.strip()
-        if not token:
-            return _syntax_error("用法：mai bind <水鱼成绩导入token>")
-        if len(token.split()) != 1:
-            return _syntax_error("命令语法错误：Import-Token 不能包含空格。")
-        return _render(
-            "maimai_bind_import_token",
-            {"qq": context.sender_qq, "importToken": token},
-            server="upload",
-        )
-
-    update_rest = _strip_leading_command(rest, "update")
-    if update_rest is not None:
-        return _parse_maimai_update_command(update_rest, context)
-
-    return _syntax_error("用法：mai bind <水鱼成绩导入token> / mai update <二维码解析内容> [--keyship <keyship>] [--logoutid <1或2>] [--title-ver <版本>]")
-
-
-def _parse_maimai_update_command(rest: str, context: TargetContext) -> DirectCommand:
-    if not rest.strip():
-        return _syntax_error("用法：mai update <二维码解析内容> [--keyship <keyship>] [--logoutid <1或2>] [--title-ver <版本>]")
-    try:
-        parts = shlex.split(rest)
-    except ValueError as exc:
-        return _syntax_error(f"命令语法错误：{exc}")
-    if not parts:
-        return _syntax_error("用法：mai update <二维码解析内容> [--keyship <keyship>] [--logoutid <1或2>] [--title-ver <版本>]")
-
-    qr_content = parts[0]
-    args: dict[str, Any] = {"qq": context.sender_qq, "qrContent": qr_content}
-    index = 1
-    while index < len(parts):
-        option = parts[index]
-        if option not in {"--keyship", "--keychip", "--logoutid", "--title-ver"}:
-            return _syntax_error(f"命令语法错误：不支持的 mai update 参数 {option}")
-        if index + 1 >= len(parts):
-            return _syntax_error(f"命令语法错误：{option} 缺少参数值。")
-        value = parts[index + 1]
-        if option in {"--keyship", "--keychip"}:
-            args["keyship"] = value
-        elif option == "--logoutid":
-            if value not in {"1", "2"}:
-                return _syntax_error("命令语法错误：--logoutid 只能是 1 或 2。")
-            args["logoutid"] = int(value)
-        elif option == "--title-ver":
-            args["titleVer"] = value
-        index += 2
-    return _render("maimai_update_records", args, server="upload")
 
 
 def _parse_today_maimai(body: str, context: TargetContext) -> DirectCommand | None:
@@ -2114,9 +2044,6 @@ class DirectMcpClient:
         elif server == "group":
             module = self.config.group_module
             timeout = self.config.timeout_seconds
-        elif server == "upload":
-            module = self.config.upload_module
-            timeout = self.config.upload_timeout_seconds
         elif server == "oauth":
             module = self.config.oauth_module
             timeout = self.config.timeout_seconds
@@ -2196,7 +2123,6 @@ def direct_mcp_config_from_mapping(config: Any) -> DirectMcpConfig:
     data_dir = str(_config_value(config, "direct_render_data_dir", DEFAULT_DATA_DIR) or DEFAULT_DATA_DIR)
     project_cwd = str(_config_value(config, "direct_render_project_cwd", f"{data_dir}/maimai-mcp") or DEFAULT_PROJECT_DIR)
     timeout = float(_config_value(config, "direct_render_timeout_seconds", 90) or 90)
-    upload_timeout = float(_config_value(config, "direct_render_upload_timeout_seconds", 300) or 300)
     python_value = str(_config_value(config, "direct_render_python", "python") or "python")
     python_command = tuple(shlex.split(python_value)) or ("python",)
     env = _config_env(config, data_dir, project_cwd)
@@ -2206,10 +2132,8 @@ def direct_mcp_config_from_mapping(config: Any) -> DirectMcpConfig:
         render_module=str(_config_value(config, "direct_render_render_module", "maimaidx_render_mcp.server")),
         search_module=str(_config_value(config, "direct_render_search_module", "maimai_mcp.server")),
         group_module=str(_config_value(config, "direct_render_group_module", "group_b50_mcp.server")),
-        upload_module=str(_config_value(config, "direct_render_upload_module", "maimai_update_mcp.server")),
         oauth_module=str(_config_value(config, "direct_render_oauth_module", "lxns_oauth_mcp.server")),
         timeout_seconds=timeout,
-        upload_timeout_seconds=upload_timeout,
         env=env,
     )
 
@@ -2220,8 +2144,6 @@ def default_mcp_env(project_cwd: str = DEFAULT_PROJECT_DIR) -> dict[str, str]:
         "PLAYER_CACHE_DIR": DEFAULT_PLAYER_CACHE_DIR,
         "QQ_IDENTITY_CACHE_DIR": DEFAULT_QQ_IDENTITY_CACHE_DIR,
         "LXNS_OAUTH_DB": f"{DEFAULT_DATA_DIR}/maimai-config/.lxns-oauth/oauth.sqlite3",
-        "MAIMAI_IMPORT_TOKEN_BINDINGS_FILE": f"{DEFAULT_DATA_DIR}/maimai-config/.maimai-import-token-bindings.json",
-        "MAIMAI_UPDATE_RECORDS_OUTPUT_DIR": f"{DEFAULT_DATA_DIR}/maimai-record-imports",
         "MAIMAI_LOCAL_SEARCH_MCP_ARGS": json.dumps(["-m", "maimai_mcp.server"]),
         "MAIMAI_LOCAL_SEARCH_MCP_CWD": project_cwd,
         "MAIMAIDX_RENDER_OUTPUT_DIR": DEFAULT_IMAGE_DIR,
@@ -2236,8 +2158,6 @@ def _config_env(config: Any, data_dir: str, project_cwd: str) -> dict[str, str]:
         "PLAYER_CACHE_DIR": f"{data_dir}/player-cache",
         "QQ_IDENTITY_CACHE_DIR": f"{data_dir}/qq-identity-cache",
         "LXNS_OAUTH_DB": f"{data_dir}/maimai-config/.lxns-oauth/oauth.sqlite3",
-        "MAIMAI_IMPORT_TOKEN_BINDINGS_FILE": f"{data_dir}/maimai-config/.maimai-import-token-bindings.json",
-        "MAIMAI_UPDATE_RECORDS_OUTPUT_DIR": f"{data_dir}/maimai-record-imports",
         "MAIMAI_LOCAL_SEARCH_MCP_ARGS": json.dumps(["-m", "maimai_mcp.server"]),
         "MAIMAI_LOCAL_SEARCH_MCP_CWD": project_cwd,
         "MAIMAIDX_RENDER_OUTPUT_DIR": f"{data_dir}/maimai-images",
@@ -2248,8 +2168,6 @@ def _config_env(config: Any, data_dir: str, project_cwd: str) -> dict[str, str]:
         "DIVING_FISH_MCP_TOKEN_FILE": "direct_render_token_file",
         "PLAYER_CACHE_DIR": "direct_render_player_cache_dir",
         "QQ_IDENTITY_CACHE_DIR": "direct_render_qq_identity_cache_dir",
-        "MAIMAI_IMPORT_TOKEN_BINDINGS_FILE": "direct_render_import_token_bindings_file",
-        "MAIMAI_UPDATE_RECORDS_OUTPUT_DIR": "direct_render_update_records_output_dir",
         "MAIMAIDX_RENDER_OUTPUT_DIR": "direct_render_output_dir",
         "MAIMAIDX_COVER_CACHE_DIR": "direct_render_cover_cache_dir",
         "MAIMAIDX_STATIC_DIR": "direct_render_static_dir",

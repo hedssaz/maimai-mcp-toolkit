@@ -1,8 +1,8 @@
 # maimai-mcp-toolkit
 
-本仓库是一组本地 stdio MCP 工具，用于 maimai 查歌、查分、群榜、绘图和水鱼成绩上传工作流。
+本仓库是一组本地 stdio MCP 工具，用于 maimai 查歌、查分、群榜和绘图。
 
-没有日服曲目和科技传成绩功能（大概）
+不提供日服曲目或科技传成绩功能。
 
 绘图能力来自 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)，本项目在其绘图代码和资源接口上接入本地 MCP 数据源。
 
@@ -14,7 +14,6 @@ diving_fish_b50_mcp/  Diving-Fish B50 查询
 maimaidx_render_mcp/  maimaiDX 绘图渲染（B50卡、曲目信息、分数列表）
 qq_identity_mcp/      QQ 号 ↔ 水鱼用户名绑定查询
 maimai_score_mcp/     单曲成绩查询
-maimai_update_mcp/    官服 raw 成绩 → 水鱼上传
 lxns_oauth.py         落雪 OAuth 授权、状态与令牌存储核心
 lxns_oauth_mcp/       落雪 OAuth 绑定/状态/解绑 MCP
 group_b50_mcp/        群友 B50 排行榜
@@ -27,7 +26,6 @@ docs/                 详细文档
 
 ## 当前公开版边界
 
-- 保留官服 raw 成绩导出转换并上传到 Diving-Fish `/player/update_records` 的工作流。
 - 不支持 日服曲库、日服牌子/进度或官服曲目资源导入。
 - 曲库只使用 落雪/水鱼 数据。
 - 落雪 OAuth 仅用于本地绑定、绑定状态和解绑；授权状态与令牌保存在独立的本地 SQLite 中，不查成绩、不接入 SEGA 官方成绩接口，也不包含日服功能。
@@ -52,12 +50,6 @@ python -m maimaidx_render_mcp.server
 python -m qq_identity_mcp.server
 python -m maimai_score_mcp.server
 python -m lxns_oauth_mcp.server
-```
-
-官服成绩上传直连 fallback 入口：
-
-```bash
-python -m maimai_update_mcp.server
 ```
 
 ## MCP 客户端配置示例

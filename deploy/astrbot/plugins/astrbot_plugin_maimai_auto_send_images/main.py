@@ -187,8 +187,6 @@ def _is_sensitive_direct_command_text(value: Any) -> bool:
     return (
         text == "lxns"
         or text.startswith("lxns ")
-        or text.startswith("mai bind")
-        or text.startswith("mai update")
     )
 
 
@@ -205,7 +203,7 @@ class AstrBotToolMcpClient:
         self.fallback = fallback
 
     async def call_tool(self, server: str, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
-        if server in {"upload", "oauth"}:
+        if server == "oauth":
             return await self.fallback.call_tool(server, tool_name, arguments)
 
         tool = self._tool(tool_name)
@@ -593,7 +591,7 @@ class MaimaiAutoSendImagesPlugin(Star):
 
         command = self._with_lxns_oauth_event_context(event, command)
         tool_name = command.render_tool_name or command.tool_name
-        if command.server in {"oauth", "upload"} or _is_sensitive_direct_command_text(
+        if command.server == "oauth" or _is_sensitive_direct_command_text(
             command_text
         ):
             logger.info(
@@ -621,13 +619,9 @@ class MaimaiAutoSendImagesPlugin(Star):
             )
             mcp_finished_at = time.perf_counter()
         except DirectRenderError as exc:
-            if command.server in {"oauth", "upload"}:
+            if command.server == "oauth":
                 logger.warning("maimai direct-render sensitive MCP failed: tool=%s", tool_name)
-                error_text = (
-                    "落雪 OAuth 操作失败，请稍后重试。"
-                    if command.server == "oauth"
-                    else "成绩导入操作失败，请稍后重试。"
-                )
+                error_text = "落雪 OAuth 操作失败，请稍后重试。"
             else:
                 logger.warning("maimai direct-render MCP failed: tool=%s error=%s", tool_name, exc)
                 error_text = f"直连绘图失败：{exc}"

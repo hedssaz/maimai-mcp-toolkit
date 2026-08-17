@@ -72,12 +72,6 @@
     "type": "int",
     "default": 90
   },
-  "direct_render_upload_timeout_seconds": {
-    "description": "直连成绩上传超时时间（秒）",
-    "type": "int",
-    "default": 300,
-    "hint": "mai update 会登录、拉取成绩、登出、转换并上传，通常比绘图更慢。"
-  },
   "direct_render_today_offset": {
     "description": "今日舞萌偏移值",
     "type": "int",
@@ -89,12 +83,6 @@
     "type": "string",
     "default": "group_b50_mcp.server",
     "hint": "rank / musicrank 直连回退到子进程 MCP 时使用。"
-  },
-  "direct_render_upload_module": {
-    "description": "直连成绩上传 MCP 模块",
-    "type": "string",
-    "default": "maimai_update_mcp.server",
-    "hint": "mai bind / mai update 直连回退到子进程 MCP 时使用；插件会强制绕过 AstrBot Agent 工具管理器。"
   },
   "direct_render_oauth_module": {
     "description": "直连落雪 OAuth MCP 模块",
@@ -164,16 +152,6 @@
     "description": "QQ 身份缓存目录",
     "type": "string",
     "default": "/AstrBot/data/qq-identity-cache"
-  },
-  "direct_render_import_token_bindings_file": {
-    "description": "水鱼 Import-Token 绑定文件",
-    "type": "string",
-    "default": "/AstrBot/data/maimai-config/.maimai-import-token-bindings.json"
-  },
-  "direct_render_update_records_output_dir": {
-    "description": "成绩上传中间文件目录",
-    "type": "string",
-    "default": "/AstrBot/data/maimai-record-imports"
   },
   "direct_render_extra_env_json": {
     "description": "额外环境变量 JSON",

@@ -440,30 +440,6 @@ class DirectRenderParserTest(unittest.TestCase):
         self.assertEqual(multiple_targets.tool_name, "direct_render_syntax_error")
         self.assertIn("今日舞萌一次只能指定一个 QQ", multiple_targets.error_text)
 
-    def test_maimai_update_workflow_direct_syntax(self) -> None:
-        bind = parse("mai bind import-token-abc")
-        self.assertEqual(bind.server, "upload")
-        self.assertEqual(bind.tool_name, "maimai_bind_import_token")
-        self.assertEqual(bind.arguments, {"qq": SENDER_QQ, "importToken": "import-token-abc"})
-
-        update = parse("mai update SGWCSDGB2606171200000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --keyship A63E01D90630000 --logoutid 1 --title-ver 1.55.00")
-        self.assertEqual(update.server, "upload")
-        self.assertEqual(update.tool_name, "maimai_update_records")
-        self.assertEqual(
-            update.arguments,
-            {
-                "qq": SENDER_QQ,
-                "qrContent": "SGWCSDGB2606171200000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-                "keyship": "A63E01D90630000",
-                "logoutid": 1,
-                "titleVer": "1.55.00",
-            },
-        )
-
-        bad_logoutid = parse("mai update SGWCSDGB2606171200000123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --logoutid 3")
-        self.assertEqual(bad_logoutid.tool_name, "direct_render_syntax_error")
-        self.assertIn("--logoutid", bad_logoutid.error_text)
-
     def test_minfo_target_syntax(self) -> None:
         self.assertEqual(
             parse("minfo 系ぎて").arguments,
@@ -1733,22 +1709,11 @@ class DirectRenderAstrBotEventTest(unittest.TestCase):
                         "isError": False,
                         "content": [{"type": "text", "text": "授权服务暂不可用"}],
                     },
-                    ("upload", "maimai_bind_import_token"): {
-                        "isError": False,
-                        "content": [{"type": "text", "text": "token 已绑定"}],
-                    },
-                    ("upload", "maimai_update_records"): {
-                        "isError": False,
-                        "content": [{"type": "text", "text": "导入完成"}],
-                    },
                 }
             )
             plugin._direct_mcp_client = lambda: client
             secret = "secret-one-time-code"
-            upload_token = "secret-upload-token"
-            qr_content = "secret-qr-content"
             malformed_oauth = "secret malformed oauth code"
-            malformed_upload = "secret-upload-token with-space"
             origin = f"aiocqhttp:GroupMessage:{GROUP_ID}"
             event = InteractiveDummyEvent(
                 [Plain(f"lxns bind {secret}")],
@@ -1768,31 +1733,12 @@ class DirectRenderAstrBotEventTest(unittest.TestCase):
                 group_id=GROUP_ID,
                 unified_msg_origin=origin,
             )
-            upload_bind_event = InteractiveDummyEvent(
-                [Plain(f"mai bind {upload_token}")],
-                message_str=f"mai bind {upload_token}",
-                group_id=GROUP_ID,
-                unified_msg_origin=origin,
-            )
-            upload_qr_event = InteractiveDummyEvent(
-                [Plain(f"mai update {qr_content}")],
-                message_str=f"mai update {qr_content}",
-                group_id=GROUP_ID,
-                unified_msg_origin=origin,
-            )
             malformed_oauth_event = InteractiveDummyEvent(
                 [Plain(f"lxns bind {malformed_oauth}")],
                 message_str=f"lxns bind {malformed_oauth}",
                 group_id=GROUP_ID,
                 unified_msg_origin=origin,
             )
-            malformed_upload_event = InteractiveDummyEvent(
-                [Plain(f"mai bind {malformed_upload}")],
-                message_str=f"mai bind {malformed_upload}",
-                group_id=GROUP_ID,
-                unified_msg_origin=origin,
-            )
-
             with (
                 patch("deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.logger.info") as log_info,
                 patch("deploy.astrbot.plugins.astrbot_plugin_maimai_auto_send_images.main.logger.debug") as log_debug,
@@ -1808,10 +1754,7 @@ class DirectRenderAstrBotEventTest(unittest.TestCase):
                 await plugin.on_direct_render_message(event)
                 await plugin.on_direct_render_message(unmatched)
                 await plugin.on_direct_render_message(link_event)
-                await plugin.on_direct_render_message(upload_bind_event)
-                await plugin.on_direct_render_message(upload_qr_event)
                 await plugin.on_direct_render_message(malformed_oauth_event)
-                await plugin.on_direct_render_message(malformed_upload_event)
 
             logs = repr(log_info.call_args_list) + repr(log_debug.call_args_list)
             state_payload = "lxns.1800000000.opaque-log-test-nonce-1234567890"
@@ -1826,10 +1769,7 @@ class DirectRenderAstrBotEventTest(unittest.TestCase):
                 f"{state_payload}.{state_signature}",
                 "shared-secret-token-0123456789abcdef",
                 SENDER_QQ,
-                upload_token,
-                qr_content,
                 malformed_oauth,
-                malformed_upload,
             ):
                 self.assertNotIn(sensitive, logs)
             self.assertNotIn(origin, logs)
@@ -2651,46 +2591,6 @@ class DirectRenderHandleTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result.image_paths, (str(image),))
             self.assertEqual(tool.calls, [(7, {"qq": SENDER_QQ})])
             self.assertEqual(fallback.calls, [])
-
-    async def test_upload_server_bypasses_registered_astrbot_tool(self) -> None:
-        tool_result = type(
-            "ToolResult",
-            (),
-            {
-                "isError": False,
-                "structuredContent": {"text": "wrong"},
-                "content": [type("TextItem", (), {"type": "text", "text": "wrong"})()],
-            },
-        )()
-        tool = FakeAstrBotTool(tool_result)
-        fallback = FakeMcpClient(
-            {
-                (
-                    "upload",
-                    "maimai_bind_import_token",
-                ): {"isError": False, "content": [{"type": "text", "text": "bound"}]},
-            }
-        )
-        client = AstrBotToolMcpClient(
-            FakeAstrBotContext(FakeToolManager({"maimai_bind_import_token": tool})),
-            {"direct_render_timeout_seconds": 7},
-            fallback,  # type: ignore[arg-type]
-        )
-
-        result = await handle_direct_command(parse("mai bind import-token-abc"), client)
-
-        self.assertEqual(result.text, "bound")
-        self.assertEqual(tool.calls, [])
-        self.assertEqual(
-            fallback.calls,
-            [
-                (
-                    "upload",
-                    "maimai_bind_import_token",
-                    {"qq": SENDER_QQ, "importToken": "import-token-abc"},
-                )
-            ],
-        )
 
     async def test_search_unique_song_then_renders_music_info(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
