@@ -1,0 +1,277 @@
+{
+  "serverInfo": {
+    "name": "maimai-dx-scoring",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "score_counts",
+      "description": "Calculate maimai score contributions from note-type/judgment counts. Returns DX base, DX Break bonus, old-frame/FiNALE raw score, DX SCORE, old-frame percentage, and DX achievement percentage in one response.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "counts": {
+            "type": "object",
+            "description": "Nested counts: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "display_digits": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 4,
+            "description": "Decimal digits used for oldacc/dxacc display and scaled values."
+          },
+          "include_zero": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include zero-count rows in the result table."
+          }
+        }
+      }
+    },
+    {
+      "name": "find_score_combinations",
+      "description": "Search whether a chart can achieve an exact score or score range under judgment restrictions. Returns multiple matching judgment-count combinations up to max_solutions. Supports allowed/disallowed judgment groups and fixed/min/max counts per note type. score_mode=oldscore searches old-frame/FiNALE raw score. score_mode=dxscore searches DX SCORE. score_mode=oldacc or dxacc searches displayed percentage units; target_score=1004999 means 100.4999 when display_digits=4, and percentage strings such as 100.4999% are also accepted.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "note_totals"
+        ],
+        "properties": {
+          "note_totals": {
+            "type": "object",
+            "description": "Chart note totals, e.g. {\"tap\": 100, \"touch\": 12, \"hold\": 20, \"slide\": 30, \"break\": 5}. Touch has the same value as Tap; touch_hold aliases are normalized to hold.",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "target_score": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Exact selected-mode score. For oldscore/dxscore/base/break_bonus use a raw integer. For oldacc/dxacc, an integer is scaled percentage without the decimal point, e.g. 1004999 means 100.4999 when display_digits=4; strings like 100.4999 or 100.4999% are accepted."
+          },
+          "target_acc": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional oldacc/dxacc target percentage such as 100.4999 or 100.4999%. Equivalent to target_score as a percentage string."
+          },
+          "min_score": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Minimum selected-mode score. In oldacc/dxacc, follows the same scaled-integer or percentage-string rules as target_score."
+          },
+          "max_score": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Maximum selected-mode score. In oldacc/dxacc, follows the same scaled-integer or percentage-string rules as target_score."
+          },
+          "min_acc": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional oldacc/dxacc minimum percentage such as 100.4000%."
+          },
+          "max_acc": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional oldacc/dxacc maximum percentage such as 100.5000%."
+          },
+          "score_mode": {
+            "type": "string",
+            "enum": [
+              "base",
+              "break_bonus",
+              "oldscore",
+              "dxscore",
+              "oldacc",
+              "dxacc"
+            ],
+            "default": "oldscore",
+            "description": "Search in base, break_bonus, oldscore raw score, oldacc percentage, dxscore, or dxacc percentage. For oldacc/dxacc, target_score can be a scaled display integer or a percentage string."
+          },
+          "allowed_judgments": {
+            "type": "object",
+            "description": "Optional note type -> allowed judgments/groups. Groups include all, not_miss, no_miss, great, perfect, perfect_or_critical, ap, fc_plus, fc.",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "disallowed_judgments": {
+            "type": "object",
+            "description": "Optional note type -> forbidden judgments/groups, applied after allowed_judgments.",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "fixed_counts": {
+            "type": "object",
+            "description": "Exact counts to force: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "min_counts": {
+            "type": "object",
+            "description": "Minimum counts to force: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "max_counts": {
+            "type": "object",
+            "description": "Maximum counts to enforce: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "no_miss_good": {
+            "type": "boolean",
+            "description": "Shortcut restriction: all note types disallow miss and good."
+          },
+          "all_notes_no_miss_good": {
+            "type": "boolean",
+            "description": "Alias of no_miss_good."
+          },
+          "fc_plus_only": {
+            "type": "boolean",
+            "description": "Alias of no_miss_good; allows only great/perfect/critical judgments."
+          },
+          "break_max_perfect_or_below": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Shortcut restriction: Break notes with judgment below Critical may be at most this many."
+          },
+          "break_max_non_critical": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Alias of break_max_perfect_or_below."
+          },
+          "max_break_non_critical": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Alias of break_max_perfect_or_below."
+          },
+          "max_solutions": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 10,
+            "description": "Maximum matching combinations to return. Use 0 for count-only reachability checks. If more combinations exist than returned, the response sets truncated=true while keeping matching_combination_count exact."
+          },
+          "max_states": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 200000,
+            "description": "Search-state cap to avoid runaway combinatorics."
+          },
+          "display_mode": {
+            "type": "string",
+            "enum": [
+              "floor",
+              "half_up",
+              "exact"
+            ],
+            "default": "floor",
+            "description": "Only for score_mode=oldacc or dxacc. Interprets target_score as floor display, half-up display, or exact raw percentage."
+          },
+          "display_digits": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 4,
+            "description": "Only for score_mode=oldacc or dxacc. Number of displayed decimal digits; default 4."
+          }
+        }
+      }
+    }
+  ]
+}

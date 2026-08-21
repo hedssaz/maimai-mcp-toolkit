@@ -1,0 +1,113 @@
+{
+  "serverInfo": {
+    "name": "qq-identity-mcp",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "refresh_qq_identity_cache",
+      "description": "从 NapCat 拉取机器人账号的好友列表、加入的群列表、各群成员 QQ/QQ昵称/群名片，刷新共享 QQ 身份缓存。不会保存好友备注。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "forceRefresh": {
+            "type": "boolean",
+            "description": "是否忽略 1 天 TTL 强制刷新。"
+          },
+          "napcatBaseUrl": {
+            "type": "string",
+            "description": "覆盖 NAPCAT_BASE_URL。"
+          },
+          "noCache": {
+            "type": "boolean",
+            "description": "传给 get_group_member_list，默认 true。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 60000,
+            "description": "单次 NapCat HTTP 请求超时，默认 10000ms。"
+          },
+          "groupDelayMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "每个群成员列表请求之间的间隔，默认 250ms。"
+          },
+          "maxGroups": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "最多刷新多少个群，主要用于测试。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "qq_identity_cache_status",
+      "description": "查看 QQ 身份缓存状态、年龄、统计和后台刷新任务。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "qq_identity_job_status",
+      "description": "查看 QQ 身份缓存后台刷新任务状态。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "resolve_qq_identity",
+      "description": "通过 QQ号、QQ昵称、群昵称/群名片、水鱼昵称反查 QQ 身份；重名时返回候选让 Agent 追问。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片或水鱼昵称。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，优先匹配指定群内昵称。"
+          },
+          "maxResults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "最多返回候选数量，默认 10。"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_qq_identity",
+      "description": "通过 QQ 号读取缓存中的 QQ昵称、群昵称/群名片、水鱼昵称。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "QQ 号。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，返回该群的群昵称优先项。"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

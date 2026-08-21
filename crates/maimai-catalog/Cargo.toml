@@ -1,0 +1,23 @@
+[package]
+name = "maimai-catalog"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+arc-swap = "1.7"
+csv = "1"
+pinyin = "0.11"
+maimai-core = { path = "../maimai-core" }
+rust_decimal.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tempfile = "3"
+thiserror.workspace = true
+time = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync"] }
+unicode-normalization.workspace = true
+
+[lints]
+workspace = true

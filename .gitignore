@@ -6,9 +6,11 @@ __pycache__/
 logs/
 *.egg-info/
 uv.lock
-qq-identity-cache/
-data/.lxns-oauth/
-lxns-oauth-callback/
+*.db
+*.sqlite
+*.sqlite3
+target/
+*.profraw
 
 # Refreshed maimai data source snapshots.
 # These files are kept in the repo as pinned snapshots; local refreshes can be
@@ -25,20 +27,26 @@ data/dxrating_tags.json
 data/divingfish_chart_stats.json
 data/maimaidxplate.json
 data/pinyin_aliases.json
+data/.divingfish_etag
+data/sega_maidx_locations.json
 data/extracted_music_resources/
 
-# Large binary assets (generated or downloadable)
-maimaidx_render_mcp/static/mai/cover/
-maimaidx_render_mcp/static/mai/rating/
-maimaidx_render_mcp/static/**/*.[pP][nN][gG]
-maimaidx_render_mcp/static/**/*.[jJ][pP][gG]
-maimaidx_render_mcp/static/**/*.[jJ][pP][eE][gG]
-maimaidx_render_mcp/static/**/*.[wW][eE][bB][pP]
-maimaidx_render_mcp/static/**/*.[gG][iI][fF]
-maimaidx_render_mcp/static/**/*.[bB][mM][pP]
-maimaidx_render_mcp/static/**/*.[sS][vV][gG]
-maimaidx_render_mcp/static/*.ttf
-maimaidx_render_mcp/static/*.otf
-maimai-images/
-outputs/
-player-cache/
+# 本地生成图片、成绩导出与渲染缓存。
+/maimai-images/
+/outputs/
+/assets/
+/maimaidx_render_mcp/static/mai/cover/
+/maimaidx_render_mcp/static/mai/rating/
+/maimaidx_render_mcp/static/*.ttf
+/maimaidx_render_mcp/static/*.otf
+/maimaidx_render_mcp/static/**/*.[pP][nN][gG]
+/maimaidx_render_mcp/static/**/*.[jJ][pP][gG]
+/maimaidx_render_mcp/static/**/*.[jJ][pP][eE][gG]
+/maimaidx_render_mcp/static/**/*.[wW][eE][bB][pP]
+/maimaidx_render_mcp/static/**/*.[gG][iI][fF]
+/maimaidx_render_mcp/static/**/*.[bB][mM][pP]
+/maimaidx_render_mcp/static/**/*.[sS][vV][gG]
+
+# 本地工具说明副本；正式项目规则仍以 AGENTS.md 为准。
+/AGENTS_compact.md
+/CLAUDE.md

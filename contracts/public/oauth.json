@@ -1,0 +1,278 @@
+{
+  "serverInfo": {
+    "name": "lxns-oauth",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "maimai_lxns_oauth_url",
+      "description": "创建落雪 OAuth 授权链接；state 为 opaque 随机值或调用方提供的可信签名值。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "AstrBot 用户标识；核心内部作为 OAuth subject。"
+          },
+          "subject": {
+            "type": "string",
+            "description": "qq 的兼容别名。"
+          },
+          "adapterId": {
+            "type": "string",
+            "description": "AstrBot adapter_id。"
+          },
+          "adapter": {
+            "type": "string",
+            "description": "adapterId 的兼容别名。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "会话或群标识。"
+          },
+          "conversation": {
+            "type": "string",
+            "description": "groupId 的兼容别名。"
+          },
+          "botQq": {
+            "type": "string",
+            "description": "当前机器人标识。"
+          },
+          "bot": {
+            "type": "string",
+            "description": "botQq 的兼容别名。"
+          },
+          "state": {
+            "type": "string",
+            "description": "可选，由可信回调桥生成的 opaque OAuth state。不会出现在结果字段中。"
+          },
+          "scopes": {
+            "type": "string",
+            "description": "可选 OAuth scope 覆盖值。"
+          },
+          "ttlSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600,
+            "description": "OAuth state 有效期，默认 600 秒。"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_bind_code",
+      "description": "用手工 code、code=... 或完整 callback URL 完成落雪 OAuth 绑定。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "AstrBot 用户标识；核心内部作为 OAuth subject。"
+          },
+          "subject": {
+            "type": "string",
+            "description": "qq 的兼容别名。"
+          },
+          "adapterId": {
+            "type": "string",
+            "description": "AstrBot adapter_id。"
+          },
+          "adapter": {
+            "type": "string",
+            "description": "adapterId 的兼容别名。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "会话或群标识。"
+          },
+          "conversation": {
+            "type": "string",
+            "description": "groupId 的兼容别名。"
+          },
+          "botQq": {
+            "type": "string",
+            "description": "当前机器人标识。"
+          },
+          "bot": {
+            "type": "string",
+            "description": "botQq 的兼容别名。"
+          },
+          "state": {
+            "type": "string",
+            "description": "可选，由可信回调桥生成的 opaque OAuth state。不会出现在结果字段中。"
+          },
+          "code": {
+            "type": "string",
+            "description": "OAuth code、code=... 或完整 callback URL。"
+          }
+        },
+        "required": [
+          "qq",
+          "code"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_prepare_poke",
+      "description": "交换 OAuth code，并将 token 暂存到独立 SQLite，等待原上下文拍一拍确认。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "AstrBot 用户标识；核心内部作为 OAuth subject。"
+          },
+          "subject": {
+            "type": "string",
+            "description": "qq 的兼容别名。"
+          },
+          "adapterId": {
+            "type": "string",
+            "description": "AstrBot adapter_id。"
+          },
+          "adapter": {
+            "type": "string",
+            "description": "adapterId 的兼容别名。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "会话或群标识。"
+          },
+          "conversation": {
+            "type": "string",
+            "description": "groupId 的兼容别名。"
+          },
+          "botQq": {
+            "type": "string",
+            "description": "当前机器人标识。"
+          },
+          "bot": {
+            "type": "string",
+            "description": "botQq 的兼容别名。"
+          },
+          "state": {
+            "type": "string",
+            "description": "可选，由可信回调桥生成的 opaque OAuth state。不会出现在结果字段中。"
+          },
+          "code": {
+            "type": "string",
+            "description": "OAuth code、code=... 或完整 callback URL。"
+          },
+          "ttlSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1800,
+            "description": "待确认有效期，默认 300 秒。"
+          }
+        },
+        "required": [
+          "qq",
+          "code",
+          "adapterId",
+          "groupId",
+          "botQq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_confirm_poke",
+      "description": "仅在 subject、adapter、conversation、bot 全部匹配时确认待绑定 token。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "AstrBot 用户标识；核心内部作为 OAuth subject。"
+          },
+          "subject": {
+            "type": "string",
+            "description": "qq 的兼容别名。"
+          },
+          "adapterId": {
+            "type": "string",
+            "description": "AstrBot adapter_id。"
+          },
+          "adapter": {
+            "type": "string",
+            "description": "adapterId 的兼容别名。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "会话或群标识。"
+          },
+          "conversation": {
+            "type": "string",
+            "description": "groupId 的兼容别名。"
+          },
+          "botQq": {
+            "type": "string",
+            "description": "当前机器人标识。"
+          },
+          "bot": {
+            "type": "string",
+            "description": "botQq 的兼容别名。"
+          },
+          "state": {
+            "type": "string",
+            "description": "可选，由可信回调桥生成的 opaque OAuth state。不会出现在结果字段中。"
+          }
+        },
+        "required": [
+          "qq",
+          "adapterId",
+          "groupId",
+          "botQq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_status",
+      "description": "查看落雪 OAuth 是否已绑定或正在等待确认；不会返回 token 信息。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "AstrBot 用户标识；核心内部作为 OAuth subject。"
+          },
+          "subject": {
+            "type": "string",
+            "description": "qq 的兼容别名。"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_unbind",
+      "description": "删除该 subject 的 OAuth token、state 和待确认记录。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "AstrBot 用户标识；核心内部作为 OAuth subject。"
+          },
+          "subject": {
+            "type": "string",
+            "description": "qq 的兼容别名。"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

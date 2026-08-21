@@ -1,0 +1,396 @@
+{
+  "serverInfo": {
+    "name": "maimai-update-records-direct-mcp",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "maimai_bind_import_token",
+      "description": "Direct-only: bind sender QQ to a Diving-Fish Import-Token for score upload.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "importToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qq",
+          "importToken"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_update_records",
+      "description": "Direct-only: QR login, dump official raw records, convert to Diving-Fish update_records and upload.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "qrContent": {
+            "type": "string"
+          },
+          "keyship": {
+            "type": "string"
+          },
+          "logoutid": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "titleVer": {
+            "type": "string"
+          },
+          "timeout": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "qq",
+          "qrContent"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_unbind_import_token",
+      "description": "Direct-only: unbind sender QQ's Diving-Fish Import-Token while preserving official user_id for local fast lookup.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_oauth_url",
+      "description": "Direct-only: generate an LXNS OAuth authorization URL for sender QQ.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_bind_code",
+      "description": "Direct-only: bind sender QQ to LXNS OAuth with an authorization code or callback URL.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "timeout": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "qq",
+          "code"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_prepare_poke",
+      "description": "Direct-only: exchange an LXNS callback code and stage it until the original QQ pokes the bot.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "adapterId": {
+            "type": "string"
+          },
+          "groupId": {
+            "type": "string"
+          },
+          "botQq": {
+            "type": "string"
+          },
+          "ttlSeconds": {
+            "type": "integer"
+          },
+          "timeout": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "qq",
+          "code",
+          "state",
+          "adapterId",
+          "groupId",
+          "botQq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_confirm_poke",
+      "description": "Direct-only: atomically confirm a staged LXNS OAuth binding from the original QQ poke context.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "adapterId": {
+            "type": "string"
+          },
+          "groupId": {
+            "type": "string"
+          },
+          "botQq": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qq",
+          "adapterId",
+          "groupId",
+          "botQq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_bind_friend_code",
+      "description": "Direct-only: bind sender QQ to an LXNS maimai friend code for first-time player creation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "friendCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qq",
+          "friendCode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_unbind",
+      "description": "Direct-only: unbind sender QQ's LXNS OAuth while preserving Diving-Fish and official user_id bindings.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_lxns_status",
+      "description": "Direct-only: show sender QQ's LXNS OAuth binding status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_update_records_fast",
+      "description": "Direct-only: no-login rival lookup by bound official user_id, convert score/DX-only records to Diving-Fish update_records and upload.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "timeout": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_list_bound_sega_users",
+      "description": "Direct-only: list QQ accounts with a bound official user_id for scheduled fast updates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_quick_b50",
+      "description": "Direct-only: read official GetUserRatingApi by bound user_id and return a merged-forward B50 summary text message.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "官服只读查询超时秒数，默认 240 秒。",
+            "minimum": 0.1,
+            "maximum": 300,
+            "default": 240
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_user_ghost",
+      "description": "Direct-only: read official GetUserGhostApi by bound user_id and return merged-forward VS ghost text messages.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "官服只读查询超时秒数，默认 240 秒。",
+            "minimum": 0.1,
+            "maximum": 300,
+            "default": 240
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_user_region",
+      "description": "Direct-only: show official GetUserRegionApi province first-play time and play counts from cached full raw data, or QR login/dump/save/upload first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "qrContent": {
+            "type": "string"
+          },
+          "keyship": {
+            "type": "string"
+          },
+          "logoutid": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "titleVer": {
+            "type": "string"
+          },
+          "timeout": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "maimai_render_upper",
+      "description": "Direct-only: render upper display through the configured HTTP renderer from cached profile/raw data, or QR login/dump/save/upload first; if the renderer is unavailable, return merged-forward field preview messages.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string"
+          },
+          "qrContent": {
+            "type": "string"
+          },
+          "keyship": {
+            "type": "string"
+          },
+          "logoutid": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "titleVer": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "sy",
+              "local",
+              "lxns"
+            ]
+          },
+          "timeout": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

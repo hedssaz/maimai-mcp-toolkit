@@ -1,0 +1,682 @@
+{
+  "serverInfo": {
+    "name": "group-rank-mcp",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "group_b50_report",
+      "description": "按群号读取群成员并通过成绩服务生成群 B50 排行，可输出 rating 榜或详细 B50。缓存按每日重置时间自动刷新。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          },
+          "forceRefresh": {
+            "type": "boolean",
+            "description": "是否忽略缓存并重新拉取。"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "fitIndex"
+            ],
+            "description": "排序字段。rating=按 rating；fitIndex=按 B50 虚高指数（虚高百分比）。默认 rating。"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "返回内容排序，默认 asc。"
+          },
+          "fitIndexMin": {
+            "type": "number",
+            "description": "虚高指数下限（百分比）。例如 0.5 表示只看虚高 >= 0.5% 的人。"
+          },
+          "fitIndexMax": {
+            "type": "number",
+            "description": "虚高指数上限（百分比）。例如 -0.5 表示只看虚低 >= 0.5% 的人。"
+          },
+          "outputMode": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "detail"
+            ],
+            "description": "rating 只输出榜单；detail 输出对应排序的完整 B50。"
+          },
+          "ratingMin": {
+            "type": "integer",
+            "description": "筛选 rating 下限，包含该值。例如 14000。"
+          },
+          "ratingMax": {
+            "type": "integer",
+            "description": "筛选 rating 上限，包含该值。例如 15000 表示只看 15000 以下/以内。"
+          },
+          "outputLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "筛选和排序之后最多输出多少人。例如前 10 或后 30。"
+          },
+          "startRank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "可选，筛选和排序之后从第几名开始输出，1-based，需和 endRank 一起使用。"
+          },
+          "endRank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "可选，筛选和排序之后输出到第几名，包含该名次，需和 startRank 一起使用。"
+          },
+          "napcatBaseUrl": {
+            "type": "string",
+            "description": "覆盖 NapCat OneBot HTTP API 地址，默认读 NAPCAT_BASE_URL。"
+          },
+          "noCache": {
+            "type": "boolean",
+            "description": "传给 NapCat get_group_member_list 的 no_cache，默认 true。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 60000,
+            "description": "单次 HTTP 请求超时，默认 10000ms。"
+          },
+          "queryDelayMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "每个水鱼查询之间的等待时间，默认读 GROUP_B50_QUERY_DELAY_MS 或 250ms。"
+          },
+          "maxConcurrency": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "传给 B50 MCP 批量查询的并发数，默认 3。"
+          },
+          "batchSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "每批提交给 B50 MCP 的 QQ 数量，默认 100；批内会按单个 QQ 完成进度更新。"
+          },
+          "maxMembers": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "最多查询多少个群成员，主要用于测试或临时限流；默认查全群。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_b50_cache_status",
+      "description": "查看指定群 B50 榜单缓存是否存在、是否已过每日重置时间。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_b50_job_status",
+      "description": "查看群 B50 后台刷新任务状态；任务完成后可按筛选/排序直接读取榜单。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "fitIndex"
+            ],
+            "description": "排序字段。rating=按 rating；fitIndex=按 B50 虚高指数（虚高百分比）。默认 rating。"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "返回内容排序，默认 asc。"
+          },
+          "outputMode": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "detail"
+            ],
+            "description": "rating 只输出榜单；detail 输出对应排序的完整 B50。"
+          },
+          "ratingMin": {
+            "type": "integer",
+            "description": "筛选 rating 下限，包含该值。例如 14000。"
+          },
+          "ratingMax": {
+            "type": "integer",
+            "description": "筛选 rating 上限，包含该值。例如 15000 表示只看 15000 以下/以内。"
+          },
+          "fitIndexMin": {
+            "type": "number",
+            "description": "虚高指数下限（百分比）。例如 0.5 表示只看虚高 >= 0.5% 的人。"
+          },
+          "fitIndexMax": {
+            "type": "number",
+            "description": "虚高指数上限（百分比）。例如 -0.5 表示只看虚低 >= 0.5% 的人。"
+          },
+          "outputLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "筛选和排序之后最多输出多少人。例如前 10 或后 30。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_b50_member_rank",
+      "description": "输入 QQ 或昵称，基于群 B50 缓存输出该 QQ 的群内 rating 排名信息；未提供群号时会尝试从 QQ 身份缓存推断唯一群。缓存超过 1 天或强制刷新时会启动后台刷新任务。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。可选；未提供时会尝试从 QQ 身份缓存推断唯一群。"
+          },
+          "qq": {
+            "type": "string",
+            "description": "要查询群内排名的 QQ 号。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片或水鱼昵称。未提供 qq 时会用 QQ 身份缓存自动反查 QQ。"
+          },
+          "forceRefresh": {
+            "type": "boolean",
+            "description": "是否忽略缓存并重新拉取。"
+          },
+          "outputMode": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "detail"
+            ],
+            "description": "rating 只输出排名信息；detail 额外输出完整 B50。"
+          },
+          "contextSize": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "展示目标排名上下各多少人，默认 3。"
+          },
+          "napcatBaseUrl": {
+            "type": "string",
+            "description": "覆盖 NapCat OneBot HTTP API 地址，默认读 NAPCAT_BASE_URL。"
+          },
+          "noCache": {
+            "type": "boolean",
+            "description": "传给 NapCat get_group_member_list 的 no_cache，默认 true。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 60000,
+            "description": "单次 HTTP 请求超时，默认 10000ms。"
+          },
+          "queryDelayMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "每个水鱼查询之间的等待时间，默认读 GROUP_B50_QUERY_DELAY_MS 或 250ms。"
+          },
+          "maxConcurrency": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "传给 B50 MCP 批量查询的并发数，默认 3。"
+          },
+          "batchSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "每批提交给 B50 MCP 的 QQ 数量，默认 100；批内会按单个 QQ 完成进度更新。"
+          },
+          "maxMembers": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "最多查询多少个群成员，主要用于测试或临时限流；默认查全群。"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_b50_rank_at",
+      "description": "按群 B50 缓存查询指定名次是谁。默认 rating 倒序，所以 rank=1 是群内最高 rating；sortOrder=asc 时 rank=1 是最低 rating。缓存超过 1 天或强制刷新时会启动后台刷新任务。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "要查询的名次，1 表示当前排序下第一名。"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "排名方向，默认 desc。desc 表示最高 rating 第 1，asc 表示最低 rating 第 1。"
+          },
+          "outputMode": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "detail"
+            ],
+            "description": "rating 只输出榜单；detail 输出对应排序的完整 B50。"
+          },
+          "ratingMin": {
+            "type": "integer",
+            "description": "筛选 rating 下限，包含该值。例如 14000。"
+          },
+          "ratingMax": {
+            "type": "integer",
+            "description": "筛选 rating 上限，包含该值。例如 15000 表示只看 15000 以下/以内。"
+          },
+          "fitIndexMin": {
+            "type": "number",
+            "description": "虚高指数下限（百分比）。例如 0.5 表示只看虚高 >= 0.5% 的人。"
+          },
+          "fitIndexMax": {
+            "type": "number",
+            "description": "虚高指数上限（百分比）。例如 -0.5 表示只看虚低 >= 0.5% 的人。"
+          },
+          "forceRefresh": {
+            "type": "boolean",
+            "description": "是否忽略缓存并重新拉取。"
+          },
+          "napcatBaseUrl": {
+            "type": "string",
+            "description": "覆盖 NapCat OneBot HTTP API 地址，默认读 NAPCAT_BASE_URL。"
+          },
+          "noCache": {
+            "type": "boolean",
+            "description": "传给 NapCat get_group_member_list 的 no_cache，默认 true。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 60000,
+            "description": "单次 HTTP 请求超时，默认 10000ms。"
+          },
+          "queryDelayMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "每个水鱼查询之间的等待时间，默认读 GROUP_B50_QUERY_DELAY_MS 或 250ms。"
+          },
+          "maxConcurrency": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "传给 B50 MCP 批量查询的并发数，默认 3。"
+          },
+          "batchSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "每批提交给 B50 MCP 的 QQ 数量，默认 100；批内会按单个 QQ 完成进度更新。"
+          },
+          "maxMembers": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "最多查询多少个群成员，主要用于测试或临时限流；默认查全群。"
+          }
+        },
+        "required": [
+          "groupId",
+          "rank"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "clear_group_b50_cache",
+      "description": "清除指定群的 B50 榜单缓存。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_song_score_report",
+      "description": "按群号和某首歌输出群内单曲成绩排行榜。songQuery（曲名/别名）或 musicId 通常提供一个；仅 forceRefresh/预热单曲缓存时可以只传 groupId。曲目由本地类型化曲库解析，缓存按每日重置时间刷新，并与群 B50 缓存隔离。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          },
+          "songQuery": {
+            "type": "string",
+            "description": "曲名、别名或曲目 ID。和 musicId 二选一。"
+          },
+          "musicId": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Diving-Fish music_id。和 songQuery 二选一。"
+          },
+          "levelIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "可选，限定难度。0=Basic, 1=Advanced, 2=Expert, 3=Master, 4=Re:Master。不填时默认取该曲已有谱面的最高难度。"
+          },
+          "songType": {
+            "type": "string",
+            "enum": [
+              "DX",
+              "SD",
+              "Standard"
+            ],
+            "description": "可选，限定 DX/SD 谱面类型。不填不限制。"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "排序方向，默认 desc（高分在前）。"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "achievements",
+              "ra",
+              "dxScore"
+            ],
+            "description": "排序字段，默认 achievements。"
+          },
+          "outputLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "筛选/排序后最多输出多少人。"
+          },
+          "startRank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "可选，筛选/排序后从第几名开始输出，1-based，需和 endRank 一起使用。"
+          },
+          "endRank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "可选，筛选/排序后输出到第几名，包含该名次，需和 startRank 一起使用。"
+          },
+          "achievementsMin": {
+            "type": "number",
+            "description": "可选，达成率下限。"
+          },
+          "achievementsMax": {
+            "type": "number",
+            "description": "可选，达成率上限。"
+          },
+          "forceRefresh": {
+            "type": "boolean",
+            "description": "忽略缓存重新拉取（一天内默认走缓存）。"
+          },
+          "napcatBaseUrl": {
+            "type": "string",
+            "description": "覆盖 NAPCAT_BASE_URL。"
+          },
+          "noCache": {
+            "type": "boolean",
+            "description": "传给 NapCat get_group_member_list 的 no_cache，默认 true。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 60000,
+            "description": "单次 HTTP 请求超时，默认 10000ms。"
+          },
+          "queryDelayMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "每个水鱼查询之间的等待时间，默认 250ms。"
+          },
+          "maxConcurrency": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "完整成绩远端查询并发数，默认 3。多个群同时刷新时会先合并去重再按该并发数查询唯一 QQ。"
+          },
+          "batchSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "每批进度更新粒度，默认 5。"
+          },
+          "maxMembers": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "最多查询多少个群成员（测试/限流用）。"
+          },
+          "searchLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "maimai-local-search 检索 limit，默认 5。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_song_score_member_rank",
+      "description": "查询某 QQ 或昵称在群内某首歌的成绩排名。复用 group_song_score_report 同一份群缓存。未提供群号时会尝试用 QQ 身份缓存推断唯一群。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。可选。"
+          },
+          "qq": {
+            "type": "string",
+            "description": "要查询群内排名的 QQ 号。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片或水鱼昵称。未提供 qq 时会先用 QQ 身份缓存反查 QQ。"
+          },
+          "songQuery": {
+            "type": "string",
+            "description": "曲名、别名或曲目 ID。和 musicId 二选一。"
+          },
+          "musicId": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Diving-Fish music_id。和 songQuery 二选一。"
+          },
+          "levelIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "可选，限定难度。0=Basic, 1=Advanced, 2=Expert, 3=Master, 4=Re:Master。不填时默认取该曲已有谱面的最高难度。"
+          },
+          "songType": {
+            "type": "string",
+            "enum": [
+              "DX",
+              "SD",
+              "Standard"
+            ],
+            "description": "可选，限定 DX/SD 谱面类型。不填不限制。"
+          },
+          "contextSize": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "目标排名上下展示多少人，默认 3。"
+          },
+          "forceRefresh": {
+            "type": "boolean",
+            "description": "忽略缓存重新拉取（一天内默认走缓存）。"
+          },
+          "napcatBaseUrl": {
+            "type": "string",
+            "description": "覆盖 NAPCAT_BASE_URL。"
+          },
+          "noCache": {
+            "type": "boolean",
+            "description": "传给 NapCat get_group_member_list 的 no_cache，默认 true。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 60000,
+            "description": "单次 HTTP 请求超时，默认 10000ms。"
+          },
+          "queryDelayMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "每个水鱼查询之间的等待时间，默认 250ms。"
+          },
+          "maxConcurrency": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "完整成绩远端查询并发数，默认 3。多个群同时刷新时会先合并去重再按该并发数查询唯一 QQ。"
+          },
+          "batchSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "每批进度更新粒度，默认 5。"
+          },
+          "maxMembers": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "最多查询多少个群成员（测试/限流用）。"
+          },
+          "searchLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "maimai-local-search 检索 limit，默认 5。"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_song_score_cache_status",
+      "description": "查看群单曲成绩缓存是否存在、是否已过每日重置时间。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "group_song_score_job_status",
+      "description": "查看群单曲成绩后台刷新进度；完成后调本工具可直接读榜。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "clear_group_song_score_cache",
+      "description": "清除指定群的单曲成绩缓存，不影响其他成绩与群 B50 缓存。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "description": "QQ群号。"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+[package]
+name = "maimai-stdio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+maimai-app = { path = "../../crates/maimai-app" }
+maimai-catalog = { path = "../../crates/maimai-catalog" }
+maimai-mcp = { path = "../../crates/maimai-mcp" }
+maimai-providers = { path = "../../crates/maimai-providers" }
+maimai-render = { path = "../../crates/maimai-render" }
+maimai-storage = { path = "../../crates/maimai-storage" }
+reqwest = { version = "0.13", default-features = false, features = ["rustls"] }
+secrecy = "0.10"
+thiserror.workspace = true
+time = "0.3"
+tokio = { version = "1", features = ["io-std", "macros", "rt", "rt-multi-thread"] }
+url = "2"
+
+[dev-dependencies]
+serde_json.workspace = true
+sqlx = { version = "0.9", default-features = false, features = ["runtime-tokio", "sqlite"] }
+tempfile = "3"
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "maimai-public"
+path = "src/bin/maimai-public.rs"

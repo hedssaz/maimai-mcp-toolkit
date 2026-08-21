@@ -1,0 +1,821 @@
+{
+  "serverInfo": {
+    "name": "maimaidx-render-mcp",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "render_maimai_b50",
+      "description": "渲染 maimai B50 成绩图。支持 yuzu（默认）、maibot、legacy 三种风格。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名（与 qq 二选一）"
+          },
+          "style": {
+            "type": "string",
+            "description": "渲染风格: yuzu/maibot/legacy，默认 yuzu"
+          },
+          "computeFromRecords": {
+            "type": "boolean",
+            "description": "为 true 时拉取完整成绩，用拟合定数重算单曲 rating 并按拟合 rating 绘制 B50。"
+          },
+          "source": {
+            "type": "string",
+            "description": "可选，local/sy 表示成绩数据源；records/computed/fitted 等同于 computeFromRecords=true。"
+          },
+          "staticDir": {
+            "type": "string",
+            "description": "静态资源目录（maibot/legacy 需要）"
+          },
+          "coverCacheDir": {
+            "type": "string",
+            "description": "曲绘缓存目录"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "description": "超时毫秒"
+          },
+          "title": {
+            "type": "string",
+            "description": "自定义标题"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_plate",
+      "description": "渲染牌子完成表（如「真极」「熊将」）。展示某版本全曲目的各难度达成状态。支持 cn（国服）、jp（日服）和 custom（自定义）。默认先查 cn，cn 没有再自动兜底 jp/custom。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号。和 username 二选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名。和 qq 二选一。"
+          },
+          "version": {
+            "type": "string",
+            "description": "版本: 真/超/檄/橙/暁/桃/櫻/紫/菫/白/雪/輝/熊/华/爽/煌/宙/星/祭/祝/双/宴/镜/彩/丸/CiRCLE"
+          },
+          "plan": {
+            "type": "string",
+            "description": "目标: 极(FC)/将(100%)/神(AP)/舞舞(FSD/FDX)"
+          },
+          "server": {
+            "type": "string",
+            "enum": [
+              "cn",
+              "jp",
+              "custom"
+            ],
+            "description": "服务器，默认 cn。jp=日服DX独立牌子；custom=读取 data/custom_plates.json 自定义牌子。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": [
+          "version",
+          "plan"
+        ]
+      }
+    },
+    {
+      "name": "render_maimai_plate_batch",
+      "description": "批量渲染多个牌子完成表。只查询一次玩家完整成绩，然后生成多张牌子完成表，避免多个牌子消耗多次 Developer-Token 查询额度。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号。和 username 二选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名。和 qq 二选一。"
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "description": "牌子列表，每项如 {\"version\":\"真\",\"plan\":\"将\",\"server\":\"cn\"}；server 可省略。",
+            "items": {
+              "type": "object"
+            }
+          },
+          "versions": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string"
+            },
+            "description": "多个版本名；未传 items 时使用。"
+          },
+          "plan": {
+            "type": "string",
+            "description": "通用目标: 极/将/神/舞舞。items 内的 plan 优先。"
+          },
+          "server": {
+            "type": "string",
+            "enum": [
+              "cn",
+              "jp",
+              "custom"
+            ],
+            "description": "通用服务器，默认 cn；items 内的 server 优先。custom=读取 data/custom_plates.json 自定义牌子。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_rating",
+      "description": "渲染定数完成表。展示某等级的达成情况。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号。和 username 二选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名。和 qq 二选一。"
+          },
+          "rating": {
+            "type": "string",
+            "description": "等级，如 14+、15"
+          },
+          "isfc": {
+            "type": "boolean",
+            "description": "是否按FC筛选"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      }
+    },
+    {
+      "name": "render_maimai_progress",
+      "description": "渲染等级进度图。展示某等级达成某目标的已完成/未完成/未游玩。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名"
+          },
+          "level": {
+            "type": "string",
+            "description": "等级，如 14、14+、15"
+          },
+          "plan": {
+            "type": "string",
+            "description": "目标，必须按用户目标显式传入：全S=s、全S+=s+、全SS=ss、全SS+=ss+、全SSS=sss、全SSS+=sss+、AP=ap、FC=fc、FSD=fsd；未指定目标时默认 sss。"
+          },
+          "server": {
+            "type": "string",
+            "enum": [
+              "cn",
+              "jp"
+            ],
+            "description": "服务器，默认 cn。cn=国服子集，jp=日服全集。"
+          },
+          "category": {
+            "type": "string",
+            "description": "分类: default/completed/unfinished/notstarted"
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_music_info",
+      "description": "渲染曲目信息图。展示曲绘、定数、谱师、物量等。可传 music_id/id，也可传 query/title/songQuery 让本地查歌先按曲名或别名解析；日服 dxdata 曲目会用 imageName 从 dxrating 补封面。若曲库没有记录但本地存在该 ID 曲绘，会降级生成只含已知信息的曲绘图。同曲同时有 ST/DX 且未传 songType 时会自动生成两张图并返回 images 数组。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "music_id": {
+            "type": "string",
+            "description": "曲目 ID。日服 dxdata 字符串 ID 也可传；找不到时会按 query 逻辑回查。"
+          },
+          "id": {
+            "type": "string",
+            "description": "同 music_id。"
+          },
+          "query": {
+            "type": "string",
+            "description": "曲名、别名或 ID。适合日服只有字符串 ID/无水鱼 ID 的曲目。"
+          },
+          "title": {
+            "type": "string",
+            "description": "同 query。"
+          },
+          "songQuery": {
+            "type": "string",
+            "description": "同 query。"
+          },
+          "songType": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "dx"
+            ],
+            "description": "可选谱面类型。standard=标准谱面/ST/SD，dx=DX谱面；同曲有 ST/DX 且不传时会自动生成两张。"
+          },
+          "image_name": {
+            "type": "string",
+            "description": "可选 dxrating imageName；通常 query 解析后会自动取得。"
+          },
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ。和 username 二选一，用于按 B50 估算各目标达成率的潜在 rating 增量。"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名。和 qq 二选一，用于按 B50 估算各目标达成率的潜在 rating 增量。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_music_info_batch",
+      "description": "批量渲染多首歌的曲目信息图。可一次传多个 query；如果带 qq，只查询一次 B50 并复用到所有曲目信息图；单个条目同曲有 ST/DX 且未传 songType 时会自动展开成两张。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ。和 username 二选一；批量内只查一次 B50。"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名。和 qq 二选一；批量内只查一次 B50。"
+          },
+          "items": {
+            "type": "array",
+            "description": "曲目列表，每项可为字符串或 {\"query\":\"曲名/别名/ID\"} / {\"music_id\":\"ID\"}。",
+            "items": {}
+          },
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "多个曲名、别名或 ID；未传 items 时使用。"
+          },
+          "songType": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "dx"
+            ],
+            "description": "通用谱面类型；items 内的 songType 优先。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_upper",
+      "description": "按当前消息发送者自己的真实玩家资料渲染“看我”上屏图。无需也不允许传 QQ 或 source；AstrBot 会在执行前从事件中强制注入发送者 QQ，因此不能查询、绘制或上传到其他人的绑定账号。可选传 qr；qr 必须以 SGWCMAID 开头，传入后会像“kw + 二维码”一样为发送者本人从官服拉取全量数据、保存本地、上传发送者已绑定的数据源并绘制最新上屏图。未传 qr 时按发送者的数据源设置读取真实缓存；设置为落雪时会先刷新最新 profile，只有资料一致才复用图片缓存。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qr": {
+            "type": "string",
+            "pattern": "^[Ss][Gg][Ww][Cc][Mm][Aa][Ii][Dd]",
+            "description": "可选二维码解析内容，必须以 SGWCMAID 开头。传入时只为当前消息发送者执行官服全量拉取、登出、保存本地、上传其已绑定的水鱼/落雪并绘制，等同本人 kw + 二维码流程。不要传图片本身或二维码截图。"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "查询与上屏渲染超时秒数，默认 300。"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "render_maimai_upper_custom",
+      "description": "仅用于用户明确要求手工指定字段的自定义 maimai 上屏图，不会按 QQ 查询真实资料。禁止把发送者的 QQ 昵称、群名片或备注自动填进 name 来代替 profile；真实玩家、“看我”或“用我的资料画上屏”必须改用由 AstrBot 自动锁定发送者的 render_maimai_upper。AI 可指定 name/rating/iconId/plateId/frameId/titleText/chara 等 profile 字段，其中 title/titleText 是称号、plateId 是姓名框、frameId 是背景板；只传 name 会被拒绝，避免生成昵称加默认 profile 的假图。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "type": "object",
+            "description": "完整上屏 profile；传入后仍可用顶层字段覆盖。"
+          },
+          "name": {
+            "type": "string",
+            "description": "用户明确指定的自定义显示名；不得自动复制 QQ 昵称、群名片或备注来冒充真实 profile。"
+          },
+          "rating": {
+            "type": "integer",
+            "description": "显示 rating。"
+          },
+          "iconId": {
+            "type": "integer",
+            "description": "头像 ID。"
+          },
+          "plateId": {
+            "type": "integer",
+            "description": "姓名框 ID。"
+          },
+          "frameId": {
+            "type": "integer",
+            "description": "背景板 ID。"
+          },
+          "titleText": {
+            "type": "string",
+            "description": "称号文字。"
+          },
+          "title": {
+            "type": "string",
+            "description": "同 titleText。"
+          },
+          "titleRare": {
+            "type": "string",
+            "description": "称号稀有度，如 Normal/Gold。"
+          },
+          "classId": {
+            "type": "integer",
+            "description": "段位/CLASS ID。"
+          },
+          "daniId": {
+            "type": "integer",
+            "description": "段位 ID。"
+          },
+          "charaIds": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "角色 ID 列表；字符串可用逗号分隔。"
+          },
+          "charaLevels": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "角色等级列表；字符串可用逗号分隔。"
+          },
+          "charaAwakenings": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "角色觉醒列表；字符串可用逗号分隔。"
+          },
+          "creditText": {
+            "type": "string",
+            "description": "右上角剩余点数文本，默认“可用点数  2580”。"
+          },
+          "versionText": {
+            "type": "string",
+            "description": "数据版本名，默认“Ver.CN1.55-A”。"
+          },
+          "networkIcon": {
+            "type": "string",
+            "description": "联网图标名，默认 On。"
+          },
+          "scale": {
+            "type": "number",
+            "description": "渲染缩放，默认 2.0。"
+          },
+          "transparentBackground": {
+            "type": "boolean",
+            "description": "是否透明背景，默认 true。"
+          },
+          "rendererUrl": {
+            "type": "string",
+            "description": "可选，上屏渲染 HTTP URL；默认取环境变量或 http://host.docker.internal:8787/render。"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "可选，请求 ID，用于渲染服务工作目录。"
+          },
+          "outputDir": {
+            "type": "string",
+            "description": "可选，图片输出目录。"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "HTTP 渲染超时秒数，默认 120。"
+          },
+          "extraArgs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "透传给上屏渲染 HTTP 服务的额外参数。"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "render_maimai_music_score",
+      "description": "渲染玩家单曲成绩图。展示某玩家在某首歌各难度的达成率、评级、FC/FS、DX Score 与 rating；日服 dxdata-only 曲目没有可匹配成绩时也会绘制未游玩行。同曲同时有 ST/DX 且未传 songType 时会自动生成两张图并返回 images 数组。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名（与 qq 二选一）"
+          },
+          "music_id": {
+            "type": "string",
+            "description": "曲目 ID。优先传 Diving-Fish 数字 ID；日服 dxdata 字符串 ID 也可传，会尽力按曲名/type 匹配全量记录。"
+          },
+          "id": {
+            "type": "string",
+            "description": "同 music_id"
+          },
+          "query": {
+            "type": "string",
+            "description": "曲名、别名或 ID。会先用本地查歌解析到曲目。"
+          },
+          "title": {
+            "type": "string",
+            "description": "同 query"
+          },
+          "songQuery": {
+            "type": "string",
+            "description": "同 query"
+          },
+          "songType": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "dx"
+            ],
+            "description": "可选谱面类型。standard=标准谱面/ST/SD，dx=DX谱面；同曲有 ST/DX 且不传时会自动生成两张。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_music_global_stats",
+      "description": "渲染曲目全服统计图。展示指定曲目和难度的 FC 分布与达成率等级分布；有 pyecharts/playwright 时使用 ECharts，否则使用内置 PIL 兜底绘制。同曲同时有 ST/DX 且未传 songType 时会自动生成两张图并返回 images 数组。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "music_id": {
+            "type": "string",
+            "description": "曲目 ID"
+          },
+          "id": {
+            "type": "string",
+            "description": "同 music_id"
+          },
+          "query": {
+            "type": "string",
+            "description": "曲名、别名或 ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "同 query"
+          },
+          "songQuery": {
+            "type": "string",
+            "description": "同 query"
+          },
+          "songType": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "dx"
+            ],
+            "description": "可选谱面类型。standard=标准谱面/ST/SD，dx=DX谱面；同曲有 ST/DX 且不传时会自动生成两张。"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "难度: Basic/Advanced/Expert/Master/Re:MASTER 或绿/黄/红/紫/白，默认 Master"
+          },
+          "level_index": {
+            "type": "integer",
+            "description": "难度下标 0-4；提供时优先于 difficulty"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_rise_score",
+      "description": "渲染上分推荐图。根据玩家 B50 与历史成绩推荐可能提升 rating 的谱面。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名（与 qq 二选一）"
+          },
+          "level": {
+            "type": "string",
+            "description": "可选等级过滤，如 14、14+"
+          },
+          "score": {
+            "type": "integer",
+            "description": "可选目标增量 rating，用于收窄推荐"
+          },
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "legacy",
+              "expected"
+            ],
+            "description": "推荐算法。legacy=旧版拟合定数分桶随机（默认）；expected=期望收益加权随机。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_score_list",
+      "description": "渲染玩家等级/定数成绩列表图。按等级如 14+ 或精确定数如 14.6 列出玩家成绩。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名（与 qq 二选一）"
+          },
+          "rating": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "等级或精确定数，如 14+、14.6"
+          },
+          "level": {
+            "type": "string",
+            "description": "同 rating，用于等级"
+          },
+          "ds": {
+            "type": "number",
+            "description": "同 rating，用于精确定数"
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码，默认 1"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_rating_ranking",
+      "description": "渲染 Diving-Fish 公开 rating 排行榜；可按 username 查询某玩家排名，或按页输出排行榜图。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "可选，玩家 QQ 号；会先查询该 QQ 对应的水鱼 username 后定位公开排名"
+          },
+          "username": {
+            "type": "string",
+            "description": "可选，查询指定查分器用户名的排名"
+          },
+          "name": {
+            "type": "string",
+            "description": "同 username"
+          },
+          "startRank": {
+            "type": "integer",
+            "description": "可选，公开排行榜起始名次。和 endRank 一起用于输出排名段，最多 30 人。"
+          },
+          "endRank": {
+            "type": "integer",
+            "description": "可选，公开排行榜结束名次。和 startRank 一起用于输出排名段，最多 30 人。"
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码，默认 1"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_plate_progress",
+      "description": "查询牌子完成剩余进度（文本）。展示各难度未完成曲目数量。默认 cn，CN 当前不支持的 JP 牌子如 丸/CiRCLE 会自动走 jp；非 CN/JP 命名可自动兜底 custom。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名"
+          },
+          "version": {
+            "type": "string",
+            "description": "版本，如 真/熊/爽/丸/CiRCLE"
+          },
+          "plan": {
+            "type": "string",
+            "description": "目标: 极/将/神/舞舞"
+          },
+          "server": {
+            "type": "string",
+            "enum": [
+              "cn",
+              "jp",
+              "custom"
+            ],
+            "description": "服务器，默认 cn。cn 有当前牌子数据时优先 cn，否则自动兜底 jp/custom。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "render_maimai_plate_progress_batch",
+      "description": "批量查询多个牌子的剩余进度。只查询一次玩家完整成绩，然后生成多个牌子进度结果，避免多个牌子消耗多次 Developer-Token 查询额度。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "玩家 QQ 号。和 username 二选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "查分器用户名。和 qq 二选一。"
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "description": "牌子列表，每项如 {\"version\":\"真\",\"plan\":\"将\",\"server\":\"cn\"}；server 可省略。",
+            "items": {
+              "type": "object"
+            }
+          },
+          "versions": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string"
+            },
+            "description": "多个版本名；未传 items 时使用。"
+          },
+          "plan": {
+            "type": "string",
+            "description": "通用目标: 极/将/神/舞舞。items 内的 plan 优先。"
+          },
+          "server": {
+            "type": "string",
+            "enum": [
+              "cn",
+              "jp",
+              "custom"
+            ],
+            "description": "通用服务器，默认 cn；items 内的 server 优先。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          }
+        },
+        "required": []
+      }
+    }
+  ]
+}

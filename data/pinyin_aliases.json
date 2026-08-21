@@ -268,6 +268,14 @@
     },
     {
       "aliases": [
+        "shaoshikongchaojiu",
+        "shao shi kong chao jiu",
+        "sskcj"
+      ],
+      "song_id": "100207"
+    },
+    {
+      "aliases": [
         "yanqidongyinhremix",
         "yan qi dong yin h r e m i x",
         "yqdyhremix",
@@ -301,24 +309,6 @@
         "ywml"
       ],
       "song_id": "100230"
-    },
-    {
-      "aliases": [
-        "xie",
-        "yanpopipo",
-        "yan p o p i p o",
-        "ypopipo",
-        "xieshucaige",
-        "xie shu cai ge",
-        "xscg",
-        "xiepopipo",
-        "xie p o p i p o",
-        "xpopipo",
-        "yanshucaige",
-        "yan shu cai ge",
-        "yscg"
-      ],
-      "song_id": "100259"
     },
     {
       "aliases": [
@@ -497,6 +487,14 @@
         "jhtt"
       ],
       "song_id": "1004"
+    },
+    {
+      "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "100429"
     },
     {
       "aliases": [
@@ -700,6 +698,14 @@
         "qing chun"
       ],
       "song_id": "1008"
+    },
+    {
+      "aliases": [
+        "xingquanrihegechangver",
+        "xing quan ri he ge chang v e r",
+        "xqrhgcver"
+      ],
+      "song_id": "100851"
     },
     {
       "aliases": [
@@ -2544,6 +2550,12 @@
     },
     {
       "aliases": [
+        "gan"
+      ],
+      "song_id": "110121"
+    },
+    {
+      "aliases": [
         "fengyan135miao",
         "feng yan 1 3 5 miao",
         "fy135m",
@@ -2567,6 +2579,9 @@
         "xiatiandejiting",
         "xia tian de ji ting",
         "xtdjt",
+        "chaiji135miao",
+        "chai ji 1 3 5 miao",
+        "cj135m",
         "jiliedezhandouchangmian",
         "ji lie de zhan dou chang mian",
         "jldzdcm",
@@ -2669,6 +2684,14 @@
     },
     {
       "aliases": [
+        "jingmirrorofmagic",
+        "jing m i r r o r o f m a g i c",
+        "jmirrorofmagic"
+      ],
+      "song_id": "110351"
+    },
+    {
+      "aliases": [
         "chimi",
         "chi mi"
       ],
@@ -2696,6 +2719,14 @@
         "ywjy"
       ],
       "song_id": "110417"
+    },
+    {
+      "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "110429"
     },
     {
       "aliases": [
@@ -2742,16 +2773,6 @@
     },
     {
       "aliases": [
-        "xiepu",
-        "xie pu",
-        "nantongdanantong",
-        "nan tong da nan tong",
-        "ntdnt"
-      ],
-      "song_id": "110579"
-    },
-    {
-      "aliases": [
         "jinxiong",
         "jin xiong",
         "huangjindilaxiong",
@@ -2766,6 +2787,9 @@
         "jinxiongcanan",
         "jin xiong can an",
         "jxca",
+        "ysktongshishouying",
+        "y s k tong shi shou ying",
+        "ysktssy",
         "kop2019juesaiqu",
         "k o p 2 0 1 9 jue sai qu",
         "kop2019jsq",
@@ -2843,6 +2867,16 @@
     },
     {
       "aliases": [
+        "nanting",
+        "nan ting",
+        "qingshuruwenben",
+        "qing shu ru wen ben",
+        "qsrwb"
+      ],
+      "song_id": "110684"
+    },
+    {
+      "aliases": [
         "zuiqiangthe",
         "zui qiang t h e",
         "zqthe",
@@ -2858,6 +2892,22 @@
     },
     {
       "aliases": [
+        "xiefeat",
+        "xie f e a t",
+        "xfeat"
+      ],
+      "song_id": "110766"
+    },
+    {
+      "aliases": [
+        "xieseyanaheyanwen",
+        "xie s e y a n a he yan wen",
+        "xseyanahyw"
+      ],
+      "song_id": "110781"
+    },
+    {
+      "aliases": [
         "yasuo",
         "ya suo",
         "badao",
@@ -2869,6 +2919,12 @@
         "wje"
       ],
       "song_id": "1108"
+    },
+    {
+      "aliases": [
+        "zou"
+      ],
+      "song_id": "110816"
     },
     {
       "aliases": [
@@ -2960,23 +3016,27 @@
     },
     {
       "aliases": [
-        "guangbreakbreakbreak",
-        "guang b r e a k b r e a k b r e a k",
-        "gbreakbreakbreak",
-        "yanjuezan",
-        "yan jue zan",
-        "yjz",
-        "guangbbb",
-        "guang b b b",
-        "gbbb",
-        "yanbbb",
-        "yan b b b",
-        "ybbb",
-        "quanshijuezandebbb",
-        "quan shi jue zan de b b b",
-        "qsjzdbbb"
+        "huitailang",
+        "hui tai lang",
+        "htl"
       ],
-      "song_id": "111222"
+      "song_id": "111113"
+    },
+    {
+      "aliases": [
+        "zouwuwu",
+        "zou wu wu",
+        "zww"
+      ],
+      "song_id": "111156"
+    },
+    {
+      "aliases": [
+        "lanjuejianlanse",
+        "lan jue jian lan se",
+        "ljjls"
+      ],
+      "song_id": "111188"
     },
     {
       "aliases": [
@@ -2993,6 +3053,8 @@
         "hmtl",
         "shushu",
         "shu shu",
+        "cangshu",
+        "cang shu",
         "hamu",
         "ha mu",
         "laoshu",
@@ -3006,8 +3068,6 @@
         "yabotailang",
         "ya bo tai lang",
         "ybtl",
-        "cangshu",
-        "cang shu",
         "shudie",
         "shu die",
         "moshu",
@@ -3076,6 +3136,16 @@
     },
     {
       "aliases": [
+        "jiji",
+        "ji ji",
+        "jituling",
+        "ji tu ling",
+        "jtl"
+      ],
+      "song_id": "111388"
+    },
+    {
+      "aliases": [
         "baolovesthemeofbadassai",
         "bao l o v e s t h e m e o f b a d a s s ai",
         "blovesthemeofbadassa",
@@ -3101,6 +3171,14 @@
         "xsyjsayya"
       ],
       "song_id": "111437"
+    },
+    {
+      "aliases": [
+        "juehainuwele",
+        "jue h a i n u w e l e",
+        "jhainuwele"
+      ],
+      "song_id": "111479"
     },
     {
       "aliases": [
@@ -3153,17 +3231,11 @@
     },
     {
       "aliases": [
-        "zangaegleseeker",
-        "zang a e g l e s e e k e r",
-        "zaegleseeker",
-        "cangguangzhui",
-        "cang guang zhui",
-        "cgz",
-        "yanguangzhui",
-        "yan guang zhui",
-        "ygz"
+        "xianyinmidx",
+        "xian yin mi d x",
+        "xymdx"
       ],
-      "song_id": "111516"
+      "song_id": "111545"
     },
     {
       "aliases": [
@@ -3192,12 +3264,66 @@
     },
     {
       "aliases": [
+        "niwereback",
+        "ni w e r e b a c k",
+        "nwereback"
+      ],
+      "song_id": "111628"
+    },
+    {
+      "aliases": [
+        "xieqingchun",
+        "xie qing chun",
+        "xqc"
+      ],
+      "song_id": "111634"
+    },
+    {
+      "aliases": [
         "zou"
       ],
       "song_id": "111636"
     },
     {
       "aliases": [
+        "naixingjiekebuhesaoqu",
+        "nai xing jie ke bu he sao qu",
+        "nxjkbhsq"
+      ],
+      "song_id": "111638"
+    },
+    {
+      "aliases": [
+        "zou"
+      ],
+      "song_id": "111670"
+    },
+    {
+      "aliases": [
+        "yin"
+      ],
+      "song_id": "111697"
+    },
+    {
+      "aliases": [
+        "ninimingm",
+        "ni ni ming m",
+        "nnmm"
+      ],
+      "song_id": "111714"
+    },
+    {
+      "aliases": [
+        "xieultimatetaste",
+        "xie u l t i m a t e t a s t e",
+        "xultimatetaste"
+      ],
+      "song_id": "111770"
+    },
+    {
+      "aliases": [
+        "yanren",
+        "yan ren",
         "xren",
         "x ren"
       ],
@@ -3205,9 +3331,72 @@
     },
     {
       "aliases": [
+        "yinsnooze",
+        "yin s n o o z e",
+        "ysnooze"
+      ],
+      "song_id": "111783"
+    },
+    {
+      "aliases": [
+        "yinonyourmark104qiver",
+        "yin o n y o u r m a r k 1 0 4 qi v e r",
+        "yonyourmark104qver"
+      ],
+      "song_id": "111791"
+    },
+    {
+      "aliases": [
+        "zhu"
+      ],
+      "song_id": "111838"
+    },
+    {
+      "aliases": [
+        "haohaozongcaifabiao",
+        "hao hao zong cai fa biao",
+        "hhzcfb"
+      ],
+      "song_id": "111852"
+    },
+    {
+      "aliases": [
+        "saoliange",
+        "sao lian ge",
+        "slg"
+      ],
+      "song_id": "111859"
+    },
+    {
+      "aliases": [
+        "naisi",
+        "nai si"
+      ],
+      "song_id": "111908"
+    },
+    {
+      "aliases": [
+        "yin"
+      ],
+      "song_id": "111914"
+    },
+    {
+      "aliases": [
+        "chong"
+      ],
+      "song_id": "111919"
+    },
+    {
+      "aliases": [
         "yikuaiqian",
         "yi kuai qian",
         "ykq",
+        "xihuanfeng",
+        "xi huan feng",
+        "xhf",
+        "aaaaaayikuaiqian",
+        "a a a a a a yi kuai qian",
+        "aaaaaaykq",
         "landepen",
         "lan de pen",
         "ldp",
@@ -3242,9 +3431,6 @@
         "zszf",
         "fenghao",
         "feng hao",
-        "xihuanfeng",
-        "xi huan feng",
-        "xhf",
         "santanyingyue",
         "san tan ying yue"
       ],
@@ -3809,6 +3995,54 @@
     },
     {
       "aliases": [
+        "rukou",
+        "ru kou"
+      ],
+      "song_id": "1145"
+    },
+    {
+      "aliases": [
+        "yuehai",
+        "yue hai"
+      ],
+      "song_id": "1146"
+    },
+    {
+      "aliases": [
+        "caihua",
+        "cai hua"
+      ],
+      "song_id": "1147"
+    },
+    {
+      "aliases": [
+        "womenburenshi",
+        "wo men bu ren shi",
+        "wmbrs",
+        "chaoshi",
+        "chao shi"
+      ],
+      "song_id": "1148"
+    },
+    {
+      "aliases": [
+        "huan",
+        "shanchahua",
+        "shan cha hua",
+        "sch",
+        "maboluoxi",
+        "ma bo luo xi",
+        "mblx",
+        "chunbai",
+        "chun bai",
+        "maboluoshi",
+        "ma bo luo shi",
+        "mbls"
+      ],
+      "song_id": "1149"
+    },
+    {
+      "aliases": [
         "babanai",
         "ba ba nai",
         "bbn",
@@ -3834,6 +4068,20 @@
         "ba nai"
       ],
       "song_id": "115"
+    },
+    {
+      "aliases": [
+        "duolaameng",
+        "duo la a meng",
+        "dlam",
+        "meiweibang",
+        "mei wei bang",
+        "mwb",
+        "migema",
+        "mi ge ma",
+        "mgm"
+      ],
+      "song_id": "1150"
     },
     {
       "aliases": [
@@ -3959,6 +4207,22 @@
         "bfhl"
       ],
       "song_id": "1155"
+    },
+    {
+      "aliases": [
+        "wuwu",
+        "wu wu",
+        "qiwubawuwutime",
+        "qi wu ba wu wu t i m e",
+        "qwbwwtime",
+        "yingwunv",
+        "ying wu nv",
+        "ywn",
+        "shinaikong",
+        "shi nai kong",
+        "snk"
+      ],
+      "song_id": "1156"
     },
     {
       "aliases": [
@@ -4624,6 +4888,18 @@
     },
     {
       "aliases": [
+        "yuan",
+        "liuhanbajianshenshaonv",
+        "liu han ba jian shen shao nv",
+        "lhbjssn",
+        "baituolejirou",
+        "bai tuo le ji rou",
+        "btljr"
+      ],
+      "song_id": "1183"
+    },
+    {
+      "aliases": [
         "yuguaqi",
         "yu gua qi",
         "ygq",
@@ -4636,6 +4912,9 @@
         "jiepaiqi",
         "jie pai qi",
         "jpq",
+        "congxunidaoxianshi",
+        "cong xu ni dao xian shi",
+        "cxndxs",
         "guanrenge",
         "guan ren ge",
         "grg",
@@ -5133,6 +5412,14 @@
     },
     {
       "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "120429"
+    },
+    {
+      "aliases": [
         "qianrutiankong",
         "qian ru tian kong",
         "qrtk",
@@ -5516,11 +5803,27 @@
     },
     {
       "aliases": [
+        "xieqingchun",
+        "xie qing chun",
+        "xqc"
+      ],
+      "song_id": "121634"
+    },
+    {
+      "aliases": [
         "zishangwuse",
         "zi shang wu se",
         "zsws"
       ],
       "song_id": "1218"
+    },
+    {
+      "aliases": [
+        "puhaozongcaifabiao",
+        "pu hao zong cai fa biao",
+        "phzcfb"
+      ],
+      "song_id": "121852"
     },
     {
       "aliases": [
@@ -5542,7 +5845,10 @@
         "gogoylc",
         "biebiebie",
         "bie bie bie",
-        "bbb"
+        "bbb",
+        "dxyoulingchuan",
+        "d x you ling chuan",
+        "dxylc"
       ],
       "song_id": "122"
     },
@@ -6425,6 +6731,14 @@
     },
     {
       "aliases": [
+        "qianbenying",
+        "qian ben ying",
+        "qby"
+      ],
+      "song_id": "125"
+    },
+    {
+      "aliases": [
         "monv",
         "mo nv",
         "jiunixiaozichaiji",
@@ -6492,6 +6806,14 @@
         "xlq"
       ],
       "song_id": "1255"
+    },
+    {
+      "aliases": [
+        "dianhuageming",
+        "dian hua ge ming",
+        "dhgm"
+      ],
+      "song_id": "1258"
     },
     {
       "aliases": [
@@ -7848,6 +8170,14 @@
     },
     {
       "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "130429"
+    },
+    {
+      "aliases": [
         "gaoli",
         "gao li",
         "maosuliu",
@@ -8213,6 +8543,14 @@
         "zgxynzjhl"
       ],
       "song_id": "1318"
+    },
+    {
+      "aliases": [
+        "mianhaozongcaifabiao",
+        "mian hao zong cai fa biao",
+        "mhzcfb"
+      ],
+      "song_id": "131852"
     },
     {
       "aliases": [
@@ -9170,7 +9508,13 @@
         "er lv bei fan",
         "elbf",
         "chuanxin",
-        "chuan xin"
+        "chuan xin",
+        "maomaoer",
+        "mao mao er",
+        "mme",
+        "maomao2",
+        "mao mao 2",
+        "mm2"
       ],
       "song_id": "1365"
     },
@@ -9245,7 +9589,10 @@
         "xrd",
         "ouxiangxinruidui",
         "ou xiang xin rui dui",
-        "oxxrd"
+        "oxxrd",
+        "mmjzhutiqu",
+        "m m j zhu ti qu",
+        "mmjztq"
       ],
       "song_id": "1371"
     },
@@ -10131,6 +10478,14 @@
     },
     {
       "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "140429"
+    },
+    {
+      "aliases": [
         "hela2",
         "he la 2",
         "hl2",
@@ -10383,6 +10738,14 @@
         "qwg"
       ],
       "song_id": "1418"
+    },
+    {
+      "aliases": [
+        "fahaozongcaifabiao",
+        "fa hao zong cai fa biao",
+        "fhzcfb"
+      ],
+      "song_id": "141852"
     },
     {
       "aliases": [
@@ -11174,7 +11537,15 @@
         "yuan shi",
         "chuanshendenaizi",
         "chuan shen de nai zi",
-        "csdnz"
+        "csdnz",
+        "maomao",
+        "mao mao",
+        "maomaoyi",
+        "mao mao yi",
+        "mmy",
+        "maomao1",
+        "mao mao 1",
+        "mm1"
       ],
       "song_id": "1451"
     },
@@ -11258,6 +11629,9 @@
         "gaosihanshu",
         "gao si han shu",
         "gshs",
+        "chuanqinaijiangwang",
+        "chuan qi nai jiang wang",
+        "cqnjw",
         "wuqiongda",
         "wu qiong da",
         "wqd",
@@ -11559,7 +11933,10 @@
         "xjc",
         "kangzhuangxiaodao",
         "kang zhuang xiao dao",
-        "kzxd"
+        "kzxd",
+        "baobaokangzhuang",
+        "bao bao kang zhuang",
+        "bbkz"
       ],
       "song_id": "1468"
     },
@@ -11902,18 +12279,6 @@
     },
     {
       "aliases": [
-        "canxiangsange",
-        "can xiang san ge",
-        "cxsg",
-        "sange",
-        "san ge",
-        "canxiang",
-        "can xiang"
-      ],
-      "song_id": "1484"
-    },
-    {
-      "aliases": [
         "weiwu",
         "wei wu",
         "7caierren",
@@ -12106,22 +12471,6 @@
         "mybpz"
       ],
       "song_id": "1496"
-    },
-    {
-      "aliases": [
-        "tianshendaren",
-        "tian shen da ren",
-        "tsdr",
-        "tianshen",
-        "tian shen",
-        "meishaonvtiaolou",
-        "mei shao nv tiao lou",
-        "msntl",
-        "amakamisama",
-        "a ma ka mi sa ma",
-        "amkmsm"
-      ],
-      "song_id": "1497"
     },
     {
       "aliases": [
@@ -12322,6 +12671,14 @@
         "tsym"
       ],
       "song_id": "1504"
+    },
+    {
+      "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "150429"
     },
     {
       "aliases": [
@@ -12553,6 +12910,14 @@
     },
     {
       "aliases": [
+        "biaohaozongcaifabiao",
+        "biao hao zong cai fa biao",
+        "bhzcfb"
+      ],
+      "song_id": "151852"
+    },
+    {
+      "aliases": [
         "naa",
         "n a a",
         "jushou",
@@ -12637,6 +13002,9 @@
         "kop4juesaiqu",
         "k o p 4 jue sai qu",
         "kop4jsq",
+        "12gejuezan",
+        "1 2 ge jue zan",
+        "12gjz",
         "2024chunwan",
         "2 0 2 4 chun wan",
         "2024cw",
@@ -13569,7 +13937,10 @@
         "bai mao hong tong mao niang",
         "bmhtmn",
         "xiangchui",
-        "xiang chui"
+        "xiang chui",
+        "maoermoca",
+        "mao er mo ca",
+        "memc"
       ],
       "song_id": "1563"
     },
@@ -13624,6 +13995,9 @@
         "yilishabai",
         "yi li sha bai",
         "ylsb",
+        "huakawoxiangnile",
+        "hua ka wo xiang ni le",
+        "hkwxnl",
         "rangniqian",
         "rang ni qian",
         "rnq",
@@ -14821,6 +15195,17 @@
     },
     {
       "aliases": [
+        "longhaozongcaifabiao",
+        "long hao zong cai fa biao",
+        "lhzcfb",
+        "ruguonishilongyehao",
+        "ru guo ni shi long ye hao",
+        "rgnslyh"
+      ],
+      "song_id": "161852"
+    },
+    {
+      "aliases": [
         "qimeila",
         "qi mei la",
         "qml",
@@ -14917,11 +15302,11 @@
         "zhanshuxiaodui",
         "zhan shu xiao dui",
         "zsxd",
-        "sigua",
-        "si gua",
         "huanyingxiaodui",
         "huan ying xiao dui",
         "hyxd",
+        "sigua",
+        "si gua",
         "youlingxiaodui",
         "you ling xiao dui",
         "ylxd",
@@ -15018,6 +15403,9 @@
         "zuliling",
         "zu li ling",
         "zll",
+        "zulilingwanshouji",
+        "zu li ling wan shou ji",
+        "zllwsj",
         "lengzhengchang",
         "leng zheng chang",
         "lzc",
@@ -15098,6 +15486,19 @@
     },
     {
       "aliases": [
+        "qingchun",
+        "qing chun",
+        "jieshuledui",
+        "jie shu le dui",
+        "jsld",
+        "guduyaogun",
+        "gu du yao gun",
+        "gdyg"
+      ],
+      "song_id": "1634"
+    },
+    {
+      "aliases": [
         "xiaoweiticao",
         "xiao wei ti cao",
         "xwtc",
@@ -15155,6 +15556,9 @@
         "yuantoumaodiemoniqi",
         "yuan tou mao die mo ni qi",
         "ytmdmnq",
+        "nipaobuguowonixinbuxin",
+        "ni pao bu guo wo ni xin bu xin",
+        "npbgwnxbx",
         "xingjiexiaojiehekebuxiaojiedewaichuhezouqu",
         "xing jie xiao jie he ke bu xiao jie de wai chu he zou qu",
         "xjxjhkbxjdwchzq",
@@ -15363,6 +15767,9 @@
         "chizaocan",
         "chi zao can",
         "czc",
+        "qichuangzhanzheng",
+        "qi chuang zhan zheng",
+        "qczz",
         "maodoujing",
         "mao dou jing",
         "mdj",
@@ -15383,9 +15790,6 @@
         "maodouhanqichuang",
         "mao dou han qi chuang",
         "mdhqc",
-        "qichuangzhanzheng",
-        "qi chuang zhan zheng",
-        "qczz",
         "jundamengqichuang",
         "jun da meng qi chuang",
         "jdmqc",
@@ -15536,6 +15940,9 @@
         "xiyigexiaoshi",
         "xi yi ge xiao shi",
         "xygxs",
+        "zaogaofeng",
+        "zao gao feng",
+        "zgf",
         "chongyigexiaoshi",
         "chong yi ge xiao shi",
         "cygxs",
@@ -15951,6 +16358,9 @@
         "dengluerweimashuaditie",
         "deng lu er wei ma shua di tie",
         "dlewmsdt",
+        "nipaobuguowonixinbuxin",
+        "ni pao bu guo wo ni xin bu xin",
+        "npbgwnxbx",
         "hajiq",
         "ha ji q",
         "hjq",
@@ -16166,7 +16576,10 @@
         "zzro",
         "zuzhouwawa",
         "zu zhou wa wa",
-        "zzww"
+        "zzww",
+        "beizuzhouderenou",
+        "bei zu zhou de ren ou",
+        "bzzdro"
       ],
       "song_id": "1683"
     },
@@ -16226,6 +16639,9 @@
         "yougediao",
         "you ge diao",
         "ygd",
+        "azuerweixin",
+        "a zu er wei xin",
+        "azewx",
         "xinghongningshi",
         "xing hong ning shi",
         "xhns",
@@ -16620,6 +17036,14 @@
     },
     {
       "aliases": [
+        "kuailekuanghuan",
+        "kuai le kuang huan",
+        "klkh"
+      ],
+      "song_id": "1708"
+    },
+    {
+      "aliases": [
         "huochairen",
         "huo chai ren",
         "hcr",
@@ -16628,7 +17052,10 @@
         "fbr",
         "xiaorendaquan",
         "xiao ren da quan",
-        "xrdq"
+        "xrdq",
+        "wangluopiliqishui",
+        "wang luo pi li qi shui",
+        "wlplqs"
       ],
       "song_id": "1710"
     },
@@ -16959,47 +17386,30 @@
     },
     {
       "aliases": [
-        "yuzu",
-        "yu zu",
-        "hehuzhouli",
-        "he hu zhou li",
-        "hhzl",
-        "zukong",
-        "zu kong",
-        "dajiaoyazi",
-        "da jiao ya zi",
-        "djyz",
-        "jiaoge",
-        "jiao ge",
-        "yuzubinggun",
-        "yu zu bing gun",
-        "yzbg",
+        "guangjimengxiuchangge",
+        "guang ji meng xiu chang ge",
+        "gjmxcg",
         "laobinggun",
         "lao bing gun",
         "lbg",
-        "xiaofozhichixuegao",
-        "xiao fo zhi chi xue gao",
-        "xfzcxg",
-        "xinren",
-        "xin ren",
-        "shishenshaonvqiaojiaochibinggao",
-        "shi shen shao nv qiao jiao chi bing gao",
-        "sssnqjcbg",
-        "nuoxiangningmengcha",
-        "nuo xiang ning meng cha",
-        "nxnmc",
         "xiaofozhi",
         "xiao fo zhi",
         "xfz",
+        "jiaoge",
+        "jiao ge",
+        "dajiaoyazi",
+        "da jiao ya zi",
+        "djyz",
+        "zukong",
+        "zu kong",
+        "xinren",
+        "xin ren",
         "xinren2",
         "xin ren 2",
         "xr2",
         "woxiangxin",
         "wo xiang xin",
-        "wxx",
-        "guangjimengxiuchangge",
-        "guang ji meng xiu chang ge",
-        "gjmxcg"
+        "wxx"
       ],
       "song_id": "1726"
     },
@@ -17049,15 +17459,15 @@
         "weidaemoshizetianshi",
         "wei da e mo shi ze tian shi",
         "wdemszts",
+        "muniumuniu",
+        "mu niu mu niu",
+        "mnmn",
         "wumiaowumiao",
         "wu miao wu miao",
         "wmwm",
         "yibanemoyibantianshi",
         "yi ban e mo yi ban tian shi",
         "ybemybts",
-        "muniumuniu",
-        "mu niu mu niu",
-        "mnmn",
         "weidaemotianshi",
         "wei da e mo tian shi",
         "wdemts",
@@ -17131,6 +17541,9 @@
         "youyouyijikaishile",
         "you you yi ji kai shi le",
         "yyyjksl",
+        "youkanyiji",
+        "you kan yi ji",
+        "ykyj",
         "laoxiakong",
         "lao xia kong",
         "lxk",
@@ -17370,6 +17783,9 @@
         "mowanvslingzhu",
         "mo wan v s ling zhu",
         "mwvslz",
+        "shui135xiaojie",
+        "shui 1 3 5 xiao jie",
+        "s135xj",
         "bingmie135",
         "bing mie 1 3 5",
         "bm135",
@@ -17486,6 +17902,9 @@
     },
     {
       "aliases": [
+        "lvheiji",
+        "lv hei ji",
+        "lhj",
         "secaixiangyu",
         "se cai xiang yu",
         "scxy",
@@ -17511,6 +17930,15 @@
         "sigeyu",
         "si ge yu",
         "sgy",
+        "yskchujianhongpuleisile",
+        "y s k chu jian hong pu lei si le",
+        "yskcjhplsl",
+        "kop6guojiban",
+        "k o p 6 guo ji ban",
+        "kop6gjb",
+        "hong13leisiribenwushen",
+        "hong 1 3 lei si ri ben wu shen",
+        "h13lsrbws",
         "yulujunzhan",
         "yu lu jun zhan",
         "yljz",
@@ -17549,6 +17977,8 @@
         "kop6jsq",
         "zhouhuo",
         "zhou huo",
+        "youda",
+        "you da",
         "nan",
         "147zhongwei",
         "1 4 7 zhong wei",
@@ -17599,6 +18029,9 @@
       "aliases": [
         "yiji",
         "yi ji",
+        "yinjimanhuazhutige",
+        "yin ji man hua zhu ti ge",
+        "yjmhztg",
         "yinjiyurenjie",
         "yin ji yu ren jie",
         "yjyrj",
@@ -17733,6 +18166,9 @@
         "jundamengpaiduizhiye",
         "jun da meng pai dui zhi ye",
         "jdmpdzy",
+        "maodoupaidui",
+        "mao dou pai dui",
+        "mdpd",
         "jundamengpaidui",
         "jun da meng pai dui",
         "jdmpd"
@@ -17858,6 +18294,9 @@
         "wujianjidujuchang666",
         "wu jian ji du ju chang 6 6 6",
         "wjjdjc666",
+        "liubailiushiliu",
+        "liu bai liu shi liu",
+        "lblsl",
         "wujian",
         "wu jian"
       ],
@@ -17882,11 +18321,11 @@
     },
     {
       "aliases": [
+        "xiaoqi",
+        "xiao qi",
         "juezanshuangyawutaox6",
         "jue zan shuang ya wu tao x 6",
-        "jzsywtx6",
-        "xiaoqi",
-        "xiao qi"
+        "jzsywtx6"
       ],
       "song_id": "1783"
     },
@@ -17967,6 +18406,8 @@
         "niaoshi2",
         "niao shi 2",
         "ns2",
+        "moye",
+        "mo ye",
         "shenaodekunjing",
         "shen ao de kun jing",
         "sadkj",
@@ -18014,7 +18455,10 @@
         "zxgx",
         "zhongxinfuxie",
         "zhong xin fu xie",
-        "zxfx"
+        "zxfx",
+        "yanbaojiancao",
+        "yan bao jian cao",
+        "ybjc"
       ],
       "song_id": "1794"
     },
@@ -18061,6 +18505,8 @@
         "baituolekangkangdaohedaren",
         "bai tuo le kang kang dao he da ren",
         "btlkkdhdr",
+        "baihu",
+        "bai hu",
         "baituolehuxiandaren",
         "bai tuo le hu xian da ren",
         "btlhxdr",
@@ -18090,6 +18536,9 @@
         "shijunhao",
         "shi jun hao",
         "sjh",
+        "zuixihuandakuaiduoyideni",
+        "zui xi huan da kuai duo yi de ni",
+        "zxhdkdydn",
         "xihuanchihenduodeni",
         "xi huan chi hen duo de ni",
         "xhchddn",
@@ -18180,10 +18629,595 @@
     },
     {
       "aliases": [
+        "caidaizhutige",
+        "cai dai zhu ti ge",
+        "cdztg",
+        "prismzhutiqu",
+        "p r i s m zhu ti qu",
+        "prismztq",
+        "huaq",
+        "hua q",
+        "luxihenengbunengbiedianjininachuanxinle",
+        "lu xi he neng bu neng bie dian ji ni na chuan xin le",
+        "lxhnbnbdjnncxl"
+      ],
+      "song_id": "1806"
+    },
+    {
+      "aliases": [
+        "gejizhiyefengbao",
+        "ge ji zhi ye feng bao",
+        "gjzyfb"
+      ],
+      "song_id": "1807"
+    },
+    {
+      "aliases": [
+        "ganshouai",
+        "gan shou ai",
+        "gsa",
+        "wuya",
+        "wu ya"
+      ],
+      "song_id": "1808"
+    },
+    {
+      "aliases": [
+        "erlvbeifan",
+        "er lv bei fan",
+        "elbf",
+        "huangmen",
+        "huang men",
+        "heibaidilaxiong",
+        "hei bai di la xiong",
+        "hbdlx",
+        "taikongxiong2",
+        "tai kong xiong 2",
+        "tkx2",
+        "taikongxionger",
+        "tai kong xiong er",
+        "tkxe",
+        "huangzhimenmenqu",
+        "huang zhi men men qu",
+        "hzmmq",
+        "menxiong",
+        "men xiong",
+        "dilaxiong",
+        "di la xiong",
+        "dlx"
+      ],
+      "song_id": "1809"
+    },
+    {
+      "aliases": [
+        "atelasi",
+        "a te la si",
+        "atls",
+        "atelasichongci",
+        "a te la si chong ci",
+        "atlscc",
+        "mifan",
+        "mi fan",
+        "quanshijiezuirandemifan",
+        "quan shi jie zui ran de mi fan",
+        "qsjzrdmf"
+      ],
+      "song_id": "1810"
+    },
+    {
+      "aliases": [
+        "gaiguowu",
+        "gai guo wu",
+        "ggw",
+        "jinhuquancuo",
+        "jin hu quan cuo",
+        "jhqc"
+      ],
+      "song_id": "1811"
+    },
+    {
+      "aliases": [
+        "weiwanchengdeshishi",
+        "wei wan cheng de shi shi",
+        "wwcdss"
+      ],
+      "song_id": "1812"
+    },
+    {
+      "aliases": [
+        "mangri",
+        "mang ri",
+        "mangleyitian",
+        "mang le yi tian",
+        "mlyt",
+        "mangyiri",
+        "mang yi ri",
+        "myr",
+        "diqiu2",
+        "di qiu 2",
+        "dq2",
+        "mangdeyib",
+        "mang de yi b",
+        "mdyb"
+      ],
+      "song_id": "1813"
+    },
+    {
+      "aliases": [
+        "lieyanbingshuang",
+        "lie yan bing shuang",
+        "lybs",
+        "hongzhimenmenqu",
+        "hong zhi men men qu",
+        "hzmmq",
+        "senlinbinghuoren",
+        "sen lin bing huo ren",
+        "slbhr"
+      ],
+      "song_id": "1814"
+    },
+    {
+      "aliases": [
+        "shahan",
+        "sha han"
+      ],
+      "song_id": "1816"
+    },
+    {
+      "aliases": [
+        "meiguolao",
+        "mei guo lao",
+        "mgl",
+        "100yuan",
+        "1 0 0 yuan",
+        "100y",
+        "liangge14shou13",
+        "liang ge 1 4 shou 1 3",
+        "lg14s13",
+        "https100yuanshishenmegecom",
+        "h t t p s 1 0 0 yuan shi shen me ge c o m",
+        "https100yssmgcom",
+        "pumian100yuan",
+        "pu mian 1 0 0 yuan",
+        "pm100y",
+        "meiguoren",
+        "mei guo ren",
+        "mgr"
+      ],
+      "song_id": "1817"
+    },
+    {
+      "aliases": [
+        "shizhongheihe",
+        "shi zhong hei he",
+        "szhh",
+        "xiaoheihe",
+        "xiao hei he",
+        "xhh",
+        "shizhong2",
+        "shi zhong 2",
+        "sz2",
+        "lengjingtamenqu",
+        "leng jing ta men qu",
+        "ljtmq"
+      ],
+      "song_id": "1818"
+    },
+    {
+      "aliases": [
+        "houpan",
+        "hou pan",
+        "pan2",
+        "pan 2",
+        "baihe",
+        "bai he",
+        "panduolazhihou",
+        "pan duo la zhi hou",
+        "pdlzh"
+      ],
+      "song_id": "1819"
+    },
+    {
+      "aliases": [
+        "baihuaqian",
+        "bai hua qian",
+        "bhq",
+        "100yuan",
+        "1 0 0 yuan",
+        "100y",
+        "luanma",
+        "luan ma",
+        "biexiaoniyeguobuledierguan",
+        "bie xiao ni ye guo bu le di er guan",
+        "bxnygbldeg",
+        "qichuangzhanzheng",
+        "qi chuang zhan zheng",
+        "qczz",
+        "shediaoyingxiongchuan",
+        "she diao ying xiong chuan",
+        "sdyxc",
+        "yskpaowenquan2",
+        "y s k pao wen quan 2",
+        "yskpwq2",
+        "tiandirenjianwanquanfangdian",
+        "tian di ren jian wan quan fang dian",
+        "tdrjwqfd",
+        "shejimayi",
+        "she ji ma yi",
+        "sjmy",
+        "100riyuan",
+        "1 0 0 ri yuan",
+        "100ry",
+        "choujiang24miao",
+        "chou jiang 2 4 miao",
+        "cj24m",
+        "xinshoujiaocheng",
+        "xin shou jiao cheng",
+        "xsjc",
+        "chaijile",
+        "chai ji le",
+        "cjl",
+        "shenqushenpuqinggandiaodongtaibangle",
+        "shen qu shen pu qing gan diao dong tai bang le",
+        "sqspqgddtbl",
+        "wanhuatong",
+        "wan hua tong",
+        "wht",
+        "yibaikuaiqian",
+        "yi bai kuai qian",
+        "ybkq",
+        "zuishuizhang15",
+        "zui shui zhang 1 5",
+        "zsz15",
+        "wenquan2",
+        "wen quan 2",
+        "wq2",
+        "xinshoujiaochengno3",
+        "xin shou jiao cheng n o 3",
+        "xsjcno3",
+        "kaichou",
+        "kai chou",
+        "kohadxiaoshihoukaoshi",
+        "k o h a d xiao shi hou kao shi",
+        "kohadxshks",
+        "erge",
+        "er ge"
+      ],
+      "song_id": "1820"
+    },
+    {
+      "aliases": [
+        "yongrenbuzhi2",
+        "yong ren bu zhi 2",
+        "yrbz2",
+        "anweijiang",
+        "an wei jiang",
+        "awj"
+      ],
+      "song_id": "1821"
+    },
+    {
+      "aliases": [
+        "xuanyayi",
+        "xuan ya yi",
+        "xyy",
+        "ganjuhuami",
+        "gan ju hua mi",
+        "gjhm",
+        "ningmengshuilu",
+        "ning meng shui lu",
+        "nmsl",
+        "ningmeng",
+        "ning meng",
+        "ningmenghuami",
+        "ning meng hua mi",
+        "nmhm",
+        "ningmengmi",
+        "ning meng mi",
+        "nmm",
+        "24fen45jiaohu",
+        "2 4 fen 4 5 jiao hu",
+        "24f45jh",
+        "guanbibga",
+        "guan bi b g a",
+        "gbbga",
+        "mobi",
+        "mo bi",
+        "laopo",
+        "lao po",
+        "lianglaopo",
+        "liang lao po",
+        "llp",
+        "shafataixingyayi",
+        "sha fa tai xing ya yi",
+        "sftxyy",
+        "dianzhongdianzhisbwmcxuanyayiguaipushi",
+        "dian zhong dian zhi s b w m c xuan ya yi guai pu shi",
+        "dzdzsbwmcxyygps"
+      ],
+      "song_id": "1823"
+    },
+    {
+      "aliases": [
+        "yinnierkuang",
+        "yin ni er kuang",
+        "ynek",
+        "weinifengkuang",
+        "wei ni feng kuang",
+        "wnfk",
+        "weileniwobianchenglangrenmoyang",
+        "wei le ni wo bian cheng lang ren mo yang",
+        "wlnwbclrmy"
+      ],
+      "song_id": "1828"
+    },
+    {
+      "aliases": [
+        "litizhuyi",
+        "li ti zhu yi",
+        "ltzy",
+        "chaotianjiang3",
+        "chao tian jiang 3",
+        "ctj3",
+        "dileinvzinie",
+        "di lei nv zi nie",
+        "dlnzn"
+      ],
+      "song_id": "1831"
+    },
+    {
+      "aliases": [
+        "lititititizhuyi",
+        "li ti ti ti ti zhu yi",
+        "lttttzy",
+        "chaotianjiang4",
+        "chao tian jiang 4",
+        "ctj4",
+        "shafafafafataitaitaitai",
+        "sha fa fa fa fa tai tai tai tai",
+        "sfffftttt",
+        "chaotianjiang35",
+        "chao tian jiang 3 5",
+        "ctj35",
+        "248gejuezan",
+        "2 4 8 ge jue zan",
+        "248gjz",
+        "litizhuyi2",
+        "li ti zhu yi 2",
+        "ltzy2",
+        "gelian",
+        "ge lian"
+      ],
+      "song_id": "1832"
+    },
+    {
+      "aliases": [
+        "yaolan",
+        "yao lan"
+      ],
+      "song_id": "1833"
+    },
+    {
+      "aliases": [
+        "yueguang",
+        "yue guang",
+        "guang",
+        "haoshiyilvyueguang",
+        "hao shi yi lv yue guang",
+        "hsylyg",
+        "zhebushiyueguangzhelishiwumengbiezoucuole",
+        "zhe bu shi yue guang zhe li shi wu meng bie zou cuo le",
+        "zbsygzlswmbzcl"
+      ],
+      "song_id": "1834"
+    },
+    {
+      "aliases": [
+        "leyixiaolao",
+        "le yi xiao lao",
+        "lyxl",
+        "dongdongdongcicicidongdongdong",
+        "dong dong dong ci ci ci dong dong dong",
+        "dddcccddd",
+        "diandiandiangangganggangdiandiandian",
+        "dian dian dian gang gang gang dian dian dian",
+        "dddgggddd",
+        "zibeng",
+        "zi beng"
+      ],
+      "song_id": "1835"
+    },
+    {
+      "aliases": [
+        "xingjiehuixing",
+        "xing jie hui xing",
+        "xjhx",
+        "xinghuishanyao",
+        "xing hui shan yao",
+        "xhsy",
+        "bibikuiba",
+        "bi bi kui ba",
+        "bbkb"
+      ],
+      "song_id": "1836"
+    },
+    {
+      "aliases": [
+        "lunaizi",
+        "lu nai zi",
+        "lnz",
+        "lusedays",
+        "lu se d a y s",
+        "lsdays",
+        "kai",
+        "lunaizinaizihushidandan",
+        "lu nai zi nai zi hu shi dan dan",
+        "lnznzhsdd",
+        "baixiangshui",
+        "bai xiang shui",
+        "bxs",
+        "butingdelu",
+        "bu ting de lu",
+        "btdl",
+        "zhedaoshitixingwole",
+        "zhe dao shi ti xing wo le",
+        "zdstxwl"
+      ],
+      "song_id": "1837"
+    },
+    {
+      "aliases": [
+        "cuimianshi",
+        "cui mian shi",
+        "cms",
+        "cuimianshu",
+        "cui mian shu",
+        "cuimianzhe",
+        "cui mian zhe",
+        "cmz",
+        "cuimian",
+        "cui mian",
+        "chuanqinaicuiwang",
+        "chuan qi nai cui wang",
+        "cqncw"
+      ],
+      "song_id": "1838"
+    },
+    {
+      "aliases": [
+        "jian",
+        "taojian",
+        "tao jian",
+        "taoseyaoshi",
+        "tao se yao shi",
+        "tsys"
+      ],
+      "song_id": "1839"
+    },
+    {
+      "aliases": [
         "woai",
         "wo ai"
       ],
       "song_id": "184"
+    },
+    {
+      "aliases": [
+        "nuoda",
+        "nuo da"
+      ],
+      "song_id": "1840"
+    },
+    {
+      "aliases": [
+        "ganxinghechengfa",
+        "gan xing he cheng fa",
+        "gxhcf",
+        "shengyenatie",
+        "sheng ye na tie",
+        "synt",
+        "hechengfa",
+        "he cheng fa",
+        "hcf",
+        "hecheng",
+        "he cheng",
+        "hechengtianxia",
+        "he cheng tian xia",
+        "hctx",
+        "shengcheng",
+        "sheng cheng"
+      ],
+      "song_id": "1842"
+    },
+    {
+      "aliases": [
+        "chabuduodele",
+        "cha bu duo de le",
+        "cbddl",
+        "yijinggoule",
+        "yi jing gou le",
+        "yjgl",
+        "wotamashougoule",
+        "wo ta ma shou gou le",
+        "wtmsgl"
+      ],
+      "song_id": "1843"
+    },
+    {
+      "aliases": [
+        "shayuniang",
+        "sha yu niang",
+        "syn",
+        "juequling",
+        "jue qu ling",
+        "jql",
+        "mengmengdianhuofire",
+        "meng meng dian huo f i r e",
+        "mmdhfire",
+        "ailianqiao",
+        "ai lian qiao",
+        "alq",
+        "shayumei",
+        "sha yu mei",
+        "sym",
+        "mengmengdianhuo",
+        "meng meng dian huo",
+        "mmdh",
+        "ailian",
+        "ai lian",
+        "gouxiujin",
+        "gou xiu jin",
+        "gxj",
+        "yuanshasha",
+        "yuan sha sha",
+        "yss"
+      ],
+      "song_id": "1844"
+    },
+    {
+      "aliases": [
+        "tusunzhige",
+        "tu sun zhi ge",
+        "tszg",
+        "maodie",
+        "mao die"
+      ],
+      "song_id": "1845"
+    },
+    {
+      "aliases": [
+        "shaqiumaozhige",
+        "sha qiu mao zhi ge",
+        "sqmzg",
+        "maodiezhige",
+        "mao die zhi ge",
+        "mdzg",
+        "maodie",
+        "mao die"
+      ],
+      "song_id": "1846"
+    },
+    {
+      "aliases": [
+        "xinyong2",
+        "xin yong 2",
+        "xy2",
+        "hongxinyongjiaqiangban",
+        "hong xin yong jia qiang ban",
+        "hxyjqb"
+      ],
+      "song_id": "1848"
+    },
+    {
+      "aliases": [
+        "shujucuowu",
+        "shu ju cuo wu",
+        "sjcw",
+        "riqicuowu",
+        "ri qi cuo wu",
+        "rqcw"
+      ],
+      "song_id": "1849"
     },
     {
       "aliases": [
@@ -18235,6 +19269,111 @@
     },
     {
       "aliases": [
+        "xingren",
+        "xing ren",
+        "xiangjiannixingren",
+        "xiang jian ni xing ren",
+        "xjnxr"
+      ],
+      "song_id": "1850"
+    },
+    {
+      "aliases": [
+        "hao",
+        "bacai",
+        "ba cai",
+        "nvzi",
+        "nv zi",
+        "zhong"
+      ],
+      "song_id": "1851"
+    },
+    {
+      "aliases": [
+        "haozongcaifabiao",
+        "hao zong cai fa biao",
+        "hzcfb",
+        "fabiaoxihuanchidecaidelong",
+        "fa biao xi huan chi de cai de long",
+        "fbxhcdcdl",
+        "xihuandepeicaifabiaolong",
+        "xi huan de pei cai fa biao long",
+        "xhdpcfbl"
+      ],
+      "song_id": "1852"
+    },
+    {
+      "aliases": [
+        "bangbangwoyonglin",
+        "bang bang wo yong lin",
+        "bbwyl",
+        "jiuwo",
+        "jiu wo",
+        "jiujiuwo",
+        "jiu jiu wo",
+        "jjw",
+        "jiujiu",
+        "jiu jiu",
+        "yonglinnejiuyixiaa",
+        "yong lin ne jiu yi xia a",
+        "ylnjyxa",
+        "yonglinneyonglinnejiuyixiaa",
+        "yong lin ne yong lin ne jiu yi xia a",
+        "ylnylnjyxa"
+      ],
+      "song_id": "1853"
+    },
+    {
+      "aliases": [
+        "chaozuizhongguichumeis",
+        "chao zui zhong gui chu mei s",
+        "czzgcms",
+        "guichumei",
+        "gui chu mei",
+        "gcm",
+        "chaozuizhongguichumei",
+        "chao zui zhong gui chu mei",
+        "czzgcm"
+      ],
+      "song_id": "1854"
+    },
+    {
+      "aliases": [
+        "tixianmuou",
+        "ti xian mu ou",
+        "txmo"
+      ],
+      "song_id": "1855"
+    },
+    {
+      "aliases": [
+        "konghui",
+        "kong hui"
+      ],
+      "song_id": "1857"
+    },
+    {
+      "aliases": [
+        "zhou",
+        "zhouyu",
+        "zhou yu",
+        "zuzhou",
+        "zu zhou"
+      ],
+      "song_id": "1858"
+    },
+    {
+      "aliases": [
+        "liange",
+        "lian ge",
+        "bazhongsuan",
+        "ba zhong suan",
+        "bzs"
+      ],
+      "song_id": "1859"
+    },
+    {
+      "aliases": [
         "iashiwolaopo",
         "i a shi wo lao po",
         "iaswlp",
@@ -18243,6 +19382,74 @@
         "ywzy"
       ],
       "song_id": "186"
+    },
+    {
+      "aliases": [
+        "yinyouyouxiwang",
+        "yin you you xi wang",
+        "yyyxw"
+      ],
+      "song_id": "1860"
+    },
+    {
+      "aliases": [
+        "daoa",
+        "dao a",
+        "duiyusuoyou",
+        "dui yu suo you",
+        "dysy",
+        "quanchengliangci",
+        "quan cheng liang ci",
+        "qclc"
+      ],
+      "song_id": "1861"
+    },
+    {
+      "aliases": [
+        "zerenjiheti",
+        "ze ren ji he ti",
+        "zrjht",
+        "wuze",
+        "wu ze"
+      ],
+      "song_id": "1862"
+    },
+    {
+      "aliases": [
+        "sanriyue2023",
+        "san ri yue 2 0 2 3",
+        "sry2023",
+        "xinyueluanbu2023",
+        "xin yue luan bu 2 0 2 3",
+        "xylb2023"
+      ],
+      "song_id": "1863"
+    },
+    {
+      "aliases": [
+        "shaonv",
+        "shao nv",
+        "shaonvray",
+        "shao nv r a y",
+        "snray"
+      ],
+      "song_id": "1864"
+    },
+    {
+      "aliases": [
+        "shaonva",
+        "shao nv a",
+        "sna"
+      ],
+      "song_id": "1865"
+    },
+    {
+      "aliases": [
+        "diguoshaonv",
+        "di guo shao nv",
+        "dgsn"
+      ],
+      "song_id": "1866"
     },
     {
       "aliases": [
@@ -18259,6 +19466,67 @@
         "hzsn"
       ],
       "song_id": "187"
+    },
+    {
+      "aliases": [
+        "heiqi",
+        "hei qi"
+      ],
+      "song_id": "1870"
+    },
+    {
+      "aliases": [
+        "jinshishuimianningshizhe",
+        "jin shi shui mian ning shi zhe",
+        "jssmnsz"
+      ],
+      "song_id": "1871"
+    },
+    {
+      "aliases": [
+        "bamao",
+        "ba mao"
+      ],
+      "song_id": "1873"
+    },
+    {
+      "aliases": [
+        "meiyigeshiren",
+        "mei yi ge shi ren",
+        "mygsr",
+        "meiyourenleile",
+        "mei you ren lei le",
+        "myrll",
+        "meirenshiren",
+        "mei ren shi ren",
+        "mrsr"
+      ],
+      "song_id": "1874"
+    },
+    {
+      "aliases": [
+        "baoying",
+        "bao ying"
+      ],
+      "song_id": "1876"
+    },
+    {
+      "aliases": [
+        "lengguang",
+        "leng guang",
+        "fangyanhua",
+        "fang yan hua",
+        "fyh"
+      ],
+      "song_id": "1877"
+    },
+    {
+      "aliases": [
+        "xiangsuxingxi",
+        "xiang su xing xi",
+        "xsxx"
+      ],
+      "song_id": "1878"
     },
     {
       "aliases": [
@@ -18287,6 +19555,78 @@
         "nxxll"
       ],
       "song_id": "188"
+    },
+    {
+      "aliases": [
+        "circlezhutiqu",
+        "c i r c l e zhu ti qu",
+        "circleztq"
+      ],
+      "song_id": "1880"
+    },
+    {
+      "aliases": [
+        "dianluanxin",
+        "dian luan xin",
+        "dlx"
+      ],
+      "song_id": "1882"
+    },
+    {
+      "aliases": [
+        "feixu",
+        "fei xu"
+      ],
+      "song_id": "1883"
+    },
+    {
+      "aliases": [
+        "koubajiushizhengyi",
+        "kou ba jiu shi zheng yi",
+        "kbjszy"
+      ],
+      "song_id": "1884"
+    },
+    {
+      "aliases": [
+        "jiabaoyu",
+        "jia bao yu",
+        "jby",
+        "jiahupo",
+        "jia hu po",
+        "jhp",
+        "laiziheishihuolaiziyuanfangtudideshangduishangrenhuomaicangzaitongwangsimianbafangqueyouwuchukexundeliushazhixia",
+        "lai zi hei shi huo lai zi yuan fang tu di de shang dui shang ren huo mai cang zai tong wang si mian ba fang que you wu chu ke xun de liu sha zhi xia",
+        "lzhshlzyftddsdsrhmcztwsmbfqywckxdlszx",
+        "yanpo",
+        "yan po",
+        "yixialve",
+        "yi xia lve",
+        "yxl",
+        "mingzitaizhang",
+        "ming zi tai zhang",
+        "mztz",
+        "falseamberyixialve",
+        "f a l s e a m b e r yi xia lve",
+        "falseamberyxl"
+      ],
+      "song_id": "1885"
+    },
+    {
+      "aliases": [
+        "zhenkongdoushi",
+        "zhen kong dou shi",
+        "zkds"
+      ],
+      "song_id": "1886"
+    },
+    {
+      "aliases": [
+        "dedaonidebei",
+        "de dao ni de bei",
+        "ddndb"
+      ],
+      "song_id": "1889"
     },
     {
       "aliases": [
@@ -18325,6 +19665,67 @@
     },
     {
       "aliases": [
+        "yunwaicangdiandreamingvoltage",
+        "yun wai cang dian d r e a m i n g v o l t a g e",
+        "ywcddreamingvoltage"
+      ],
+      "song_id": "1891"
+    },
+    {
+      "aliases": [
+        "guinvhongyao",
+        "gui nv hong yao",
+        "gnhy"
+      ],
+      "song_id": "1892"
+    },
+    {
+      "aliases": [
+        "huatianyuetu",
+        "hua tian yue tu",
+        "htyt",
+        "goushenshiqu",
+        "gou shen shi qu",
+        "gssq"
+      ],
+      "song_id": "1893"
+    },
+    {
+      "aliases": [
+        "huixiang",
+        "hui xiang",
+        "huisheng",
+        "hui sheng"
+      ],
+      "song_id": "1895"
+    },
+    {
+      "aliases": [
+        "xinggui",
+        "xing gui"
+      ],
+      "song_id": "1897"
+    },
+    {
+      "aliases": [
+        "qidaqiji",
+        "qi da qi ji",
+        "qdqj",
+        "qiyuan",
+        "qi yuan",
+        "7ji",
+        "7 ji",
+        "7gan2",
+        "7 gan 2",
+        "7g2",
+        "yskmengsuikop7thshishenmege",
+        "y s k meng sui k o p 7 t h shi shen me ge",
+        "yskmskop7thssmg"
+      ],
+      "song_id": "1898"
+    },
+    {
+      "aliases": [
         "masaikejuan",
         "ma sai ke juan",
         "mskj",
@@ -18339,6 +19740,65 @@
         "dxmskj"
       ],
       "song_id": "190"
+    },
+    {
+      "aliases": [
+        "zhufurongguang",
+        "zhu fu rong guang",
+        "zfrg",
+        "xiwanglei2",
+        "xi wang lei 2",
+        "xwl2"
+      ],
+      "song_id": "1901"
+    },
+    {
+      "aliases": [
+        "bilandangan",
+        "bi lan dang an",
+        "blda",
+        "yinxingbumiaoqu",
+        "yin xing bu miao qu",
+        "yxbmq",
+        "68bianliwu",
+        "6 8 bian li wu",
+        "68blw",
+        "buhuanyingxuexiao",
+        "bu huan ying xue xiao",
+        "bhyxx",
+        "weilandangan",
+        "wei lan dang an",
+        "wlda",
+        "aluchibiequ",
+        "a lu chi bie qu",
+        "alcbq"
+      ],
+      "song_id": "1906"
+    },
+    {
+      "aliases": [
+        "cai"
+      ],
+      "song_id": "1907"
+    },
+    {
+      "aliases": [
+        "biesile",
+        "bie si le",
+        "bsl"
+      ],
+      "song_id": "1908"
+    },
+    {
+      "aliases": [
+        "xiangziyouxi",
+        "xiang zi you xi",
+        "xzyx",
+        "donggulugame",
+        "dong gu lu g a m e",
+        "dglgame"
+      ],
+      "song_id": "1909"
     },
     {
       "aliases": [
@@ -18403,6 +19863,82 @@
     },
     {
       "aliases": [
+        "jun"
+      ],
+      "song_id": "1910"
+    },
+    {
+      "aliases": [
+        "xiexienijiaowoxiaoguniang",
+        "xie xie ni jiao wo xiao gu niang",
+        "xxnjwxgn"
+      ],
+      "song_id": "1911"
+    },
+    {
+      "aliases": [
+        "shijian",
+        "shi jian",
+        "jianshi",
+        "jian shi",
+        "rangwokankan",
+        "rang wo kan kan",
+        "rwkk"
+      ],
+      "song_id": "1913"
+    },
+    {
+      "aliases": [
+        "eluosifangkuai",
+        "e luo si fang kuai",
+        "elsfk"
+      ],
+      "song_id": "1914"
+    },
+    {
+      "aliases": [
+        "mikudapai",
+        "m i k u da pai",
+        "mikudp",
+        "jinlaikancixiaoguimikudauno",
+        "jin lai kan ci xiao gui m i k u da u n o",
+        "jlkcxgmikuduno",
+        "shi",
+        "21shijizuishabidequzi",
+        "2 1 shi ji zui sha bi de qu zi",
+        "21sjzsbdqz",
+        "lubenwei",
+        "lu ben wei",
+        "lbw"
+      ],
+      "song_id": "1915"
+    },
+    {
+      "aliases": [
+        "youdingtian",
+        "you ding tian",
+        "ydt"
+      ],
+      "song_id": "1916"
+    },
+    {
+      "aliases": [
+        "xinzang",
+        "xin zang",
+        "nirvdexinzang",
+        "n i r v de xin zang",
+        "nirvdxz",
+        "xinzangta",
+        "xin zang ta",
+        "xzt",
+        "taxinzang",
+        "ta xin zang",
+        "txz"
+      ],
+      "song_id": "1918"
+    },
+    {
+      "aliases": [
         "tianshizhimeng",
         "tian shi zhi meng",
         "tszm"
@@ -18426,6 +19962,85 @@
         "ge zi"
       ],
       "song_id": "1920"
+    },
+    {
+      "aliases": [
+        "bianshenzzz",
+        "bian shen z z z",
+        "bszzz",
+        "bianshen",
+        "bian shen"
+      ],
+      "song_id": "1921"
+    },
+    {
+      "aliases": [
+        "ming"
+      ],
+      "song_id": "1922"
+    },
+    {
+      "aliases": [
+        "baiqizuigaosichu",
+        "bai qi zui gao si chu",
+        "bqzgsc"
+      ],
+      "song_id": "1923"
+    },
+    {
+      "aliases": [
+        "xuexishijian",
+        "xue xi shi jian",
+        "xxsj",
+        "xuexishijiandao",
+        "xue xi shi jian dao",
+        "xxsjd"
+      ],
+      "song_id": "1924"
+    },
+    {
+      "aliases": [
+        "zhedaoshitixingwole",
+        "zhe dao shi ti xing wo le",
+        "zdstxwl"
+      ],
+      "song_id": "1925"
+    },
+    {
+      "aliases": [
+        "weilai",
+        "wei lai",
+        "chushideweilai",
+        "chu shi de wei lai",
+        "csdwl"
+      ],
+      "song_id": "1926"
+    },
+    {
+      "aliases": [
+        "huahua",
+        "hua hua",
+        "guaiwuzhihua",
+        "guai wu zhi hua",
+        "gwzh",
+        "mzk5xiang",
+        "m z k 5 xiang",
+        "mzk5x",
+        "nandelaile",
+        "nan de lai le",
+        "ndll",
+        "guihuazhihua",
+        "gui hua zhi hua",
+        "ghzh"
+      ],
+      "song_id": "1928"
+    },
+    {
+      "aliases": [
+        "wanhuo",
+        "wan huo"
+      ],
+      "song_id": "1929"
     },
     {
       "aliases": [
@@ -18460,6 +20075,47 @@
     },
     {
       "aliases": [
+        "dianguangshage",
+        "dian guang sha ge",
+        "dgsg"
+      ],
+      "song_id": "1930"
+    },
+    {
+      "aliases": [
+        "zuiairensheng",
+        "zui ai ren sheng",
+        "zars"
+      ],
+      "song_id": "1934"
+    },
+    {
+      "aliases": [
+        "chuyinbaozou",
+        "chu yin bao zou",
+        "cybz"
+      ],
+      "song_id": "1935"
+    },
+    {
+      "aliases": [
+        "xueren",
+        "xue ren"
+      ],
+      "song_id": "1937"
+    },
+    {
+      "aliases": [
+        "maitian",
+        "mai tian",
+        "yuyimaitiandeshouhuzhe",
+        "yu yi mai tian de shou hu zhe",
+        "yymtdshz"
+      ],
+      "song_id": "1939"
+    },
+    {
+      "aliases": [
         "fangkehou",
         "fang ke hou",
         "fkh",
@@ -18468,6 +20124,30 @@
         "fkhc"
       ],
       "song_id": "194"
+    },
+    {
+      "aliases": [
+        "shengshousheng",
+        "sheng shou sheng",
+        "sss"
+      ],
+      "song_id": "1940"
+    },
+    {
+      "aliases": [
+        "san"
+      ],
+      "song_id": "1941"
+    },
+    {
+      "aliases": [
+        "heianhuoguo",
+        "hei an huo guo",
+        "hahg",
+        "anguo",
+        "an guo"
+      ],
+      "song_id": "1942"
     },
     {
       "aliases": [
@@ -18518,6 +20198,82 @@
     },
     {
       "aliases": [
+        "lianbingjietangwenquan",
+        "lian bing jie tang wen quan",
+        "lbjtwq"
+      ],
+      "song_id": "1947"
+    },
+    {
+      "aliases": [
+        "dian"
+      ],
+      "song_id": "1948"
+    },
+    {
+      "aliases": [
+        "kexue",
+        "ke xue"
+      ],
+      "song_id": "1951"
+    },
+    {
+      "aliases": [
+        "lanseyiji",
+        "lan se yi ji",
+        "lsyj"
+      ],
+      "song_id": "1953"
+    },
+    {
+      "aliases": [
+        "shasinagefayanren",
+        "sha si na ge fa yan ren",
+        "ssngfyr",
+        "butongyideqingjushou",
+        "bu tong yi de qing ju shou",
+        "btydqjs",
+        "fangdanshaoniantuan",
+        "fang dan shao nian tuan",
+        "fdsnt",
+        "maoniangzhaoshou",
+        "mao niang zhao shou",
+        "mnzs"
+      ],
+      "song_id": "1956"
+    },
+    {
+      "aliases": [
+        "aaayiayi",
+        "a a a yi a yi",
+        "aaayay"
+      ],
+      "song_id": "1969"
+    },
+    {
+      "aliases": [
+        "jian"
+      ],
+      "song_id": "1971"
+    },
+    {
+      "aliases": [
+        "wudidesostuan5renver",
+        "wu di de s o s tuan 5 ren v e r",
+        "wddsost5rver"
+      ],
+      "song_id": "1976"
+    },
+    {
+      "aliases": [
+        "lubijiang",
+        "lu bi jiang",
+        "lbj"
+      ],
+      "song_id": "1979"
+    },
+    {
+      "aliases": [
         "yangyan",
         "yang yan",
         "yangyanxuanluan",
@@ -18542,6 +20298,99 @@
         "yydays"
       ],
       "song_id": "198"
+    },
+    {
+      "aliases": [
+        "xinlingganying",
+        "xin ling gan ying",
+        "xlgy"
+      ],
+      "song_id": "1980"
+    },
+    {
+      "aliases": [
+        "chaojichaojichaojichaojichaojitaoyan",
+        "chao ji chao ji chao ji chao ji chao ji tao yan",
+        "cjcjcjcjcjty",
+        "chaojitaoyan",
+        "chao ji tao yan",
+        "cjty"
+      ],
+      "song_id": "1981"
+    },
+    {
+      "aliases": [
+        "tshihuaxin",
+        "t shi hua xin",
+        "tshx",
+        "buyaoxiangxintshidehua",
+        "bu yao xiang xin t shi de hua",
+        "byxxtsdh",
+        "tshi",
+        "t shi"
+      ],
+      "song_id": "1983"
+    },
+    {
+      "aliases": [
+        "chao",
+        "chaoyeqi",
+        "chao ye qi",
+        "cyq"
+      ],
+      "song_id": "1984"
+    },
+    {
+      "aliases": [
+        "fushihuihengding",
+        "fu shi hui heng ding",
+        "fshhd"
+      ],
+      "song_id": "1985"
+    },
+    {
+      "aliases": [
+        "qijieti",
+        "qi jie ti",
+        "qjt",
+        "qiqijieti",
+        "qi qi jie ti",
+        "qqjt",
+        "doushichuanshuojietizhongxin",
+        "dou shi chuan shuo jie ti zhong xin",
+        "dscsjtzx",
+        "huiwushe",
+        "hui wu she",
+        "hws"
+      ],
+      "song_id": "1987"
+    },
+    {
+      "aliases": [
+        "zayu",
+        "za yu"
+      ],
+      "song_id": "1988"
+    },
+    {
+      "aliases": [
+        "fanshigouwen",
+        "fan shi gou wen",
+        "fsgw",
+        "dashushixiaozuowen",
+        "da shu shi xiao zuo wen",
+        "dssxzw",
+        "dashuxiaozuowen",
+        "da shu xiao zuo wen",
+        "dsxzw",
+        "yuyiwannongdalingchunan",
+        "yu yi wan nong da ling chu nan",
+        "yywndlcn",
+        "zenmehaibuhuixindashushixiaozuowen",
+        "zen me hai bu hui xin da shu shi xiao zuo wen",
+        "zmhbhxdssxzw"
+      ],
+      "song_id": "1989"
     },
     {
       "aliases": [
@@ -18581,6 +20430,59 @@
     },
     {
       "aliases": [
+        "zhousi",
+        "zhou si"
+      ],
+      "song_id": "1990"
+    },
+    {
+      "aliases": [
+        "jiudianba",
+        "jiu dian ba",
+        "jdb",
+        "9dian8",
+        "9 dian 8",
+        "9d8"
+      ],
+      "song_id": "1991"
+    },
+    {
+      "aliases": [
+        "wuwangcao",
+        "wu wang cao",
+        "wwc"
+      ],
+      "song_id": "1992"
+    },
+    {
+      "aliases": [
+        "linghun",
+        "ling hun",
+        "anima",
+        "a ni ma",
+        "anm",
+        "einima",
+        "ei ni ma",
+        "enm",
+        "amiya",
+        "a mi ya",
+        "amy"
+      ],
+      "song_id": "1993"
+    },
+    {
+      "aliases": [
+        "weilandangan",
+        "wei lan dang an",
+        "wlda",
+        "bilandanganzhuxianzuizhongzhang",
+        "bi lan dang an zhu xian zui zhong zhang",
+        "bldazxzzz"
+      ],
+      "song_id": "1995"
+    },
+    {
+      "aliases": [
         "huaipingguo",
         "huai ping guo",
         "hpg",
@@ -18606,10 +20508,7 @@
         "hbpg",
         "haoanzhuo",
         "hao an zhuo",
-        "haz",
-        "huailinqin",
-        "huai lin qin",
-        "hlq"
+        "haz"
       ],
       "song_id": "200"
     },
@@ -18694,15 +20593,7 @@
         "jjw",
         "bangbangwoyonglin",
         "bang bang wo yong lin",
-        "bbwyl",
-        "jiujiu",
-        "jiu jiu",
-        "yonglinnejiuyixiaa",
-        "yong lin ne jiu yi xia a",
-        "ylnjyxa",
-        "yonglinneyonglinnejiuyixiaa",
-        "yong lin ne yong lin ne jiu yi xia a",
-        "ylnylnjyxa"
+        "bbwyl"
       ],
       "song_id": "203"
     },
@@ -19233,6 +21124,9 @@
         "faguodushen",
         "fa guo du shen",
         "fgds",
+        "daxiaowang",
+        "da xiao wang",
+        "dxw",
         "guodanpi",
         "guo dan pi",
         "gdp",
@@ -20198,6 +22092,9 @@
         "buyaoxiaotiaozhan",
         "bu yao xiao tiao zhan",
         "byxtz",
+        "elingtuisan",
+        "e ling tui san",
+        "elts",
         "letgoyinyangshi",
         "l e t g o yin yang shi",
         "letgoyys",
@@ -20215,9 +22112,6 @@
         "yishimofa",
         "yi shi mo fa",
         "ysmf",
-        "elingtuisan",
-        "e ling tui san",
-        "elts",
         "haoxuesi",
         "hao xue si",
         "hxs",
@@ -20226,6 +22120,17 @@
         "bzjj"
       ],
       "song_id": "278"
+    },
+    {
+      "aliases": [
+        "luxinrongjie",
+        "lu xin rong jie",
+        "lxrj",
+        "fengmianhenchou",
+        "feng mian hen chou",
+        "fmhc"
+      ],
+      "song_id": "280"
     },
     {
       "aliases": [
@@ -20483,6 +22388,9 @@
         "lostonedehaoku",
         "l o s t o n e de hao ku",
         "lostonedhk",
+        "jingyinlingzajita",
+        "jing yin ling za ji ta",
+        "jylzjt",
         "kuku",
         "ku ku",
         "meiyou1woyaokule",
@@ -20500,7 +22408,13 @@
         "po fang",
         "qujiubakankanzaijinqianmianqianzhangxiangsuanshenme",
         "qu jiu ba kan kan zai jin qian mian qian zhang xiang suan shen me",
-        "qjbkkzjqmqzxssm"
+        "qjbkkzjqmqzxssm",
+        "maomao4",
+        "mao mao 4",
+        "mm4",
+        "maomaosi",
+        "mao mao si",
+        "mms"
       ],
       "song_id": "299"
     },
@@ -20523,6 +22437,14 @@
         "mao"
       ],
       "song_id": "30"
+    },
+    {
+      "aliases": [
+        "tianmiemo",
+        "tian mi e mo",
+        "tmem"
+      ],
+      "song_id": "300"
     },
     {
       "aliases": [
@@ -21591,6 +23513,12 @@
         "congxiaohedaoda",
         "cong xiao he dao da",
         "cxhdd",
+        "zhengzongyezhiyeshupai",
+        "zheng zong ye zhi ye shu pai",
+        "zzyzysp",
+        "letsniurudance",
+        "l e t s niu ru d a n c e",
+        "letsnrdance",
         "biaonai",
         "biao nai",
         "nvtong15",
@@ -22164,6 +24092,9 @@
         "quanwangzuishuaiwuxiongdi",
         "quan wang zui shuai wu xiong di",
         "qwzswxd",
+        "beiqiyu",
+        "bei qi yu",
+        "bqy",
         "guobeituoxin",
         "guo bei tuo xin",
         "gbtx",
@@ -22173,9 +24104,6 @@
         "xiabeize2000",
         "xia bei ze 2 0 0 0",
         "xbz2000",
-        "beiqiyu",
-        "bei qi yu",
-        "bqy",
         "taigu2000",
         "tai gu 2 0 0 0",
         "tg2000",
@@ -22361,6 +24289,14 @@
     },
     {
       "aliases": [
+        "wangxiangshui",
+        "wang xiang shui",
+        "wxs"
+      ],
+      "song_id": "409"
+    },
+    {
+      "aliases": [
         "chuyinxiaoshi",
         "chu yin xiao shi",
         "cyxs",
@@ -22503,6 +24439,9 @@
         "haibaihe",
         "hai bai he",
         "hbh",
+        "nixuebuhui",
+        "ni xue bu hui",
+        "nxbh",
         "shuishen3",
         "shui shen 3",
         "ss3",
@@ -23481,6 +25420,22 @@
     },
     {
       "aliases": [
+        "chubingjifa",
+        "chu bing ji fa",
+        "cbjf",
+        "chubing",
+        "chu bing",
+        "chubingjifananhai",
+        "chu bing ji fa nan hai",
+        "cbjfnh",
+        "chubingjifaboy",
+        "chu bing ji fa b o y",
+        "cbjfboy"
+      ],
+      "song_id": "477"
+    },
+    {
+      "aliases": [
         "mimihuohua",
         "mi mi huo hua",
         "mmhh",
@@ -23815,12 +25770,12 @@
         "dashaojieban",
         "da shao jie ban",
         "dsjb",
-        "biaozhunshaojieban",
-        "biao zhun shao jie ban",
-        "bzsjb",
         "nideyekongshaojieban",
         "ni de ye kong shao jie ban",
         "ndyksjb",
+        "biaozhunshaojieban",
+        "biao zhun shao jie ban",
+        "bzsjb",
         "chengshaojieban",
         "cheng shao jie ban",
         "csjb",
@@ -24009,6 +25964,18 @@
         "maimainm"
       ],
       "song_id": "514"
+    },
+    {
+      "aliases": [
+        "lian"
+      ],
+      "song_id": "515"
+    },
+    {
+      "aliases": [
+        "xin"
+      ],
+      "song_id": "516"
     },
     {
       "aliases": [
@@ -24201,6 +26168,9 @@
     },
     {
       "aliases": [
+        "pinkpluszhutiqu",
+        "p i n k p l u s zhu ti qu",
+        "pinkplusztq",
         "pinktiaozhan",
         "p i n k tiao zhan",
         "pinktz",
@@ -24908,6 +26878,23 @@
         "dcgohxkj"
       ],
       "song_id": "56"
+    },
+    {
+      "aliases": [
+        "huixueyuehua",
+        "hui xue yue hua",
+        "hxyh",
+        "xuanzhuanbaxueyuehua",
+        "xuan zhuan ba xue yue hua",
+        "xzbxyh",
+        "jiqiaoshaonvbuhuishoushang",
+        "ji qiao shao nv bu hui shou shang",
+        "jqsnbhss",
+        "xueyuehua",
+        "xue yue hua",
+        "xyh"
+      ],
+      "song_id": "560"
     },
     {
       "aliases": [
@@ -26126,6 +28113,13 @@
     },
     {
       "aliases": [
+        "dongjing",
+        "dong jing"
+      ],
+      "song_id": "620"
+    },
+    {
+      "aliases": [
         "jian",
         "jiantou",
         "jian tou",
@@ -26914,6 +28908,13 @@
     },
     {
       "aliases": [
+        "zuiqiang",
+        "zui qiang"
+      ],
+      "song_id": "659"
+    },
+    {
+      "aliases": [
         "shimowuting",
         "shi mo wu ting",
         "smwt",
@@ -27144,6 +29145,24 @@
         "bj27"
       ],
       "song_id": "674"
+    },
+    {
+      "aliases": [
+        "baixue",
+        "bai xue"
+      ],
+      "song_id": "675"
+    },
+    {
+      "aliases": [
+        "haoxuebenqi",
+        "hao xue ben qi",
+        "hxbq",
+        "woquxiaxueleniubi",
+        "wo qu xia xue le niu bi",
+        "wqxxlnb"
+      ],
+      "song_id": "676"
     },
     {
       "aliases": [
@@ -27669,10 +29688,7 @@
         "xr2",
         "woxiangxin",
         "wo xiang xin",
-        "wxx",
-        "guangjimengxiuchangge",
-        "guang ji meng xiu chang ge",
-        "gjmxcg"
+        "wxx"
       ],
       "song_id": "695"
     },
@@ -27685,6 +29701,16 @@
         "qdnz"
       ],
       "song_id": "696"
+    },
+    {
+      "aliases": [
+        "weimeihaodeshijiexianshangzhufu",
+        "wei mei hao de shi jie xian shang zhu fu",
+        "wmhdsjxszf",
+        "suqing",
+        "su qing"
+      ],
+      "song_id": "698"
     },
     {
       "aliases": [
@@ -27725,7 +29751,10 @@
         "7 ji",
         "7gan2",
         "7 gan 2",
-        "7g2"
+        "7g2",
+        "yskmengsuikop7thshishenmege",
+        "y s k meng sui k o p 7 t h shi shen me ge",
+        "yskmskop7thssmg"
       ],
       "song_id": "7 Wonders"
     },
@@ -28360,15 +30389,15 @@
         "chuyinweilaidundalao",
         "chu yin wei lai dun da lao",
         "cywlddl",
+        "mangchangganzangdachangnianling",
+        "mang chang gan zang da chang nian ling",
+        "mcgzdcnl",
         "haiditannanminying",
         "hai di tan nan min ying",
         "hdtnmy",
         "daichanglianmeng",
         "dai chang lian meng",
         "dclm",
-        "mangchangganzangdachangnianling",
-        "mang chang gan zang da chang nian ling",
-        "mcgzdcnl",
         "gui",
         "lianmeng",
         "lian meng",
@@ -29024,6 +31053,14 @@
         "zsdhh"
       ],
       "song_id": "760"
+    },
+    {
+      "aliases": [
+        "suqingshijiepuwei",
+        "su qing shi jie pu wei",
+        "sqsjpw"
+      ],
+      "song_id": "761"
     },
     {
       "aliases": [
@@ -30178,6 +32215,17 @@
     },
     {
       "aliases": [
+        "jinshengyeshuangxuexiu",
+        "jin sheng ye shuang xue xiu",
+        "jsysxx",
+        "shengdanchuyin",
+        "sheng dan chu yin",
+        "sdcy"
+      ],
+      "song_id": "801"
+    },
+    {
+      "aliases": [
         "busiyiguo",
         "bu si yi guo",
         "bsyg",
@@ -30270,6 +32318,16 @@
         "xspromaxultra"
       ],
       "song_id": "803"
+    },
+    {
+      "aliases": [
+        "pianxiang",
+        "pian xiang",
+        "danxiangsisangba",
+        "dan xiang si sang ba",
+        "dxssb"
+      ],
+      "song_id": "805"
     },
     {
       "aliases": [
@@ -30366,6 +32424,17 @@
         "lan mao"
       ],
       "song_id": "81"
+    },
+    {
+      "aliases": [
+        "youjiandie",
+        "you jian die",
+        "yjd",
+        "youjianzhidie",
+        "you jian zhi die",
+        "yjzd"
+      ],
+      "song_id": "811"
     },
     {
       "aliases": [
@@ -30984,6 +33053,9 @@
         "shui15",
         "shui 1 5",
         "s15",
+        "telangpuhehuangrenxunpinji",
+        "te lang pu he huang ren xun pin ji",
+        "tlphhrxpj",
         "baopi",
         "bao pi",
         "nin",
@@ -31103,6 +33175,9 @@
         "ataier",
         "a tai er",
         "ate",
+        "nixianbieji",
+        "ni xian bie ji",
+        "nxbj",
         "tganianduzuijia",
         "t g a nian du zui jia",
         "tgandzj",
@@ -31118,9 +33193,6 @@
         "xuechudedianxian",
         "xue chu de dian xian",
         "xcddx",
-        "nixianbieji",
-        "ni xian bie ji",
-        "nxbj",
         "jiqirendiaoyu",
         "ji qi ren diao yu",
         "jqrdy",
@@ -31131,6 +33203,9 @@
         "lddx",
         "tianxian",
         "tian xian",
+        "aleitai",
+        "a lei tai",
+        "alt",
         "xiaojiqiren",
         "xiao ji qi ren",
         "xjqr"
@@ -31458,6 +33533,9 @@
         "xingxingge",
         "xing xing ge",
         "xxg",
+        "xiongditiyibama",
+        "xiong di ti yi ba ma",
+        "xdtybm",
         "baidou",
         "bai dou",
         "heishenhua",
@@ -31671,7 +33749,13 @@
         "ling hun",
         "anima",
         "a ni ma",
-        "anm"
+        "anm",
+        "einima",
+        "ei ni ma",
+        "enm",
+        "amiya",
+        "a mi ya",
+        "amy"
       ],
       "song_id": "ANiMA"
     },
@@ -31710,9 +33794,17 @@
     },
     {
       "aliases": [
+        "atelasi",
+        "a te la si",
+        "atls",
         "atelasichongci",
         "a te la si chong ci",
-        "atlscc"
+        "atlscc",
+        "mifan",
+        "mi fan",
+        "quanshijiezuirandemifan",
+        "quan shi jie zui ran de mi fan",
+        "qsjzrdmf"
       ],
       "song_id": "ATLAS RUSH"
     },
@@ -31721,6 +33813,8 @@
         "niaoshi2",
         "niao shi 2",
         "ns2",
+        "moye",
+        "mo ye",
         "shenaodekunjing",
         "shen ao de kun jing",
         "sadkj",
@@ -32011,6 +34105,9 @@
         "ataier",
         "a tai er",
         "ate",
+        "nixianbieji",
+        "ni xian bie ji",
+        "nxbj",
         "tganianduzuijia",
         "t g a nian du zui jia",
         "tgandzj",
@@ -32026,9 +34123,6 @@
         "xuechudedianxian",
         "xue chu de dian xian",
         "xcddx",
-        "nixianbieji",
-        "ni xian bie ji",
-        "nxbj",
         "jiqirendiaoyu",
         "ji qi ren diao yu",
         "jqrdy",
@@ -32039,6 +34133,9 @@
         "lddx",
         "tianxian",
         "tian xian",
+        "aleitai",
+        "a lei tai",
+        "alt",
         "xiaojiqiren",
         "xiao ji qi ren",
         "xjqr"
@@ -32689,7 +34786,30 @@
       "aliases": [
         "huaipingguo",
         "huai ping guo",
-        "hpg"
+        "hpg",
+        "haohuawei",
+        "hao hua wei",
+        "hhw",
+        "lanpingguo",
+        "lan ping guo",
+        "lpg",
+        "chiyiqianchiyiqian",
+        "chi yi qian chi yi qian",
+        "cyqcyq",
+        "chiyiqianchiyiqianchiyiqian",
+        "chi yi qian chi yi qian chi yi qian",
+        "cyqcyqcyq",
+        "nianniankaonianniancuo",
+        "nian nian kao nian nian cuo",
+        "nnknnc",
+        "heipingguo",
+        "hei ping guo",
+        "heibaipingguo",
+        "hei bai ping guo",
+        "hbpg",
+        "haoanzhuo",
+        "hao an zhuo",
+        "haz"
       ],
       "song_id": "Bad Apple!! feat.nomico"
     },
@@ -33858,6 +35978,9 @@
     },
     {
       "aliases": [
+        "lvheiji",
+        "lv hei ji",
+        "lhj",
         "secaixiangyu",
         "se cai xiang yu",
         "scxy",
@@ -34525,6 +36648,14 @@
         "hgfp"
       ],
       "song_id": "Desperado Waltz"
+    },
+    {
+      "aliases": [
+        "tixianmuou",
+        "ti xian mu ou",
+        "txmo"
+      ],
+      "song_id": "Destined Marionette"
     },
     {
       "aliases": [
@@ -35644,6 +37775,9 @@
     },
     {
       "aliases": [
+        "ganshouai",
+        "gan shou ai",
+        "gsa",
         "wuya",
         "wu ya"
       ],
@@ -35797,6 +37931,9 @@
     },
     {
       "aliases": [
+        "caidaizhutige",
+        "cai dai zhu ti ge",
+        "cdztg",
         "prismzhutiqu",
         "p r i s m zhu ti qu",
         "prismztq",
@@ -36071,6 +38208,9 @@
         "faguodushen",
         "fa guo du shen",
         "fgds",
+        "daxiaowang",
+        "da xiao wang",
+        "dxw",
         "guodanpi",
         "guo dan pi",
         "gdp",
@@ -36745,21 +38885,14 @@
     },
     {
       "aliases": [
-        "yonglin",
-        "yong lin",
-        "jiuwo",
-        "jiu wo",
-        "bangwo",
-        "bang wo",
-        "bangbangwoyonglinjie",
-        "bang bang wo yong lin jie",
-        "bbwylj",
-        "jiujiuwo",
-        "jiu jiu wo",
-        "jjw",
         "bangbangwoyonglin",
         "bang bang wo yong lin",
         "bbwyl",
+        "jiuwo",
+        "jiu wo",
+        "jiujiuwo",
+        "jiu jiu wo",
+        "jjw",
         "jiujiu",
         "jiu jiu",
         "yonglinnejiuyixiaa",
@@ -36773,6 +38906,18 @@
     },
     {
       "aliases": [
+        "yonglin",
+        "yong lin",
+        "jiuwo",
+        "jiu wo",
+        "bangwo",
+        "bang wo",
+        "bangbangwoyonglinjie",
+        "bang bang wo yong lin jie",
+        "bbwylj",
+        "jiujiuwo",
+        "jiu jiu wo",
+        "jjw",
         "bangbangwoyonglin",
         "bang bang wo yong lin",
         "bbwyl"
@@ -38258,6 +40403,9 @@
         "yilishabai",
         "yi li sha bai",
         "ylsb",
+        "huakawoxiangnile",
+        "hua ka wo xiang ni le",
+        "hkwxnl",
         "rangniqian",
         "rang ni qian",
         "rnq",
@@ -38405,6 +40553,12 @@
         "yikuaiqian",
         "yi kuai qian",
         "ykq",
+        "xihuanfeng",
+        "xi huan feng",
+        "xhf",
+        "aaaaaayikuaiqian",
+        "a a a a a a yi kuai qian",
+        "aaaaaaykq",
         "landepen",
         "lan de pen",
         "ldp",
@@ -38439,9 +40593,6 @@
         "zszf",
         "fenghao",
         "feng hao",
-        "xihuanfeng",
-        "xi huan feng",
-        "xhf",
         "santanyingyue",
         "san tan ying yue"
       ],
@@ -38499,6 +40650,18 @@
         "pyq",
         "linke",
         "lin ke"
+      ],
+      "song_id": "Link"
+    },
+    {
+      "aliases": [
+        "pengyouquan",
+        "peng you quan",
+        "pyq",
+        "linke",
+        "lin ke",
+        "lianjie",
+        "lian jie"
       ],
       "song_id": "Link (2)"
     },
@@ -40247,6 +42410,12 @@
         "congxiaohedaoda",
         "cong xiao he dao da",
         "cxhdd",
+        "zhengzongyezhiyeshupai",
+        "zheng zong ye zhi ye shu pai",
+        "zzyzysp",
+        "letsniurudance",
+        "l e t s niu ru d a n c e",
+        "letsnrdance",
         "biaonai",
         "biao nai",
         "nvtong15",
@@ -40555,6 +42724,9 @@
         "shui15",
         "shui 1 5",
         "s15",
+        "telangpuhehuangrenxunpinji",
+        "te lang pu he huang ren xun pin ji",
+        "tlphhrxpj",
         "baopi",
         "bao pi",
         "nin",
@@ -41270,6 +43442,9 @@
         "dengluerweimashuaditie",
         "deng lu er wei ma shua di tie",
         "dlewmsdt",
+        "nipaobuguowonixinbuxin",
+        "ni pao bu guo wo ni xin bu xin",
+        "npbgwnxbx",
         "hajiq",
         "ha ji q",
         "hjq",
@@ -41312,7 +43487,10 @@
       "aliases": [
         "weilandangan",
         "wei lan dang an",
-        "wlda"
+        "wlda",
+        "bilandanganzhuxianzuizhongzhang",
+        "bi lan dang an zhu xian zui zhong zhang",
+        "bldazxzzz"
       ],
       "song_id": "RE Aoharu"
     },
@@ -41963,6 +44141,9 @@
         "xiyigexiaoshi",
         "xi yi ge xiao shi",
         "xygxs",
+        "zaogaofeng",
+        "zao gao feng",
+        "zgf",
         "chongyigexiaoshi",
         "chong yi ge xiao shi",
         "cygxs",
@@ -42124,11 +44305,11 @@
         "zhanshuxiaodui",
         "zhan shu xiao dui",
         "zsxd",
-        "sigua",
-        "si gua",
         "huanyingxiaodui",
         "huan ying xiao dui",
         "hyxd",
+        "sigua",
+        "si gua",
         "youlingxiaodui",
         "you ling xiao dui",
         "ylxd",
@@ -43462,6 +45643,17 @@
         "ganxinghechengfa",
         "gan xing he cheng fa",
         "gxhcf",
+        "shengyenatie",
+        "sheng ye na tie",
+        "synt",
+        "hechengfa",
+        "he cheng fa",
+        "hcf",
+        "hecheng",
+        "he cheng",
+        "hechengtianxia",
+        "he cheng tian xia",
+        "hctx",
         "shengcheng",
         "sheng cheng"
       ],
@@ -43555,6 +45747,49 @@
     },
     {
       "aliases": [
+        "yuzu",
+        "yu zu",
+        "hehuzhouli",
+        "he hu zhou li",
+        "hhzl",
+        "zukong",
+        "zu kong",
+        "dajiaoyazi",
+        "da jiao ya zi",
+        "djyz",
+        "jiaoge",
+        "jiao ge",
+        "yuzubinggun",
+        "yu zu bing gun",
+        "yzbg",
+        "laobinggun",
+        "lao bing gun",
+        "lbg",
+        "xiaofozhichixuegao",
+        "xiao fo zhi chi xue gao",
+        "xfzcxg",
+        "xinren",
+        "xin ren",
+        "shishenshaonvqiaojiaochibinggao",
+        "shi shen shao nv qiao jiao chi bing gao",
+        "sssnqjcbg",
+        "nuoxiangningmengcha",
+        "nuo xiang ning meng cha",
+        "nxnmc",
+        "xiaofozhi",
+        "xiao fo zhi",
+        "xfz",
+        "xinren2",
+        "xin ren 2",
+        "xr2",
+        "woxiangxin",
+        "wo xiang xin",
+        "wxx"
+      ],
+      "song_id": "TRUST"
+    },
+    {
+      "aliases": [
         "kejigao",
         "ke ji gao",
         "kjg",
@@ -43625,7 +45860,10 @@
         "zzro",
         "zuzhouwawa",
         "zu zhou wa wa",
-        "zzww"
+        "zzww",
+        "beizuzhouderenou",
+        "bei zu zhou de ren ou",
+        "bzzdro"
       ],
       "song_id": "The Cursed Doll"
     },
@@ -43758,6 +45996,9 @@
         "xingxingge",
         "xing xing ge",
         "xxg",
+        "xiongditiyibama",
+        "xiong di ti yi ba ma",
+        "xdtybm",
         "baidou",
         "bai dou",
         "heishenhua",
@@ -43937,7 +46178,15 @@
         "yuan shi",
         "chuanshendenaizi",
         "chuan shen de nai zi",
-        "csdnz"
+        "csdnz",
+        "maomao",
+        "mao mao",
+        "maomaoyi",
+        "mao mao yi",
+        "mmy",
+        "maomao1",
+        "mao mao 1",
+        "mm1"
       ],
       "song_id": "Transcend Lights"
     },
@@ -44039,47 +46288,30 @@
     },
     {
       "aliases": [
-        "yuzu",
-        "yu zu",
-        "hehuzhouli",
-        "he hu zhou li",
-        "hhzl",
-        "zukong",
-        "zu kong",
-        "dajiaoyazi",
-        "da jiao ya zi",
-        "djyz",
-        "jiaoge",
-        "jiao ge",
-        "yuzubinggun",
-        "yu zu bing gun",
-        "yzbg",
+        "guangjimengxiuchangge",
+        "guang ji meng xiu chang ge",
+        "gjmxcg",
         "laobinggun",
         "lao bing gun",
         "lbg",
-        "xiaofozhichixuegao",
-        "xiao fo zhi chi xue gao",
-        "xfzcxg",
-        "xinren",
-        "xin ren",
-        "shishenshaonvqiaojiaochibinggao",
-        "shi shen shao nv qiao jiao chi bing gao",
-        "sssnqjcbg",
-        "nuoxiangningmengcha",
-        "nuo xiang ning meng cha",
-        "nxnmc",
         "xiaofozhi",
         "xiao fo zhi",
         "xfz",
+        "jiaoge",
+        "jiao ge",
+        "dajiaoyazi",
+        "da jiao ya zi",
+        "djyz",
+        "zukong",
+        "zu kong",
+        "xinren",
+        "xin ren",
         "xinren2",
         "xin ren 2",
         "xr2",
         "woxiangxin",
         "wo xiang xin",
-        "wxx",
-        "guangjimengxiuchangge",
-        "guang ji meng xiu chang ge",
-        "gjmxcg"
+        "wxx"
       ],
       "song_id": "Trust"
     },
@@ -44626,6 +46858,9 @@
         "jinxiongcanan",
         "jin xiong can an",
         "jxca",
+        "ysktongshishouying",
+        "y s k tong shi shou ying",
+        "ysktssy",
         "kop2019juesaiqu",
         "k o p 2 0 1 9 jue sai qu",
         "kop2019jsq",
@@ -44731,6 +46966,9 @@
         "kop4juesaiqu",
         "k o p 4 jue sai qu",
         "kop4jsq",
+        "12gejuezan",
+        "1 2 ge jue zan",
+        "12gjz",
         "2024chunwan",
         "2 0 2 4 chun wan",
         "2024cw",
@@ -44765,6 +47003,9 @@
         "jiepaiqi",
         "jie pai qi",
         "jpq",
+        "congxunidaoxianshi",
+        "cong xu ni dao xian shi",
+        "cxndxs",
         "guanrenge",
         "guan ren ge",
         "grg",
@@ -45587,6 +47828,20 @@
         "xuanyayi",
         "xuan ya yi",
         "xyy",
+        "ganjuhuami",
+        "gan ju hua mi",
+        "gjhm",
+        "ningmengshuilu",
+        "ning meng shui lu",
+        "nmsl",
+        "ningmeng",
+        "ning meng",
+        "ningmenghuami",
+        "ning meng hua mi",
+        "nmhm",
+        "ningmengmi",
+        "ning meng mi",
+        "nmm",
         "24fen45jiaohu",
         "2 4 fen 4 5 jiao hu",
         "24f45jh",
@@ -45618,6 +47873,9 @@
         "gaosihanshu",
         "gao si han shu",
         "gshs",
+        "chuanqinaijiangwang",
+        "chuan qi nai jiang wang",
+        "cqnjw",
         "wuqiongda",
         "wu qiong da",
         "wqd",
@@ -45633,6 +47891,8 @@
     },
     {
       "aliases": [
+        "yanren",
+        "yan ren",
         "xren",
         "x ren"
       ],
@@ -45652,7 +47912,10 @@
     {
       "aliases": [
         "nanting",
-        "nan ting"
+        "nan ting",
+        "qingshuruwenben",
+        "qing shu ru wen ben",
+        "qsrwb"
       ],
       "song_id": "[一]もうみんなしねばいいのに"
     },
@@ -45673,18 +47936,15 @@
         "guangbreakbreakbreak",
         "guang b r e a k b r e a k b r e a k",
         "gbreakbreakbreak",
-        "yanjuezan",
-        "yan jue zan",
-        "yjz",
+        "quanshijuezandebbb",
+        "quan shi jue zan de b b b",
+        "qsjzdbbb",
         "guangbbb",
         "guang b b b",
         "gbbb",
         "yanbbb",
         "yan b b b",
-        "ybbb",
-        "quanshijuezandebbb",
-        "quan shi jue zan de b b b",
-        "qsjzdbbb"
+        "ybbb"
       ],
       "song_id": "[光]BREaK! BREaK! BREaK!"
     },
@@ -45767,19 +48027,7 @@
     },
     {
       "aliases": [
-        "xie",
-        "yanpopipo",
-        "yan p o p i p o",
-        "ypopipo",
-        "xieshucaige",
-        "xie shu cai ge",
-        "xscg",
-        "xiepopipo",
-        "xie p o p i p o",
-        "xpopipo",
-        "yanshucaige",
-        "yan shu cai ge",
-        "yscg"
+        "xie"
       ],
       "song_id": "[協]ぽっぴっぽー"
     },
@@ -45792,10 +48040,7 @@
     {
       "aliases": [
         "xiepu",
-        "xie pu",
-        "nantongdanantong",
-        "nan tong da nan tong",
-        "ntdnt"
+        "xie pu"
       ],
       "song_id": "[協]ポップミュージックは僕のもの"
     },
@@ -45867,7 +48112,23 @@
         "xie qing chun",
         "xqc"
       ],
+      "song_id": "[協]青春コンプレックス（ヒーロー級）"
+    },
+    {
+      "aliases": [
+        "xieqingchun",
+        "xie qing chun",
+        "xqc"
+      ],
       "song_id": "[協]青春コンプレックス（入門編）"
+    },
+    {
+      "aliases": [
+        "jistraightintothelights",
+        "ji s t r a i g h t i n t o t h e l i g h t s",
+        "jstraightintothelights"
+      ],
+      "song_id": "[即]Straight into the lights"
     },
     {
       "aliases": [
@@ -45989,6 +48250,14 @@
     },
     {
       "aliases": [
+        "zouehu",
+        "zou e hu",
+        "zeh"
+      ],
+      "song_id": "[奏]悪戯センセーション"
+    },
+    {
+      "aliases": [
         "zouxinao",
         "zou xi nao",
         "zxn"
@@ -46057,6 +48326,38 @@
         "yan w o n d e r l a n d w a r s",
         "ywonderlandwars"
       ],
+      "song_id": "[宴]Wonderland Wars　オープニング (ADVANCED)"
+    },
+    {
+      "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "[宴]Wonderland Wars　オープニング (BASIC)"
+    },
+    {
+      "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "[宴]Wonderland Wars　オープニング (EXPERT)"
+    },
+    {
+      "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
+      "song_id": "[宴]Wonderland Wars　オープニング (MASTER)"
+    },
+    {
+      "aliases": [
+        "yanwonderlandwars",
+        "yan w o n d e r l a n d w a r s",
+        "ywonderlandwars"
+      ],
       "song_id": "[宴]Wonderland Wars　オープニング (Re:MASTER)"
     },
     {
@@ -46088,6 +48389,14 @@
         "xwhxyw"
       ],
       "song_id": "[息]ノンブレス・オブリージュ"
+    },
+    {
+      "aliases": [
+        "zhaoreunknownx",
+        "zhao r e u n k n o w n x",
+        "zreunknownx"
+      ],
+      "song_id": "[招]Re:Unknown X"
     },
     {
       "aliases": [
@@ -46342,6 +48651,14 @@
     },
     {
       "aliases": [
+        "jue3rdavenue",
+        "jue 3 r d a v e n u e",
+        "j3rdavenue"
+      ],
+      "song_id": "[覚]3rd Avenue"
+    },
+    {
+      "aliases": [
         "juehainuwele",
         "jue h a i n u w e l e",
         "jhainuwele"
@@ -46592,6 +48909,9 @@
     },
     {
       "aliases": [
+        "pinkpluszhutiqu",
+        "p i n k p l u s zhu ti qu",
+        "pinkplusztq",
         "pinktiaozhan",
         "p i n k tiao zhan",
         "pinktz",
@@ -47307,11 +49627,11 @@
     },
     {
       "aliases": [
+        "xiaoqi",
+        "xiao qi",
         "juezanshuangyawutaox6",
         "jue zan shuang ya wu tao x 6",
-        "jzsywtx6",
-        "xiaoqi",
-        "xiao qi"
+        "jzsywtx6"
       ],
       "song_id": "snooze"
     },
@@ -47637,6 +49957,9 @@
         "yougediao",
         "you ge diao",
         "ygd",
+        "azuerweixin",
+        "a zu er wei xin",
+        "azewx",
         "xinghongningshi",
         "xing hong ning shi",
         "xhns",
@@ -47700,20 +50023,28 @@
     },
     {
       "aliases": [
-        "huangzhimenmenqu",
-        "huang zhi men men qu",
-        "hzmmq",
         "erlvbeifan",
         "er lv bei fan",
         "elbf",
+        "huangmen",
+        "huang men",
+        "heibaidilaxiong",
+        "hei bai di la xiong",
+        "hbdlx",
+        "taikongxiong2",
+        "tai kong xiong 2",
+        "tkx2",
+        "taikongxionger",
+        "tai kong xiong er",
+        "tkxe",
+        "huangzhimenmenqu",
+        "huang zhi men men qu",
+        "hzmmq",
         "menxiong",
         "men xiong",
         "dilaxiong",
         "di la xiong",
-        "dlx",
-        "taikongxiong2",
-        "tai kong xiong 2",
-        "tkx2"
+        "dlx"
       ],
       "song_id": "Åntinomiε"
     },
@@ -48083,6 +50414,9 @@
       "aliases": [
         "yiji",
         "yi ji",
+        "yinjimanhuazhutige",
+        "yin ji man hua zhu ti ge",
+        "yjmhztg",
         "yinjiyurenjie",
         "yin ji yu ren jie",
         "yjyrj",
@@ -48134,6 +50468,9 @@
         "shijunhao",
         "shi jun hao",
         "sjh",
+        "zuixihuandakuaiduoyideni",
+        "zui xi huan da kuai duo yi de ni",
+        "zxhdkdydn",
         "xihuanchihenduodeni",
         "xi huan chi hen duo de ni",
         "xhchddn",
@@ -48492,7 +50829,16 @@
         "fsgw",
         "dashushixiaozuowen",
         "da shu shi xiao zuo wen",
-        "dssxzw"
+        "dssxzw",
+        "dashuxiaozuowen",
+        "da shu xiao zuo wen",
+        "dsxzw",
+        "yuyiwannongdalingchunan",
+        "yu yi wan nong da ling chu nan",
+        "yywndlcn",
+        "zenmehaibuhuixindashushixiaozuowen",
+        "zen me hai bu hui xin da shu shi xiao zuo wen",
+        "zmhbhxdssxzw"
       ],
       "song_id": "お返事まだカナ？おじさん構文！"
     },
@@ -48516,6 +50862,8 @@
         "baituolekangkangdaohedaren",
         "bai tuo le kang kang dao he da ren",
         "btlkkdhdr",
+        "baihu",
+        "bai hu",
         "baituolehuxiandaren",
         "bai tuo le hu xian da ren",
         "btlhxdr",
@@ -48606,6 +50954,9 @@
         "quanwangzuishuaiwuxiongdi",
         "quan wang zui shuai wu xiong di",
         "qwzswxd",
+        "beiqiyu",
+        "bei qi yu",
+        "bqy",
         "guobeituoxin",
         "guo bei tuo xin",
         "gbtx",
@@ -48615,9 +50966,6 @@
         "xiabeize2000",
         "xia bei ze 2 0 0 0",
         "xbz2000",
-        "beiqiyu",
-        "bei qi yu",
-        "bqy",
         "taigu2000",
         "tai gu 2 0 0 0",
         "tg2000",
@@ -48709,7 +51057,10 @@
         "ltzy",
         "chaotianjiang3",
         "chao tian jiang 3",
-        "ctj3"
+        "ctj3",
+        "dileinvzinie",
+        "di lei nv zi nie",
+        "dlnzn"
       ],
       "song_id": "きゅびずむ"
     },
@@ -48718,9 +51069,21 @@
         "lititititizhuyi",
         "li ti ti ti ti zhu yi",
         "lttttzy",
+        "chaotianjiang4",
+        "chao tian jiang 4",
+        "ctj4",
+        "shafafafafataitaitaitai",
+        "sha fa fa fa fa tai tai tai tai",
+        "sfffftttt",
         "chaotianjiang35",
         "chao tian jiang 3 5",
         "ctj35",
+        "248gejuezan",
+        "2 4 8 ge jue zan",
+        "248gjz",
+        "litizhuyi2",
+        "li ti zhu yi 2",
+        "ltzy2",
         "gelian",
         "ge lian"
       ],
@@ -49140,7 +51503,9 @@
       "aliases": [
         "bianshenzzz",
         "bian shen z z z",
-        "bszzz"
+        "bszzz",
+        "bianshen",
+        "bian shen"
       ],
       "song_id": "しゅ～しん？変身☆ハカイシンzzZ"
     },
@@ -49259,6 +51624,9 @@
         "chizaocan",
         "chi zao can",
         "czc",
+        "qichuangzhanzheng",
+        "qi chuang zhan zheng",
+        "qczz",
         "maodoujing",
         "mao dou jing",
         "mdj",
@@ -49279,9 +51647,6 @@
         "maodouhanqichuang",
         "mao dou han qi chuang",
         "mdhqc",
-        "qichuangzhanzheng",
-        "qi chuang zhan zheng",
-        "qczz",
         "jundamengqichuang",
         "jun da meng qi chuang",
         "jdmqc",
@@ -49302,6 +51667,9 @@
         "jundamengpaiduizhiye",
         "jun da meng pai dui zhi ye",
         "jdmpdzy",
+        "maodoupaidui",
+        "mao dou pai dui",
+        "mdpd",
         "jundamengpaidui",
         "jun da meng pai dui",
         "jdmpd"
@@ -49974,7 +52342,15 @@
       "aliases": [
         "leyixiaolao",
         "le yi xiao lao",
-        "lyxl"
+        "lyxl",
+        "dongdongdongcicicidongdongdong",
+        "dong dong dong ci ci ci dong dong dong",
+        "dddcccddd",
+        "diandiandiangangganggangdiandiandian",
+        "dian dian dian gang gang gang dian dian dian",
+        "dddgggddd",
+        "zibeng",
+        "zi beng"
       ],
       "song_id": "はいよろこんで"
     },
@@ -50453,6 +52829,9 @@
     },
     {
       "aliases": [
+        "chabuduodele",
+        "cha bu duo de le",
+        "cbddl",
         "yijinggoule",
         "yi jing gou le",
         "yjgl",
@@ -50647,6 +53026,13 @@
     },
     {
       "aliases": [
+        "yaolan",
+        "yao lan"
+      ],
+      "song_id": "ゆりかご"
+    },
+    {
+      "aliases": [
         "dashijian",
         "da shi jian",
         "dsj"
@@ -50739,7 +53125,10 @@
         "xrd",
         "ouxiangxinruidui",
         "ou xiang xin rui dui",
-        "oxxrd"
+        "oxxrd",
+        "mmjzhutiqu",
+        "m m j zhu ti qu",
+        "mmjztq"
       ],
       "song_id": "アイドル新鋭隊"
     },
@@ -50939,22 +53328,6 @@
         "thgsl"
       ],
       "song_id": "アポカリプスに反逆の焔を焚べろ"
-    },
-    {
-      "aliases": [
-        "tianshendaren",
-        "tian shen da ren",
-        "tsdr",
-        "tianshen",
-        "tian shen",
-        "meishaonvtiaolou",
-        "mei shao nv tiao lou",
-        "msntl",
-        "amakamisama",
-        "a ma ka mi sa ma",
-        "amkmsm"
-      ],
-      "song_id": "アマカミサマ"
     },
     {
       "aliases": [
@@ -51180,7 +53553,13 @@
         "er lv bei fan",
         "elbf",
         "chuanxin",
-        "chuan xin"
+        "chuan xin",
+        "maomaoer",
+        "mao mao er",
+        "mme",
+        "maomao2",
+        "mao mao 2",
+        "mm2"
       ],
       "song_id": "アンビバレンス"
     },
@@ -51535,15 +53914,15 @@
     },
     {
       "aliases": [
+        "duolaameng",
+        "duo la a meng",
+        "dlam",
         "meiweibang",
         "mei wei bang",
         "mwb",
         "migema",
         "mi ge ma",
-        "mgm",
-        "duolaameng",
-        "duo la a meng",
-        "dlam"
+        "mgm"
       ],
       "song_id": "ウマイネームイズうまみちゃん"
     },
@@ -51564,6 +53943,9 @@
         "haibaihe",
         "hai bai he",
         "hbh",
+        "nixuebuhui",
+        "ni xue bu hui",
+        "nxbh",
         "shuishen3",
         "shui shen 3",
         "ss3",
@@ -51981,7 +54363,10 @@
         "zxgx",
         "zhongxinfuxie",
         "zhong xin fu xie",
-        "zxfx"
+        "zxfx",
+        "yanbaojiancao",
+        "yan bao jian cao",
+        "ybjc"
       ],
       "song_id": "オーバーライド"
     },
@@ -52124,12 +54509,12 @@
         "dashaojieban",
         "da shao jie ban",
         "dsjb",
-        "biaozhunshaojieban",
-        "biao zhun shao jie ban",
-        "bzsjb",
         "nideyekongshaojieban",
         "ni de ye kong shao jie ban",
         "ndyksjb",
+        "biaozhunshaojieban",
+        "biao zhun shao jie ban",
+        "bzsjb",
         "chengshaojieban",
         "cheng shao jie ban",
         "csjb",
@@ -52157,7 +54542,10 @@
         "bai mao hong tong mao niang",
         "bmhtmn",
         "xiangchui",
-        "xiang chui"
+        "xiang chui",
+        "maoermoca",
+        "mao er mo ca",
+        "memc"
       ],
       "song_id": "キャットラビング"
     },
@@ -52562,7 +54950,10 @@
         "gogoylc",
         "biebiebie",
         "bie bie bie",
-        "bbb"
+        "bbb",
+        "dxyoulingchuan",
+        "d x you ling chuan",
+        "dxylc"
       ],
       "song_id": "ゴーゴー幽霊船"
     },
@@ -52618,7 +55009,10 @@
         "fbr",
         "xiaorendaquan",
         "xiao ren da quan",
-        "xrdq"
+        "xrdq",
+        "wangluopiliqishui",
+        "wang luo pi li qi shui",
+        "wlplqs"
       ],
       "song_id": "サイバーサンダーサイダー"
     },
@@ -52814,12 +55208,19 @@
     },
     {
       "aliases": [
-        "baixiangshui",
-        "bai xiang shui",
-        "bxs",
         "lunaizi",
         "lu nai zi",
         "lnz",
+        "lusedays",
+        "lu se d a y s",
+        "lsdays",
+        "kai",
+        "lunaizinaizihushidandan",
+        "lu nai zi nai zi hu shi dan dan",
+        "lnznzhsdd",
+        "baixiangshui",
+        "bai xiang shui",
+        "bxs",
         "butingdelu",
         "bu ting de lu",
         "btdl",
@@ -54821,6 +57222,8 @@
         "hmtl",
         "shushu",
         "shu shu",
+        "cangshu",
+        "cang shu",
         "hamu",
         "ha mu",
         "laoshu",
@@ -54834,8 +57237,6 @@
         "yabotailang",
         "ya bo tai lang",
         "ybtl",
-        "cangshu",
-        "cang shu",
         "shudie",
         "shu die",
         "moshu",
@@ -55518,12 +57919,15 @@
     },
     {
       "aliases": [
-        "bibikuiba",
-        "bi bi kui ba",
-        "bbkb",
+        "xingjiehuixing",
+        "xing jie hui xing",
+        "xjhx",
         "xinghuishanyao",
         "xing hui shan yao",
-        "xhsy"
+        "xhsy",
+        "bibikuiba",
+        "bi bi kui ba",
+        "bbkb"
       ],
       "song_id": "ビビデバ"
     },
@@ -56304,11 +58708,14 @@
     },
     {
       "aliases": [
-        "cuimianshu",
-        "cui mian shu",
-        "cms",
         "cuimianshi",
         "cui mian shi",
+        "cms",
+        "cuimianshu",
+        "cui mian shu",
+        "cuimianzhe",
+        "cui mian zhe",
+        "cmz",
         "cuimian",
         "cui mian",
         "chuanqinaicuiwang",
@@ -56408,20 +58815,29 @@
     },
     {
       "aliases": [
-        "shayumei",
-        "sha yu mei",
-        "sym",
+        "shayuniang",
+        "sha yu niang",
+        "syn",
         "juequling",
         "jue qu ling",
         "jql",
-        "gouxiujin",
-        "gou xiu jin",
-        "gxj",
         "mengmengdianhuofire",
         "meng meng dian huo f i r e",
         "mmdhfire",
+        "ailianqiao",
+        "ai lian qiao",
+        "alq",
+        "shayumei",
+        "sha yu mei",
+        "sym",
+        "mengmengdianhuo",
+        "meng meng dian huo",
+        "mmdh",
         "ailian",
         "ai lian",
+        "gouxiujin",
+        "gou xiu jin",
+        "gxj",
         "yuanshasha",
         "yuan sha sha",
         "yss"
@@ -56919,6 +59335,9 @@
         "buyaoxiaotiaozhan",
         "bu yao xiao tiao zhan",
         "byxtz",
+        "elingtuisan",
+        "e ling tui san",
+        "elts",
         "letgoyinyangshi",
         "l e t g o yin yang shi",
         "letgoyys",
@@ -56936,9 +59355,6 @@
         "yishimofa",
         "yi shi mo fa",
         "ysmf",
-        "elingtuisan",
-        "e ling tui san",
-        "elts",
         "haoxuesi",
         "hao xue si",
         "hxs",
@@ -57026,6 +59442,9 @@
         "lostonedehaoku",
         "l o s t o n e de hao ku",
         "lostonedhk",
+        "jingyinlingzajita",
+        "jing yin ling za ji ta",
+        "jylzjt",
         "kuku",
         "ku ku",
         "meiyou1woyaokule",
@@ -57043,7 +59462,13 @@
         "po fang",
         "qujiubakankanzaijinqianmianqianzhangxiangsuanshenme",
         "qu jiu ba kan kan zai jin qian mian qian zhang xiang suan shen me",
-        "qjbkkzjqmqzxssm"
+        "qjbkkzjqmqzxssm",
+        "maomao4",
+        "mao mao 4",
+        "mm4",
+        "maomaosi",
+        "mao mao si",
+        "mms"
       ],
       "song_id": "ロストワンの号哭"
     },
@@ -57653,15 +60078,15 @@
         "weidaemoshizetianshi",
         "wei da e mo shi ze tian shi",
         "wdemszts",
+        "muniumuniu",
+        "mu niu mu niu",
+        "mnmn",
         "wumiaowumiao",
         "wu miao wu miao",
         "wmwm",
         "yibanemoyibantianshi",
         "yi ban e mo yi ban tian shi",
         "ybemybts",
-        "muniumuniu",
-        "mu niu mu niu",
-        "mnmn",
         "weidaemotianshi",
         "wei da e mo tian shi",
         "wdemts",
@@ -58367,7 +60792,10 @@
         "mzk5x",
         "nandelaile",
         "nan de lai le",
-        "ndll"
+        "ndll",
+        "guihuazhihua",
+        "gui hua zhi hua",
+        "ghzh"
       ],
       "song_id": "化けの花"
     },
@@ -58872,6 +61300,9 @@
         "youyouyijikaishile",
         "you you yi ji kai shi le",
         "yyyjksl",
+        "youkanyiji",
+        "you kan yi ji",
+        "ykyj",
         "laoxiakong",
         "lao xia kong",
         "lxk",
@@ -59354,15 +61785,15 @@
         "chuyinweilaidundalao",
         "chu yin wei lai dun da lao",
         "cywlddl",
+        "mangchangganzangdachangnianling",
+        "mang chang gan zang da chang nian ling",
+        "mcgzdcnl",
         "haiditannanminying",
         "hai di tan nan min ying",
         "hdtnmy",
         "daichanglianmeng",
         "dai chang lian meng",
         "dclm",
-        "mangchangganzangdachangnianling",
-        "mang chang gan zang da chang nian ling",
-        "mcgzdcnl",
         "gui",
         "lianmeng",
         "lian meng",
@@ -59436,6 +61867,8 @@
         "kop6jsq",
         "zhouhuo",
         "zhou huo",
+        "youda",
+        "you da",
         "nan",
         "147zhongwei",
         "1 4 7 zhong wei",
@@ -59623,6 +62056,9 @@
         "xiatiandejiting",
         "xia tian de ji ting",
         "xtdjt",
+        "chaiji135miao",
+        "chai ji 1 3 5 miao",
+        "cj135m",
         "jiliedezhandouchangmian",
         "ji lie de zhan dou chang mian",
         "jldzdcm",
@@ -60835,6 +63271,9 @@
         "yuantoumaodiemoniqi",
         "yuan tou mao die mo ni qi",
         "ytmdmnq",
+        "nipaobuguowonixinbuxin",
+        "ni pao bu guo wo ni xin bu xin",
+        "npbgwnxbx",
         "xingjiexiaojiehekebuxiaojiedewaichuhezouqu",
         "xing jie xiao jie he ke bu xiao jie de wai chu he zou qu",
         "xjxjhkbxjdwchzq",
@@ -60887,7 +63326,10 @@
         "xjc",
         "kangzhuangxiaodao",
         "kang zhuang xiao dao",
-        "kzxd"
+        "kzxd",
+        "baobaokangzhuang",
+        "bao bao kang zhuang",
+        "bbkz"
       ],
       "song_id": "星見草"
     },
@@ -61221,6 +63663,7 @@
       "aliases": [
         "yueguang",
         "yue guang",
+        "guang",
         "haoshiyilvyueguang",
         "hao shi yi lv yue guang",
         "hsylyg",
@@ -61574,6 +64017,14 @@
     },
     {
       "aliases": [
+        "geyongtaoyuanxiang",
+        "ge yong tao yuan xiang",
+        "gytyx"
+      ],
+      "song_id": "歌え踊れや桃源郷！"
+    },
+    {
+      "aliases": [
         "biesile",
         "bie si le",
         "bsl"
@@ -61595,11 +64046,7 @@
       "aliases": [
         "canxiangsange",
         "can xiang san ge",
-        "cxsg",
-        "sange",
-        "san ge",
-        "canxiang",
-        "can xiang"
+        "cxsg"
       ],
       "song_id": "残響散歌"
     },
@@ -61640,6 +64087,9 @@
         "mowanvslingzhu",
         "mo wan v s ling zhu",
         "mwvslz",
+        "shui135xiaojie",
+        "shui 1 3 5 xiao jie",
+        "s135xj",
         "bingmie135",
         "bing mie 1 3 5",
         "bm135",
@@ -62163,6 +64613,9 @@
         "wujianjidujuchang666",
         "wu jian ji du ju chang 6 6 6",
         "wjjdjc666",
+        "liubailiushiliu",
+        "liu bai liu shi liu",
+        "lblsl",
         "wujian",
         "wu jian"
       ],
@@ -62176,6 +64629,9 @@
         "zuliling",
         "zu li ling",
         "zll",
+        "zulilingwanshouji",
+        "zu li ling wan shou ji",
+        "zllwsj",
         "lengzhengchang",
         "leng zheng chang",
         "lzc",
@@ -62861,6 +65317,13 @@
     },
     {
       "aliases": [
+        "sihua",
+        "si hua"
+      ],
+      "song_id": "私たちは、花になる"
+    },
+    {
+      "aliases": [
         "wodefenshen",
         "wo de fen shen",
         "wdfs",
@@ -63374,6 +65837,13 @@
     },
     {
       "aliases": [
+        "chunqing",
+        "chun qing"
+      ],
+      "song_id": "純情アルメリア"
+    },
+    {
+      "aliases": [
         "zhongwuyu",
         "zhong wu yu",
         "zwy",
@@ -63844,6 +66314,14 @@
         "sglp"
       ],
       "song_id": "色は匂へど散りぬるを"
+    },
+    {
+      "aliases": [
+        "secaiguosheng",
+        "se cai guo sheng",
+        "scgs"
+      ],
+      "song_id": "色彩過剰のダイアリーミュージック"
     },
     {
       "aliases": [
@@ -64615,6 +67093,14 @@
     },
     {
       "aliases": [
+        "yunmingxianshang",
+        "yun ming xian shang",
+        "ymxs"
+      ],
+      "song_id": "運命線上のアリア"
+    },
+    {
+      "aliases": [
         "guoqucan",
         "guo qu can",
         "gqc",
@@ -64817,6 +67303,15 @@
         "sigeyu",
         "si ge yu",
         "sgy",
+        "yskchujianhongpuleisile",
+        "y s k chu jian hong pu lei si le",
+        "yskcjhplsl",
+        "kop6guojiban",
+        "k o p 6 guo ji ban",
+        "kop6gjb",
+        "hong13leisiribenwushen",
+        "hong 1 3 lei si ri ben wu shen",
+        "h13lsrbws",
         "yulujunzhan",
         "yu lu jun zhan",
         "yljz",
@@ -65432,7 +67927,7 @@
       "song_id": "ｉｓｏｐｈｏｔｅ"
     }
   ],
-  "generated_at": 1780588927,
+  "generated_at": 1787209764,
   "ttl_seconds": 1800,
   "version": 2
 }

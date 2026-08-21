@@ -1,0 +1,2010 @@
+{
+  "serverInfo": {
+    "name": "maimai-local-search",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "search_maimai_songs",
+      "description": "Search local maimai DX song data by song ID, fuzzy title, chart level, chart constant, difficulty, or chart type. Fuzzy title search also checks local aliases. Returns every matching song and the matching charts for each song. When LXNS/CN and dxrating/JP both have the same title, fields are merged under source_fields.cn and source_fields.jp.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Song ID like 11451/id11451, a fuzzy song title, or an alias fragment."
+          },
+          "level": {
+            "type": "string",
+            "description": "Chart level, for example 13, 13+, 14+. Trailing ? in data is ignored."
+          },
+          "genre": {
+            "type": "string",
+            "description": "Song genre/category filter. Fuzzy substring match, for example POPS or niconico."
+          },
+          "version": {
+            "type": "string",
+            "description": "Song/chart version filter. Fuzzy substring match, for example PRiSM PLUS or dx-prism-plus."
+          },
+          "ds": {
+            "description": "Chart constant. Supports a number, or a string range such as 13.4-13.8.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "ds_min": {
+            "type": "number",
+            "description": "Minimum chart constant. Overrides ds range lower bound when supplied."
+          },
+          "ds_max": {
+            "type": "number",
+            "description": "Maximum chart constant. Overrides ds range upper bound when supplied."
+          },
+          "fit_diff": {
+            "description": "Fitted chart constant. Single values are bucketed by one decimal, e.g. 13.1 means [13.10, 13.20). String ranges such as 13.13-13.27 are exact ranges.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "fit_diff_min": {
+            "type": "number",
+            "description": "Minimum fitted chart constant. Range bounds are not bucketed."
+          },
+          "fit_diff_max": {
+            "type": "number",
+            "description": "Maximum fitted chart constant. Range bounds are not bucketed."
+          },
+          "fit_delta": {
+            "description": "Actual ds minus fitted constant. Supports exact value or string range.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "fit_delta_min": {
+            "type": "number",
+            "description": "Minimum ds - fit_diff."
+          },
+          "fit_delta_max": {
+            "type": "number",
+            "description": "Maximum ds - fit_diff."
+          },
+          "fit_label": {
+            "type": "string",
+            "description": "Filter by 虚高 or 虚低. 虚高 means ds - fit_diff > 0; 虚低 means ds - fit_diff < 0."
+          },
+          "region_has": {
+            "description": "Require song availability in one or more regions: jp/intl/usa/cn or 日服/国际服/美服/国服.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "region_missing": {
+            "description": "Require song not to be available in one or more regions: jp/intl/usa/cn or 日服/国际服/美服/国服.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "fit_delta_desc",
+              "fit_delta_asc",
+              "fit_diff_asc",
+              "fit_diff_desc",
+              "虚高",
+              "虚低",
+              "最虚高",
+              "最虚低"
+            ],
+            "description": "Optional fit sorting. fit_delta_desc finds most 虚高; fit_delta_asc finds most 虚低."
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "Difficulty such as Basic/Advanced/Expert/Master/Re:MASTER or 绿/黄/红/紫/白."
+          },
+          "song_type": {
+            "type": "string",
+            "description": "Chart type: standard/SD, dx, or utage/宴.",
+            "enum": [
+              "standard",
+              "SD",
+              "sd",
+              "st",
+              "std",
+              "标准",
+              "标",
+              "dx",
+              "DX",
+              "utage1p",
+              "1p",
+              "单人宴",
+              "单人",
+              "utage",
+              "宴",
+              "宴会场",
+              "utage2p",
+              "2p",
+              "双人宴",
+              "合奏宴",
+              "合奏"
+            ]
+          },
+          "is_new": {
+            "type": "boolean",
+            "description": "Filter by new song status. true returns only new songs, false returns only non-new songs."
+          },
+          "is_new_source": {
+            "type": "string",
+            "description": "Which server to check for is_new: 'cn' for national server, 'jp' for international server. If omitted, checks all sources.",
+            "enum": [
+              "cn",
+              "jp"
+            ]
+          },
+          "id": {
+            "description": "Song ID match. Supports a single integer, or a string range like '100-500'.",
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "id_min": {
+            "type": "integer",
+            "description": "Optional minimum song ID (inclusive). Overrides id range lower bound."
+          },
+          "id_max": {
+            "type": "integer",
+            "description": "Optional maximum song ID (inclusive). Overrides id range upper bound."
+          },
+          "bpm": {
+            "description": "BPM filter. Supports a single number, or a string range like '160-180'.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "bpm_min": {
+            "type": "number",
+            "description": "Optional minimum BPM (inclusive). Overrides bpm range lower bound."
+          },
+          "bpm_max": {
+            "type": "number",
+            "description": "Optional maximum BPM (inclusive). Overrides bpm range upper bound."
+          },
+          "is_locked": {
+            "type": "boolean",
+            "description": "Filter by dxdata's isLocked field. true returns only locked songs (need to be unlocked in-game); false returns only unlocked songs."
+          },
+          "artist": {
+            "type": "string",
+            "description": "Song artist filter. Case-insensitive substring match across all sources, e.g. 'sasakure' or 'かめりあ'."
+          },
+          "charter": {
+            "type": "string",
+            "description": "Chart designer (谱师) filter. Case-insensitive substring match against per-chart note designer, e.g. 'jun' or 'safari'. Narrows matched_charts."
+          },
+          "tag": {
+            "description": "Required dxrating tag(s) (mirrors dxrating.net /search → 配置/难度/评价). Accepts tag ID, zh-Hans/en/ja/ko name, comma- or slash-separated for multi-tag (e.g. '爆发,纵连' or 'Jacks/Burst'). Matched per chart with every() semantics: each chart must carry ALL listed tags.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "tag_exclude": {
+            "description": "Forbidden tag(s). Charts carrying any listed tag are dropped. Same input format as tag.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "released_after": {
+            "type": "string",
+            "description": "Earliest chart release date (inclusive). Accepts YYYY, YYYY-MM, or YYYY-MM-DD. Per-chart match against dxdata releaseDate."
+          },
+          "released_before": {
+            "type": "string",
+            "description": "Latest chart release date (inclusive). Accepts YYYY, YYYY-MM, or YYYY-MM-DD."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "description": "Optional maximum result count. Omit to return all matches."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "batch_search_maimai_songs",
+      "description": "Batch version of search_maimai_songs. Processes multiple independent song/chart searches in one MCP call so callers can preserve local-search context and avoid one stdio round trip per chart.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Independent search requests. Each item accepts the same filters as search_maimai_songs plus an optional key.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "type": "string",
+                  "description": "Song ID like 11451/id11451, a fuzzy song title, or an alias fragment."
+                },
+                "level": {
+                  "type": "string",
+                  "description": "Chart level, for example 13, 13+, 14+. Trailing ? in data is ignored."
+                },
+                "genre": {
+                  "type": "string",
+                  "description": "Song genre/category filter. Fuzzy substring match, for example POPS or niconico."
+                },
+                "version": {
+                  "type": "string",
+                  "description": "Song/chart version filter. Fuzzy substring match, for example PRiSM PLUS or dx-prism-plus."
+                },
+                "ds": {
+                  "description": "Chart constant. Supports a number, or a string range such as 13.4-13.8.",
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "ds_min": {
+                  "type": "number",
+                  "description": "Minimum chart constant. Overrides ds range lower bound when supplied."
+                },
+                "ds_max": {
+                  "type": "number",
+                  "description": "Maximum chart constant. Overrides ds range upper bound when supplied."
+                },
+                "fit_diff": {
+                  "description": "Fitted chart constant. Single values are bucketed by one decimal, e.g. 13.1 means [13.10, 13.20). String ranges such as 13.13-13.27 are exact ranges.",
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "fit_diff_min": {
+                  "type": "number",
+                  "description": "Minimum fitted chart constant. Range bounds are not bucketed."
+                },
+                "fit_diff_max": {
+                  "type": "number",
+                  "description": "Maximum fitted chart constant. Range bounds are not bucketed."
+                },
+                "fit_delta": {
+                  "description": "Actual ds minus fitted constant. Supports exact value or string range.",
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "fit_delta_min": {
+                  "type": "number",
+                  "description": "Minimum ds - fit_diff."
+                },
+                "fit_delta_max": {
+                  "type": "number",
+                  "description": "Maximum ds - fit_diff."
+                },
+                "fit_label": {
+                  "type": "string",
+                  "description": "Filter by 虚高 or 虚低. 虚高 means ds - fit_diff > 0; 虚低 means ds - fit_diff < 0."
+                },
+                "region_has": {
+                  "description": "Require song availability in one or more regions: jp/intl/usa/cn or 日服/国际服/美服/国服.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "region_missing": {
+                  "description": "Require song not to be available in one or more regions: jp/intl/usa/cn or 日服/国际服/美服/国服.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "fit_delta_desc",
+                    "fit_delta_asc",
+                    "fit_diff_asc",
+                    "fit_diff_desc",
+                    "虚高",
+                    "虚低",
+                    "最虚高",
+                    "最虚低"
+                  ],
+                  "description": "Optional fit sorting. fit_delta_desc finds most 虚高; fit_delta_asc finds most 虚低."
+                },
+                "difficulty": {
+                  "type": "string",
+                  "description": "Difficulty such as Basic/Advanced/Expert/Master/Re:MASTER or 绿/黄/红/紫/白."
+                },
+                "song_type": {
+                  "type": "string",
+                  "description": "Chart type: standard/SD, dx, or utage/宴.",
+                  "enum": [
+                    "standard",
+                    "SD",
+                    "sd",
+                    "st",
+                    "std",
+                    "标准",
+                    "标",
+                    "dx",
+                    "DX",
+                    "utage1p",
+                    "1p",
+                    "单人宴",
+                    "单人",
+                    "utage",
+                    "宴",
+                    "宴会场",
+                    "utage2p",
+                    "2p",
+                    "双人宴",
+                    "合奏宴",
+                    "合奏"
+                  ]
+                },
+                "is_new": {
+                  "type": "boolean",
+                  "description": "Filter by new song status. true returns only new songs, false returns only non-new songs."
+                },
+                "is_new_source": {
+                  "type": "string",
+                  "description": "Which server to check for is_new: 'cn' for national server, 'jp' for international server. If omitted, checks all sources.",
+                  "enum": [
+                    "cn",
+                    "jp"
+                  ]
+                },
+                "id": {
+                  "description": "Song ID match. Supports a single integer, or a string range like '100-500'.",
+                  "oneOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "id_min": {
+                  "type": "integer",
+                  "description": "Optional minimum song ID (inclusive). Overrides id range lower bound."
+                },
+                "id_max": {
+                  "type": "integer",
+                  "description": "Optional maximum song ID (inclusive). Overrides id range upper bound."
+                },
+                "bpm": {
+                  "description": "BPM filter. Supports a single number, or a string range like '160-180'.",
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "bpm_min": {
+                  "type": "number",
+                  "description": "Optional minimum BPM (inclusive). Overrides bpm range lower bound."
+                },
+                "bpm_max": {
+                  "type": "number",
+                  "description": "Optional maximum BPM (inclusive). Overrides bpm range upper bound."
+                },
+                "is_locked": {
+                  "type": "boolean",
+                  "description": "Filter by dxdata's isLocked field. true returns only locked songs (need to be unlocked in-game); false returns only unlocked songs."
+                },
+                "artist": {
+                  "type": "string",
+                  "description": "Song artist filter. Case-insensitive substring match across all sources, e.g. 'sasakure' or 'かめりあ'."
+                },
+                "charter": {
+                  "type": "string",
+                  "description": "Chart designer (谱师) filter. Case-insensitive substring match against per-chart note designer, e.g. 'jun' or 'safari'. Narrows matched_charts."
+                },
+                "tag": {
+                  "description": "Required dxrating tag(s) (mirrors dxrating.net /search → 配置/难度/评价). Accepts tag ID, zh-Hans/en/ja/ko name, comma- or slash-separated for multi-tag (e.g. '爆发,纵连' or 'Jacks/Burst'). Matched per chart with every() semantics: each chart must carry ALL listed tags.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "tag_exclude": {
+                  "description": "Forbidden tag(s). Charts carrying any listed tag are dropped. Same input format as tag.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "released_after": {
+                  "type": "string",
+                  "description": "Earliest chart release date (inclusive). Accepts YYYY, YYYY-MM, or YYYY-MM-DD. Per-chart match against dxdata releaseDate."
+                },
+                "released_before": {
+                  "type": "string",
+                  "description": "Latest chart release date (inclusive). Accepts YYYY, YYYY-MM, or YYYY-MM-DD."
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 2000,
+                  "description": "Optional maximum result count. Omit to return all matches."
+                },
+                "key": {
+                  "type": "string",
+                  "description": "Optional caller-provided key echoed in the response."
+                }
+              }
+            }
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "add_maimai_alias",
+      "description": "Add a local custom alias. Defaults to song aliases (data/custom_aliases.json) — pass kind=artist/charter to register an artist or note-designer alias instead.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "song",
+              "artist",
+              "charter",
+              "曲师",
+              "谱师"
+            ],
+            "description": "Which alias dictionary to target. Defaults to 'song' (per-track alias in data/custom_aliases.json). Use 'artist' (曲师) for data/artist_aliases.json and 'charter' (谱师/note designer) for data/charter_aliases.json — those make search_maimai_songs's artist/charter filters treat the alias as a synonym of the canonical name."
+          },
+          "song_id": {
+            "description": "[kind=song] Song ID. For dxrating-only JP songs this can be the source_id/title.",
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "[kind=song] Exact title to match when song_id is not available."
+          },
+          "canonical": {
+            "type": "string",
+            "description": "[kind=artist|charter] Canonical (official) artist or charter name to anchor the alias to, e.g. 'sasakure.UK' or 'jun'."
+          },
+          "alias": {
+            "type": "string",
+            "description": "Alias to add (e.g. '笹倉' for canonical 'sasakure.UK')."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "required": [
+          "alias"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "delete_maimai_alias",
+      "description": "Delete a previously-added custom alias. Defaults to song aliases — pass kind=artist/charter to remove from the corresponding name-alias dictionary.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "song",
+              "artist",
+              "charter",
+              "曲师",
+              "谱师"
+            ],
+            "description": "Which alias dictionary to target. Defaults to 'song' (per-track alias in data/custom_aliases.json). Use 'artist' (曲师) for data/artist_aliases.json and 'charter' (谱师/note designer) for data/charter_aliases.json — those make search_maimai_songs's artist/charter filters treat the alias as a synonym of the canonical name."
+          },
+          "song_id": {
+            "description": "[kind=song] Song ID. For dxrating-only JP songs this can be the source_id/title.",
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "[kind=song] Exact title to match when song_id is not available."
+          },
+          "canonical": {
+            "type": "string",
+            "description": "[kind=artist|charter] Canonical name the alias is registered under."
+          },
+          "alias": {
+            "type": "string",
+            "description": "Alias to delete."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "required": [
+          "alias"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_maimai_aliases",
+      "description": "List aliases. Defaults to song aliases (merged from LXNS, Yuzu, legacy CSV, and custom). Pass kind=artist/charter to dump the corresponding name-alias dictionary; in that case song_id/title/limit are ignored and only the optional substring `query` filters entries.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "song",
+              "artist",
+              "charter",
+              "曲师",
+              "谱师"
+            ],
+            "description": "Which alias dictionary to target. Defaults to 'song' (per-track alias in data/custom_aliases.json). Use 'artist' (曲师) for data/artist_aliases.json and 'charter' (谱师/note designer) for data/charter_aliases.json — those make search_maimai_songs's artist/charter filters treat the alias as a synonym of the canonical name."
+          },
+          "query": {
+            "type": "string",
+            "description": "[kind=song] Song ID / title / alias fragment to match. [kind=artist|charter] Optional substring against canonical or alias."
+          },
+          "song_id": {
+            "description": "[kind=song] Song ID. Used as query when supplied.",
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "[kind=song] Song title or fuzzy title. Used as query when query/song_id is omitted."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "[kind=song] Maximum number of matched songs to return. Defaults to 20."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "refresh_maimai_sources",
+      "description": "Manually refresh local maimai data sources. By default it refreshes only sources older than the 3-day TTL; pass force=true to refresh regardless of age. Due sources are refreshed concurrently; failed sources are reported individually. Pass background=true to run refresh in a background thread (like group ranking refresh) to avoid MCP timeout when refreshing many sources or large ones like dxdata.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sources": {
+            "description": "Source or sources to refresh: all, lxns, dxdata, yuzu, divingfish, chart_stats, dxrating_aliases, dxrating_tags, plate. Defaults to all.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "Alias of sources for a single source name."
+          },
+          "force": {
+            "type": "boolean",
+            "default": false,
+            "description": "Refresh even when source files are newer than ttl_days. When true, automatically uses background mode."
+          },
+          "ttl_days": {
+            "type": "number",
+            "default": 0.0208,
+            "description": "Source freshness TTL in days. Defaults to 0.0208 (30 minutes)."
+          },
+          "check_only": {
+            "type": "boolean",
+            "default": false,
+            "description": "Only report source age and whether refresh is due; do not download."
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 30,
+            "description": "Per-source command timeout. Sources refresh concurrently."
+          },
+          "background": {
+            "type": "boolean",
+            "default": false,
+            "description": "Run refresh in background thread and return immediately. Use for large or force refreshes to avoid MCP timeout."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "refresh_maimai_sources_job_status",
+      "description": "查询后台刷新任务的进度。接受 refresh_maimai_sources(force=true) 返回的 jobId，返回当前每个源的刷新状态（running/completed/failed）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "description": "refresh_maimai_sources(force=true) 返回的 jobId。"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "random_maimai_songs",
+      "description": "Pick one or more random songs from the local maimai DX song data. If no chart filter is supplied, this randomizes by song ID only. Supplying level, ds, difficulty, or chart type randomizes within matching charts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of random songs to return. Defaults to 1."
+          },
+          "level": {
+            "type": "string",
+            "description": "Optional chart level filter, for example 13, 13+, 14+. Can be combined with ds, difficulty, and song_type."
+          },
+          "genre": {
+            "type": "string",
+            "description": "Optional song genre/category filter. Can be used with or without level."
+          },
+          "version": {
+            "type": "string",
+            "description": "Optional song/chart version filter. Can be used with or without chart filters."
+          },
+          "ds": {
+            "description": "Optional chart constant filter. Supports a number or range such as 13.4-13.8. Can be used with or without level.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "ds_min": {
+            "type": "number",
+            "description": "Optional minimum chart constant."
+          },
+          "ds_max": {
+            "type": "number",
+            "description": "Optional maximum chart constant."
+          },
+          "fit_diff": {
+            "description": "Optional fitted chart constant. Single values are bucketed by one decimal, e.g. 13.1 means [13.10, 13.20).",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "fit_diff_min": {
+            "type": "number",
+            "description": "Optional minimum fitted chart constant."
+          },
+          "fit_diff_max": {
+            "type": "number",
+            "description": "Optional maximum fitted chart constant."
+          },
+          "fit_delta": {
+            "description": "Optional actual ds minus fitted constant. Supports exact value or string range.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "fit_delta_min": {
+            "type": "number",
+            "description": "Optional minimum ds - fit_diff."
+          },
+          "fit_delta_max": {
+            "type": "number",
+            "description": "Optional maximum ds - fit_diff."
+          },
+          "fit_label": {
+            "type": "string",
+            "description": "Optional 虚高 or 虚低 filter."
+          },
+          "region_has": {
+            "description": "Require availability in jp/intl/usa/cn or 日服/国际服/美服/国服.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "region_missing": {
+            "description": "Require missing availability in jp/intl/usa/cn or 日服/国际服/美服/国服.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "Optional difficulty filter such as Master, Re:MASTER, 紫, or 白."
+          },
+          "song_type": {
+            "type": "string",
+            "description": "Optional chart type filter: standard/SD, dx, or utage/宴.",
+            "enum": [
+              "standard",
+              "SD",
+              "sd",
+              "st",
+              "std",
+              "标准",
+              "标",
+              "dx",
+              "DX",
+              "utage1p",
+              "1p",
+              "单人宴",
+              "单人",
+              "utage",
+              "宴",
+              "宴会场",
+              "utage2p",
+              "2p",
+              "双人宴",
+              "合奏宴",
+              "合奏"
+            ]
+          },
+          "artist": {
+            "type": "string",
+            "description": "Optional song artist filter. Substring match across all sources."
+          },
+          "charter": {
+            "type": "string",
+            "description": "Optional chart designer (谱师) substring filter. Counts as a chart filter, so randomization will run within matching charts."
+          },
+          "tag": {
+            "description": "Required dxrating tag(s) (e.g. '爆发', 'Jacks', '错位,纵连'). Per-chart every() semantics. Counts as a chart filter.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "tag_exclude": {
+            "description": "Forbidden tag(s). Same input format as tag.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "released_after": {
+            "type": "string",
+            "description": "Earliest chart release date (YYYY / YYYY-MM / YYYY-MM-DD)."
+          },
+          "released_before": {
+            "type": "string",
+            "description": "Latest chart release date (YYYY / YYYY-MM / YYYY-MM-DD)."
+          },
+          "seed": {
+            "description": "Optional seed for reproducible random picks.",
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "today_maimai",
+      "description": "今日舞萌 / 今日 maimai 运势。按原项目 qqhash 逻辑计算今日人品、宜忌，并用取完 11 个宜忌值后右移过的 h 从本地完整曲库里选今日推荐歌曲。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "用于计算今日舞萌的 QQ 号。"
+          },
+          "botName": {
+            "type": "string",
+            "description": "提醒文案里的 Bot 名称。默认 铃。"
+          },
+          "offset": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "可选人品偏移值。默认 0；会加到原公式 days 上，让不同 Bot 得到不同结果。"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "required": [
+          "qq"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_maimai_songs_by_id",
+      "description": "List the first N songs ordered by normalized song ID, ascending or descending. Optional filters can restrict songs by chart level, chart constant, difficulty, or chart type.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "string",
+            "description": "ID order. Supports asc/desc, 正序/倒序, or 升序/降序. Defaults to asc.",
+            "enum": [
+              "asc",
+              "desc",
+              "正序",
+              "倒序",
+              "升序",
+              "降序"
+            ]
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "description": "Number of songs to return. Defaults to 20."
+          },
+          "level": {
+            "type": "string",
+            "description": "Optional chart level filter, for example 13, 13+, 14+."
+          },
+          "genre": {
+            "type": "string",
+            "description": "Optional song genre/category filter. Fuzzy substring match."
+          },
+          "version": {
+            "type": "string",
+            "description": "Optional song/chart version filter. Fuzzy substring match."
+          },
+          "ds": {
+            "description": "Optional chart constant filter. Supports a number or range such as 13.4-13.8.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "ds_min": {
+            "type": "number",
+            "description": "Optional minimum chart constant."
+          },
+          "ds_max": {
+            "type": "number",
+            "description": "Optional maximum chart constant."
+          },
+          "fit_diff": {
+            "description": "Optional fitted chart constant filter. Single values are bucketed by one decimal.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "fit_diff_min": {
+            "type": "number",
+            "description": "Optional minimum fitted chart constant."
+          },
+          "fit_diff_max": {
+            "type": "number",
+            "description": "Optional maximum fitted chart constant."
+          },
+          "fit_delta": {
+            "description": "Optional actual ds minus fitted constant. Supports exact value or string range.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "fit_delta_min": {
+            "type": "number",
+            "description": "Optional minimum ds - fit_diff."
+          },
+          "fit_delta_max": {
+            "type": "number",
+            "description": "Optional maximum ds - fit_diff."
+          },
+          "fit_label": {
+            "type": "string",
+            "description": "Optional 虚高 or 虚低 filter."
+          },
+          "region_has": {
+            "description": "Require availability in jp/intl/usa/cn or 日服/国际服/美服/国服.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "region_missing": {
+            "description": "Require missing availability in jp/intl/usa/cn or 日服/国际服/美服/国服.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "fit_delta_desc",
+              "fit_delta_asc",
+              "fit_diff_asc",
+              "fit_diff_desc",
+              "虚高",
+              "虚低",
+              "最虚高",
+              "最虚低"
+            ],
+            "description": "Optional fit sorting for filtered ID lists."
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "Optional difficulty filter such as Master, Re:MASTER, 紫, or 白."
+          },
+          "song_type": {
+            "type": "string",
+            "description": "Optional chart type filter: standard/SD, dx, or utage/宴.",
+            "enum": [
+              "standard",
+              "SD",
+              "sd",
+              "st",
+              "std",
+              "标准",
+              "标",
+              "dx",
+              "DX",
+              "utage1p",
+              "1p",
+              "单人宴",
+              "单人",
+              "utage",
+              "宴",
+              "宴会场",
+              "utage2p",
+              "2p",
+              "双人宴",
+              "合奏宴",
+              "合奏"
+            ]
+          },
+          "artist": {
+            "type": "string",
+            "description": "Optional song artist substring filter."
+          },
+          "charter": {
+            "type": "string",
+            "description": "Optional chart designer (谱师) substring filter. Narrows matched_charts."
+          },
+          "tag": {
+            "description": "Required dxrating tag(s). Same format as in search_maimai_songs.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "tag_exclude": {
+            "description": "Forbidden tag(s).",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "released_after": {
+            "type": "string",
+            "description": "Earliest chart release date."
+          },
+          "released_before": {
+            "type": "string",
+            "description": "Latest chart release date."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_maimai_versions",
+      "description": "List all versions present in the local maimai song cache. Returns version names/codes with song counts, chart counts, data sources, and the latest CN/LXNS version codes plus their year prefixes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Optional fuzzy filter for version name/code, for example PRiSM or 25010."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5000,
+            "description": "Optional maximum number of versions to return."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "query_chart_history",
+      "description": "查询歌曲的定数（internalLevelValue）变化历史。基于日服 dxdata 的 multiverInternalLevelValue 数据，返回每个版本的定数，连续相同定数的版本自动合并。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "歌名、歌曲 ID 或别名。"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "难度过滤，例如 Master、紫、expert。"
+          },
+          "song_type": {
+            "type": "string",
+            "description": "谱面类型过滤：dx、standard 或 utage。"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "score_counts",
+      "description": "Calculate maimai score contributions from note-type/judgment counts. Returns DX base, DX Break bonus, old-frame/FiNALE raw score, DX SCORE, old-frame percentage, and DX achievement percentage in one response.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "counts": {
+            "type": "object",
+            "description": "Nested counts: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "display_digits": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 4,
+            "description": "Decimal digits used for oldacc/dxacc display and scaled values."
+          },
+          "include_zero": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include zero-count rows in the result table."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        }
+      }
+    },
+    {
+      "name": "find_score_combinations",
+      "description": "Search whether a chart can achieve an exact score or score range under judgment restrictions. Returns multiple matching judgment-count combinations up to max_solutions. Supports allowed/disallowed judgment groups and fixed/min/max counts per note type. score_mode=oldscore searches old-frame/FiNALE raw score. score_mode=dxscore searches DX SCORE. score_mode=oldacc or dxacc searches displayed percentage units; target_score=1004999 means 100.4999 when display_digits=4, and percentage strings such as 100.4999% are also accepted. If note_totals is omitted, query/song_id/title can be supplied; the server searches the local song cache, calculates only when exactly one song and one chart match, and otherwise returns candidate songs/charts without score calculation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "note_totals": {
+            "type": "object",
+            "description": "Chart note totals, e.g. {\"tap\": 100, \"touch\": 12, \"hold\": 20, \"slide\": 30, \"break\": 5}. Touch has the same value as Tap; touch_hold aliases are normalized to hold.",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "target_score": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Exact selected-mode score. For oldscore/dxscore/base/break_bonus use a raw integer. For oldacc/dxacc, an integer is scaled percentage without the decimal point, e.g. 1004999 means 100.4999 when display_digits=4; strings like 100.4999 or 100.4999% are accepted."
+          },
+          "target_acc": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional oldacc/dxacc target percentage such as 100.4999 or 100.4999%. Equivalent to target_score as a percentage string."
+          },
+          "min_score": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Minimum selected-mode score. In oldacc/dxacc, follows the same scaled-integer or percentage-string rules as target_score."
+          },
+          "max_score": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Maximum selected-mode score. In oldacc/dxacc, follows the same scaled-integer or percentage-string rules as target_score."
+          },
+          "min_acc": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional oldacc/dxacc minimum percentage such as 100.4000%."
+          },
+          "max_acc": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional oldacc/dxacc maximum percentage such as 100.5000%."
+          },
+          "score_mode": {
+            "type": "string",
+            "enum": [
+              "base",
+              "break_bonus",
+              "oldscore",
+              "dxscore",
+              "oldacc",
+              "dxacc"
+            ],
+            "default": "oldscore",
+            "description": "Search in base, break_bonus, oldscore raw score, oldacc percentage, dxscore, or dxacc percentage. For oldacc/dxacc, target_score can be a scaled display integer or a percentage string."
+          },
+          "allowed_judgments": {
+            "type": "object",
+            "description": "Optional note type -> allowed judgments/groups. Groups include all, not_miss, no_miss, great, perfect, perfect_or_critical, ap, fc_plus, fc.",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "disallowed_judgments": {
+            "type": "object",
+            "description": "Optional note type -> forbidden judgments/groups, applied after allowed_judgments.",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "fixed_counts": {
+            "type": "object",
+            "description": "Exact counts to force: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "min_counts": {
+            "type": "object",
+            "description": "Minimum counts to force: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "max_counts": {
+            "type": "object",
+            "description": "Maximum counts to enforce: note type -> judgment -> count.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "no_miss_good": {
+            "type": "boolean",
+            "description": "Shortcut restriction: all note types disallow miss and good."
+          },
+          "all_notes_no_miss_good": {
+            "type": "boolean",
+            "description": "Alias of no_miss_good."
+          },
+          "fc_plus_only": {
+            "type": "boolean",
+            "description": "Alias of no_miss_good; allows only great/perfect/critical judgments."
+          },
+          "break_max_perfect_or_below": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Shortcut restriction: Break notes with judgment below Critical may be at most this many."
+          },
+          "break_max_non_critical": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Alias of break_max_perfect_or_below."
+          },
+          "max_break_non_critical": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Alias of break_max_perfect_or_below."
+          },
+          "max_solutions": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 10,
+            "description": "Maximum matching combinations to return. Use 0 for count-only reachability checks. If more combinations exist than returned, the response sets truncated=true while keeping matching_combination_count exact."
+          },
+          "max_states": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 200000,
+            "description": "Search-state cap to avoid runaway combinatorics."
+          },
+          "display_mode": {
+            "type": "string",
+            "enum": [
+              "floor",
+              "half_up",
+              "exact"
+            ],
+            "default": "floor",
+            "description": "Only for score_mode=oldacc or dxacc. Interprets target_score as floor display, half-up display, or exact raw percentage."
+          },
+          "display_digits": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 4,
+            "description": "Only for score_mode=oldacc or dxacc. Number of displayed decimal digits; default 4."
+          },
+          "query": {
+            "type": "string",
+            "description": "Optional song ID, old DX ID, fuzzy title, or alias. When note_totals is omitted, the server resolves this to one chart and uses its note totals."
+          },
+          "song_id": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional explicit song ID, used like query when note_totals is omitted."
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional exact/fuzzy title, used like query when note_totals is omitted."
+          },
+          "level": {
+            "type": "string",
+            "description": "Optional chart level filter for direct song lookup, for example 13+."
+          },
+          "genre": {
+            "type": "string",
+            "description": "Optional genre/category filter for direct song lookup."
+          },
+          "version": {
+            "type": "string",
+            "description": "Optional song/chart version filter for direct song lookup."
+          },
+          "ds": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional chart constant or range for direct song lookup."
+          },
+          "ds_min": {
+            "type": "number",
+            "description": "Optional minimum chart constant for direct song lookup."
+          },
+          "ds_max": {
+            "type": "number",
+            "description": "Optional maximum chart constant for direct song lookup."
+          },
+          "fit_diff": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional fitted chart constant filter for direct song lookup."
+          },
+          "fit_diff_min": {
+            "type": "number",
+            "description": "Optional minimum fitted chart constant for direct song lookup."
+          },
+          "fit_diff_max": {
+            "type": "number",
+            "description": "Optional maximum fitted chart constant for direct song lookup."
+          },
+          "fit_delta": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Optional ds - fit_diff filter for direct song lookup."
+          },
+          "fit_delta_min": {
+            "type": "number",
+            "description": "Optional minimum ds - fit_diff for direct song lookup."
+          },
+          "fit_delta_max": {
+            "type": "number",
+            "description": "Optional maximum ds - fit_diff for direct song lookup."
+          },
+          "fit_label": {
+            "type": "string",
+            "description": "Optional 虚高 or 虚低 filter for direct song lookup."
+          },
+          "region_has": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "description": "Optional required region availability for direct song lookup."
+          },
+          "region_missing": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "description": "Optional required missing region availability for direct song lookup."
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "Optional difficulty filter for direct song lookup."
+          },
+          "song_type": {
+            "type": "string",
+            "description": "Optional chart type filter for direct song lookup: standard/SD, dx, or utage/宴.",
+            "enum": [
+              "standard",
+              "SD",
+              "sd",
+              "st",
+              "std",
+              "标准",
+              "标",
+              "dx",
+              "DX",
+              "utage1p",
+              "1p",
+              "单人宴",
+              "单人",
+              "utage",
+              "宴",
+              "宴会场",
+              "utage2p",
+              "2p",
+              "双人宴",
+              "合奏宴",
+              "合奏"
+            ]
+          },
+          "artist": {
+            "type": "string",
+            "description": "Optional artist substring filter for direct song lookup."
+          },
+          "charter": {
+            "type": "string",
+            "description": "Optional chart designer (谱师) substring filter for direct song lookup."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "compact",
+              "json"
+            ],
+            "description": "Tool result format. Defaults to text (full verbose: every source × every chart). Use compact for list view (grouped by ST/DX chart type, deduplicated across sources, no fit_label noise) — good for limit>=5 searches. Use json only for debugging or full raw fields."
+          },
+          "include_raw": {
+            "type": "boolean",
+            "description": "Return the full raw JSON payload instead of the readable text summary."
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Alias for include_raw; returns raw JSON for troubleshooting."
+          }
+        }
+      }
+    }
+  ]
+}

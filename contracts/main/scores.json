@@ -1,0 +1,835 @@
+{
+  "serverInfo": {
+    "name": "diving-fish-b50-mcp",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "query_b50",
+      "description": "查询 maimai DX B50。QQ 查询可按 source 使用水鱼、落雪 OAuth 或本地缓存；username 查询固定使用水鱼。必须提供 qq、username 或 target。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "QQ 号。和 username 二选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "水鱼用户名。和 qq 二选一；username 查询固定走水鱼。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片、水鱼昵称或水鱼 username。未提供 qq/username 时会先用 QQ 身份缓存反查 QQ，查不到则按水鱼 username 查询。"
+          },
+          "topN": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50,
+            "description": "文本摘要中展示的最高 ra 成绩数量，默认 50，最大 50。"
+          },
+          "section": {
+            "type": "string",
+            "enum": [
+              "b50",
+              "all",
+              "b35",
+              "sd",
+              "old",
+              "b15",
+              "dx",
+              "new",
+              "split",
+              "both"
+            ],
+            "description": "文本摘要展示范围：b50/all 合并排行，b35/sd/old 旧曲，b15/dx/new 新曲，split/both 分组展示。"
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "description": "是否在返回 JSON 中附带水鱼原始响应。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "请求超时时间，单位毫秒，默认 10000。"
+          },
+          "includeChartMetadata": {
+            "type": "boolean",
+            "description": "是否调用 maimai-local-search MCP 补充拟合定数、差值和谱面元数据。单人 query_b50 默认 true。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，当前群号；用于从 QQ 身份缓存中优先显示该群群昵称。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "default",
+              "ra",
+              "achievement",
+              "ds",
+              "fitDiff",
+              "fitDelta",
+              "title"
+            ],
+            "description": "文本 B50 歌曲排序字段。default/ra 按单曲 ra，achievement 按达成率，ds 按原始定数，fitDiff 按拟合定数，fitDelta 按原定数-拟合定数，title 按曲名。"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "desc",
+              "asc"
+            ],
+            "description": "排序方向，默认 desc。"
+          },
+          "level": {
+            "type": "string",
+            "description": "可选，只展示指定等级，例如 13、13+、14+。"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "可选，只展示指定难度，例如 Basic/Advanced/Expert/Master/Re:MASTER 或 绿/黄/红/紫/白。"
+          },
+          "dsMin": {
+            "type": "number",
+            "description": "可选，只展示原始定数不低于该值的歌曲。"
+          },
+          "dsMax": {
+            "type": "number",
+            "description": "可选，只展示原始定数不高于该值的歌曲。"
+          },
+          "achievementMin": {
+            "type": "number",
+            "description": "可选，只展示达成率不低于该值的歌曲。"
+          },
+          "achievementMax": {
+            "type": "number",
+            "description": "可选，只展示达成率不高于该值的歌曲。"
+          },
+          "raMin": {
+            "type": "number",
+            "description": "可选，只展示单曲 ra 不低于该值的歌曲。"
+          },
+          "raMax": {
+            "type": "number",
+            "description": "可选，只展示单曲 ra 不高于该值的歌曲。"
+          },
+          "fitDiffMin": {
+            "type": "number",
+            "description": "可选，只展示拟合定数不低于该值的歌曲。"
+          },
+          "fitDiffMax": {
+            "type": "number",
+            "description": "可选，只展示拟合定数不高于该值的歌曲。"
+          },
+          "fitDeltaMin": {
+            "type": "number",
+            "description": "可选，只展示原定数-拟合定数不低于该值的歌曲。"
+          },
+          "fitDeltaMax": {
+            "type": "number",
+            "description": "可选，只展示原定数-拟合定数不高于该值的歌曲。"
+          },
+          "fitLabel": {
+            "type": "string",
+            "enum": [
+              "虚高",
+              "虚低"
+            ],
+            "description": "可选，只展示拟合差值标签。虚高表示 ds - fitDiff > 0，虚低表示 ds - fitDiff < 0。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "query_b50_batch",
+      "description": "批量输入 QQ 号，逐个调用水鱼查分器查询 maimai DX B50。用于群榜等批量场景；每个 QQ 独立返回成功或错误。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qqs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 500,
+            "description": "要查询的 QQ 号列表。"
+          },
+          "topN": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50,
+            "description": "每个文本摘要中展示的最高 ra 成绩数量，默认 50。"
+          },
+          "section": {
+            "type": "string",
+            "enum": [
+              "b50",
+              "all",
+              "b35",
+              "sd",
+              "old",
+              "b15",
+              "dx",
+              "new",
+              "split",
+              "both"
+            ],
+            "description": "文本摘要展示范围：b50/all 合并排行，b35/sd/old 旧曲，b15/dx/new 新曲，split/both 分组展示。"
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "description": "是否在返回 JSON 中附带水鱼原始响应。"
+          },
+          "includeSummaries": {
+            "type": "boolean",
+            "description": "是否为每个成功结果附带文本 B50 摘要，默认 false。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "请求超时时间，单位毫秒，默认 10000。"
+          },
+          "includeChartMetadata": {
+            "type": "boolean",
+            "description": "是否为批量结果调用 maimai-local-search MCP 补充谱面元数据。批量默认仅在 includeSummaries 或筛选/排序需要时启用。"
+          },
+          "queryDelayMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "每个 QQ 查询之间的等待时间，默认 250ms。"
+          },
+          "maxConcurrency": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "批量查询并发数，默认 1。群榜建议 3-5。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，当前群号；用于从 QQ 身份缓存中优先显示该群群昵称。"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "default",
+              "ra",
+              "achievement",
+              "ds",
+              "fitDiff",
+              "fitDelta",
+              "title"
+            ],
+            "description": "文本 B50 歌曲排序字段。default/ra 按单曲 ra，achievement 按达成率，ds 按原始定数，fitDiff 按拟合定数，fitDelta 按原定数-拟合定数，title 按曲名。"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "desc",
+              "asc"
+            ],
+            "description": "排序方向，默认 desc。"
+          },
+          "level": {
+            "type": "string",
+            "description": "可选，只展示指定等级，例如 13、13+、14+。"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "可选，只展示指定难度，例如 Basic/Advanced/Expert/Master/Re:MASTER 或 绿/黄/红/紫/白。"
+          },
+          "dsMin": {
+            "type": "number",
+            "description": "可选，只展示原始定数不低于该值的歌曲。"
+          },
+          "dsMax": {
+            "type": "number",
+            "description": "可选，只展示原始定数不高于该值的歌曲。"
+          },
+          "achievementMin": {
+            "type": "number",
+            "description": "可选，只展示达成率不低于该值的歌曲。"
+          },
+          "achievementMax": {
+            "type": "number",
+            "description": "可选，只展示达成率不高于该值的歌曲。"
+          },
+          "raMin": {
+            "type": "number",
+            "description": "可选，只展示单曲 ra 不低于该值的歌曲。"
+          },
+          "raMax": {
+            "type": "number",
+            "description": "可选，只展示单曲 ra 不高于该值的歌曲。"
+          },
+          "fitDiffMin": {
+            "type": "number",
+            "description": "可选，只展示拟合定数不低于该值的歌曲。"
+          },
+          "fitDiffMax": {
+            "type": "number",
+            "description": "可选，只展示拟合定数不高于该值的歌曲。"
+          },
+          "fitDeltaMin": {
+            "type": "number",
+            "description": "可选，只展示原定数-拟合定数不低于该值的歌曲。"
+          },
+          "fitDeltaMax": {
+            "type": "number",
+            "description": "可选，只展示原定数-拟合定数不高于该值的歌曲。"
+          },
+          "fitLabel": {
+            "type": "string",
+            "enum": [
+              "虚高",
+              "虚低"
+            ],
+            "description": "可选，只展示拟合差值标签。虚高表示 ds - fitDiff > 0，虚低表示 ds - fitDiff < 0。"
+          }
+        },
+        "required": [
+          "qqs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "query_computed_b50",
+      "description": "使用 Developer-Token 拉取玩家完整 maimai 成绩后，按拟合定数重新计算每张谱面的单曲 rating，再按水鱼曲库中最新的 basic_info.from 版本重排 B35/B15。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "QQ 号。和 username 二选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "水鱼用户名。和 qq 二选一；username 查询固定走水鱼。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片、水鱼昵称或水鱼 username。未提供 qq/username 时会先用 QQ 身份缓存反查 QQ，查不到则按水鱼 username 查询。"
+          },
+          "topN": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50,
+            "description": "文本摘要中展示的最高 ra 成绩数量，默认 50，最大 50。"
+          },
+          "section": {
+            "type": "string",
+            "enum": [
+              "b50",
+              "all",
+              "b35",
+              "sd",
+              "old",
+              "b15",
+              "dx",
+              "new",
+              "split",
+              "both"
+            ],
+            "description": "文本摘要展示范围：b50/all 合并排行，b35/sd/old 旧曲，b15/dx/new 新曲，split/both 分组展示。"
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "description": "是否在返回 JSON 中附带水鱼原始响应。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "请求超时时间，单位毫秒，默认 10000。"
+          },
+          "includeChartMetadata": {
+            "type": "boolean",
+            "description": "兼容参数。拟合 B50 必须匹配 maimai-local-search 拟合定数，因此不会跳过谱面元数据。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，当前群号；用于从 QQ 身份缓存中优先显示该群群昵称。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "default",
+              "ra",
+              "achievement",
+              "ds",
+              "fitDiff",
+              "fitDelta",
+              "title"
+            ],
+            "description": "文本 B50 歌曲排序字段。default/ra 按单曲 ra，achievement 按达成率，ds 按原始定数，fitDiff 按拟合定数，fitDelta 按原定数-拟合定数，title 按曲名。"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "desc",
+              "asc"
+            ],
+            "description": "排序方向，默认 desc。"
+          },
+          "level": {
+            "type": "string",
+            "description": "可选，只展示指定等级，例如 13、13+、14+。"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "可选，只展示指定难度，例如 Basic/Advanced/Expert/Master/Re:MASTER 或 绿/黄/红/紫/白。"
+          },
+          "dsMin": {
+            "type": "number",
+            "description": "可选，只展示原始定数不低于该值的歌曲。"
+          },
+          "dsMax": {
+            "type": "number",
+            "description": "可选，只展示原始定数不高于该值的歌曲。"
+          },
+          "achievementMin": {
+            "type": "number",
+            "description": "可选，只展示达成率不低于该值的歌曲。"
+          },
+          "achievementMax": {
+            "type": "number",
+            "description": "可选，只展示达成率不高于该值的歌曲。"
+          },
+          "raMin": {
+            "type": "number",
+            "description": "可选，只展示单曲 ra 不低于该值的歌曲。"
+          },
+          "raMax": {
+            "type": "number",
+            "description": "可选，只展示单曲 ra 不高于该值的歌曲。"
+          },
+          "fitDiffMin": {
+            "type": "number",
+            "description": "可选，只展示拟合定数不低于该值的歌曲。"
+          },
+          "fitDiffMax": {
+            "type": "number",
+            "description": "可选，只展示拟合定数不高于该值的歌曲。"
+          },
+          "fitDeltaMin": {
+            "type": "number",
+            "description": "可选，只展示原定数-拟合定数不低于该值的歌曲。"
+          },
+          "fitDeltaMax": {
+            "type": "number",
+            "description": "可选，只展示原定数-拟合定数不高于该值的歌曲。"
+          },
+          "fitLabel": {
+            "type": "string",
+            "enum": [
+              "虚高",
+              "虚低"
+            ],
+            "description": "可选，只展示拟合差值标签。虚高表示 ds - fitDiff > 0，虚低表示 ds - fitDiff < 0。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "query_maimai_song_score",
+      "description": "按 maimai 曲名/别名/曲目 ID 查询指定玩家的单曲成绩。传 musicId 直接用 Diving-Fish ID 查；传 songQuery 会先调 maimai-local-search 解析曲名。需要 Diving-Fish Developer-Token，可使用已绑定 token。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "QQ 号。和 username/target 三选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "水鱼用户名。和 qq/target 三选一。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片、水鱼昵称或水鱼 username。"
+          },
+          "musicId": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Diving-Fish maimai 曲目 ID。和 songQuery 二选一。"
+          },
+          "songQuery": {
+            "type": "string",
+            "description": "曲名、别名或曲目 ID。和 musicId 二选一。内部先调 maimai-local-search 解析再查分。"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "可选，用于本地曲库筛选，如 Master、Expert、紫、红。"
+          },
+          "songType": {
+            "type": "string",
+            "description": "可选，筛选 SD/DX/宴 谱面。"
+          },
+          "searchLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "本地曲库候选上限，默认 5。"
+          },
+          "developerToken": {
+            "type": "string",
+            "description": "可选，覆盖本地已绑定 Developer-Token。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "description": "是否返回水鱼原始响应。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "请求超时时间，单位毫秒，默认 10000。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，当前群号；用于从 QQ 身份缓存中优先显示该群群昵称。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "query_maimai_player_records",
+      "description": "查询玩家的 maimai 完整成绩（需 Developer-Token），支持按等级、版本、牌子、曲目 ID 过滤。查询成功会把完整的来源快照原子写入共享 SQLite，群单曲榜后续查询可直接复用。牌子成员由同一强类型曲库解析：server=cn 使用国服牌子数据，server=jp 使用日服精确版本数据。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "QQ 号。和 username/target 三选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "水鱼用户名。和 qq/target 三选一。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片、水鱼昵称或水鱼 username。"
+          },
+          "level": {
+            "type": "string",
+            "description": "按等级过滤，如 14、14+、15"
+          },
+          "version": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "按版本过滤，如 [\"maimai でらっくす\"]。不传返回全量。"
+          },
+          "plate": {
+            "type": "string",
+            "description": "按牌子过滤，如 熊/華/爽/真/超。需配合 server 参数。"
+          },
+          "server": {
+            "type": "string",
+            "enum": [
+              "cn",
+              "jp"
+            ],
+            "description": "牌子所属服务器，默认 cn。cn=国服（DX合并），jp=日服（DX独立）。"
+          },
+          "musicId": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "按 Diving-Fish 曲目 ID 过滤。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "可选，临时指定成绩数据源。local=只查本地缓存，sy=只查水鱼，lxns=只查落雪 OAuth 缓存；不传时使用该 QQ 的默认偏好。"
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "description": "是否返回水鱼原始响应。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "请求超时时间，单位毫秒，默认 10000。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，当前群号；用于从 QQ 身份缓存中优先显示该群群昵称。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_diving_fish_apis",
+      "description": "列出本 MCP 支持的 Diving-Fish 官方 API operation，并标注请求方法、路径、鉴权方式、是否需要 Developer-Token/Import-Token、是否会修改数据。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "game": {
+            "type": "string",
+            "enum": [
+              "maimaidxprober",
+              "chunithmprober"
+            ],
+            "description": "可选，按游戏数据类别过滤。"
+          },
+          "auth": {
+            "type": "string",
+            "enum": [
+              "none",
+              "login",
+              "login_or_import_token",
+              "developer_token",
+              "login_credentials"
+            ],
+            "description": "可选，按鉴权方式过滤。"
+          },
+          "includeMutating": {
+            "type": "boolean",
+            "description": "是否包含会修改/删除数据的接口，默认 false。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "diving_fish_api",
+      "description": "按 operation 调用 Diving-Fish 官方 API。需要 Developer-Token、Import-Token、登录 jwtToken 的接口会在 list_diving_fish_apis 中标注。会修改或删除数据的接口必须传 confirm 等于 operation。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": [
+              "maimai_login",
+              "maimai_player_agreement_get",
+              "maimai_player_agreement_post",
+              "maimai_player_profile_get",
+              "maimai_player_profile_post",
+              "maimai_player_import_token_put",
+              "maimai_music_data_get",
+              "maimai_player_records_get",
+              "maimai_player_test_data_get",
+              "maimai_dev_player_records_get",
+              "maimai_dev_player_record_post",
+              "maimai_query_player_post",
+              "maimai_query_plate_post",
+              "maimai_cover_url",
+              "maimai_rating_ranking_get",
+              "maimai_player_update_records_post",
+              "maimai_player_update_records_html_post",
+              "maimai_player_update_record_post",
+              "maimai_player_delete_records_delete",
+              "maimai_chart_stats_get",
+              "chunithm_music_data_get",
+              "chunithm_latest_version_get",
+              "chunithm_player_records_get",
+              "chunithm_player_test_data_get",
+              "chunithm_dev_player_records_get",
+              "chunithm_update_records_html_post",
+              "chunithm_delete_records_delete",
+              "chunithm_query_player_post",
+              "public_count_view_get",
+              "public_alive_check_get",
+              "public_message_get",
+              "public_message_post",
+              "public_advertisements_get"
+            ],
+            "description": "要调用的 API operation。"
+          },
+          "query": {
+            "type": "object",
+            "description": "URL 查询参数。"
+          },
+          "body": {
+            "description": "JSON 请求体。"
+          },
+          "rawBody": {
+            "type": "string",
+            "description": "HTML 等原始请求体，仅用于 *_html 接口。"
+          },
+          "developerToken": {
+            "type": "string",
+            "description": "Developer-Token。"
+          },
+          "importToken": {
+            "type": "string",
+            "description": "Import-Token。"
+          },
+          "jwtToken": {
+            "type": "string",
+            "description": "登录后得到的 jwt_token。"
+          },
+          "ifNoneMatch": {
+            "type": "string",
+            "description": "If-None-Match 缓存校验值，需保留引号。"
+          },
+          "includeHeaders": {
+            "type": "boolean",
+            "description": "是否在 structuredContent 返回响应头。"
+          },
+          "headers": {
+            "type": "object",
+            "description": "额外请求头；一般不需要。"
+          },
+          "confirm": {
+            "type": "string",
+            "description": "会修改或删除数据的接口必须传 operation 本身作为确认。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "请求超时时间，单位毫秒，默认 10000。"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "bind_developer_token",
+      "description": "把 Developer-Token 绑定到本地 MCP 持久存储。之后调用需要 Developer-Token 的 API 时可省略 developerToken。仅应在私聊或安全上下文中使用。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "developerToken": {
+            "type": "string",
+            "description": "Diving-Fish Developer-Token。"
+          }
+        },
+        "required": [
+          "developerToken"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "developer_token_status",
+      "description": "查看本地 MCP 是否已绑定 Developer-Token。不会返回明文 token。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "clear_developer_token",
+      "description": "清除本地 MCP 持久存储中的 Developer-Token。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "switch_score_source",
+      "description": "为指定 QQ 设置成绩查询默认数据源。local 只查本地缓存；sy 只查水鱼；lxns 只查落雪。公开排行榜不受此设置影响。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "发送者 QQ 号。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "默认数据源。local=本地缓存，sy=水鱼，lxns=落雪。"
+          }
+        },
+        "required": [
+          "qq",
+          "source"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "switch_b50_source",
+      "description": "兼容旧入口：为指定 QQ 设置成绩查询默认数据源。local 只查本地缓存；sy 只查水鱼；lxns 只查落雪。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "发送者 QQ 号。"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "sy",
+              "lxns"
+            ],
+            "description": "默认数据源。local=本地缓存，sy=水鱼，lxns=落雪。"
+          }
+        },
+        "required": [
+          "qq",
+          "source"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

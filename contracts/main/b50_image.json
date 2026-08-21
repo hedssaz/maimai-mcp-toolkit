@@ -1,0 +1,109 @@
+{
+  "serverInfo": {
+    "name": "b50-image-mcp",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "render_b50_image",
+      "description": "查询或接收 maimai DX B50 数据并合成 PNG 图片。默认使用 Yuri-YuzuChaN/maimaiDX Resource.7z 新版 B50 模板，也可切换到 Diving-Fish/mai-bot 风格；曲绘缺失时从 Diving-Fish covers 接口拉取并缓存。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "QQ 号。和 username/target/b50Data 四选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "水鱼用户名。和 qq/target/b50Data 四选一。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片、水鱼昵称或水鱼 username。和 qq/username/b50Data 四选一。"
+          },
+          "b50Data": {
+            "type": "object",
+            "description": "已经由 query_b50 得到的标准化 B50 数据；提供后不再重新查分。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，当前群号；传给 query_b50 用于身份显示。"
+          },
+          "outputMode": {
+            "type": "string",
+            "enum": [
+              "file",
+              "base64",
+              "both"
+            ],
+            "description": "file 只返回文件路径；base64 返回 base64；both 两者都返回。默认 file。"
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "yuzu",
+              "maibot",
+              "legacy"
+            ],
+            "description": "图片风格。默认 yuzu；maibot 使用 Diving-Fish/mai-bot 风格；legacy 使用最早的简易合成风格。"
+          },
+          "title": {
+            "type": "string",
+            "description": "可选，覆盖图片标题。"
+          },
+          "staticDir": {
+            "type": "string",
+            "description": "可选，覆盖本次使用的 static 目录；不传时按风格读取 B50_IMAGE_YUZU_STATIC_DIR、B50_IMAGE_MAIBOT_STATIC_DIR 或 B50_IMAGE_STATIC_DIR。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "查分和曲绘请求超时时间，默认 10000ms。"
+          },
+          "outputDir": {
+            "type": "string",
+            "description": "可选，覆盖图片输出目录。"
+          },
+          "coverCacheDir": {
+            "type": "string",
+            "description": "可选，覆盖曲绘缓存目录。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_b50_image_style",
+      "description": "查看 B50 图片 MCP 当前默认合成风格。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "set_b50_image_style",
+      "description": "切换 B50 图片 MCP 的默认合成风格。render_b50_image 不传 style 时会使用这里保存的风格。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "style": {
+            "type": "string",
+            "enum": [
+              "yuzu",
+              "maibot",
+              "legacy"
+            ],
+            "description": "yuzu 使用 Yuri-YuzuChaN/maimaiDX 新版 B50 模板；maibot 使用 Diving-Fish/mai-bot 风格；legacy 使用最早的简易合成风格。"
+          }
+        },
+        "required": [
+          "style"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

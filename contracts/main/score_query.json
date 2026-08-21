@@ -1,0 +1,74 @@
+{
+  "serverInfo": {
+    "name": "maimai-score-query-mcp",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "query_maimai_score_by_song",
+      "description": "用曲名、别名或曲目 ID 从本地类型化曲库解析歌曲，再通过成绩服务查询玩家 maimai 单曲成绩。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "qq": {
+            "type": "string",
+            "description": "QQ 号。和 username/target 三选一。"
+          },
+          "username": {
+            "type": "string",
+            "description": "明确的水鱼 username。和 qq/target 三选一。"
+          },
+          "target": {
+            "type": "string",
+            "description": "QQ号、QQ昵称、群昵称/群名片、水鱼昵称或水鱼 username。和 qq/username 三选一。"
+          },
+          "songQuery": {
+            "type": "string",
+            "description": "曲名、别名或曲目 ID。"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "可选，当前群号；用于 target 解析和身份显示。"
+          },
+          "difficulty": {
+            "type": "string",
+            "description": "可选，用于本地曲库筛选，例如 Master、Expert、紫、红。"
+          },
+          "songType": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "SD",
+              "sd",
+              "dx",
+              "DX",
+              "utage",
+              "宴"
+            ],
+            "description": "可选，筛选 SD/DX/宴 谱面；不传时会查询该曲可用的全部 music_id。"
+          },
+          "searchLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "本地曲库最多返回多少个候选，默认 5。"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 30000,
+            "description": "成绩查询超时时间，默认 10000ms。"
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "description": "是否保留水鱼单曲成绩原始响应。"
+          }
+        },
+        "required": [
+          "songQuery"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

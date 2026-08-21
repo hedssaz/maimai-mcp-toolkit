@@ -1,126 +1,118 @@
-# maimai-mcp-toolkit
+# maimai Public MCP
 
-本仓库是一组本地 stdio MCP 工具，用于 maimai 查歌、查分、群榜和绘图。
+这是 `maimai` 的公开 Rust stdio MCP。一个 `maimai-public` 进程提供 60 个工具，不再启动旧版 Python MCP 子进程。
 
-不提供日服曲目或科技传成绩功能。
+## 能力
 
-绘图能力来自 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)，本项目在其绘图代码和资源接口上接入本地 MCP 数据源。
+| 能力组 | 工具数 |
+| --- | ---: |
+| 曲库、搜索、别名、刷新与计分 | 13 |
+| QQ 身份 | 5 |
+| 群 B50 / 单曲排行 | 11 |
+| B50、完成表、曲目信息、成绩与统计绘图 | 14 |
+| 单曲成绩路由 | 1 |
+| 水鱼成绩查询与 Developer-Token 设置 | 10 |
+| 落雪 OAuth 生命周期 | 6 |
+| 合计 | 60 |
 
-## 项目结构
+公开版不包含官服登录/导入、快速官服 B50、友人对战、Region、Upper、日服专属曲库或运行时成绩源切换。`maimai-public` 的正常依赖树不包含私有扩展 crate，公共 SQLite 也不会创建官服私有表。
 
-```
-maimai_mcp/           本地查歌、查分、别名搜索
-diving_fish_b50_mcp/  Diving-Fish B50 查询
-maimaidx_render_mcp/  maimaiDX 绘图渲染（B50卡、曲目信息、分数列表）
-qq_identity_mcp/      QQ 号 ↔ 水鱼用户名绑定查询
-maimai_score_mcp/     单曲成绩查询
-lxns_oauth.py         落雪 OAuth 授权、状态与令牌存储核心
-lxns_oauth_mcp/       落雪 OAuth 绑定/状态/解绑 MCP
-group_b50_mcp/        群友 B50 排行榜
-player_cache/         B50 与完整成绩的本地运行时缓存后端
-scripts/              数据刷新、部署安装脚本
-data/                 曲库/别名/定数 JSON 快照
-test/                 测试用例
-docs/                 详细文档
-```
+## 构建
 
-## 当前公开版边界
-
-- 不支持 日服曲库、日服牌子/进度或官服曲目资源导入。
-- 曲库只使用 落雪/水鱼 数据。
-- 落雪 OAuth 仅用于本地绑定、绑定状态和解绑；授权状态与令牌保存在独立的本地 SQLite 中，不查成绩、不接入 SEGA 官方成绩接口，也不包含日服功能。
-- 拟合/自算 B50 的 B15 按水鱼曲库里最新的 `basic_info.from` 大版本划分；如果曲库版本名先于代码更新，可用 `MAIMAI_LOCAL_CURRENT_VERSIONS` 或 `MAIMAI_CURRENT_VERSIONS` 覆盖。
-- 仓库只保留自定义“雪峰”牌子及其渲染所需的组件图片；其余绘图图片不随源码分发。
-- 文档、测试和插件包中的账号/群号示例使用脱敏占位值。
-- `player-cache/` 只保存部署实例运行时缓存，默认忽略且不会随源码、Docker 构建或插件包分发。
-
-## 通用行为
-
-- 查歌文本和曲目信息图会区分等级与定数，整数定数固定保留一位小数，例如 `13.0`。
-- 标准谱面与 DX 谱面的成绩会同时校验谱面类型，兼容曲目编号不会造成跨类型串谱。
-- NapCat 返回 `retcode=1200` 且发送方法等待回执超时时，插件会按“送达状态未知”处理并抑制重复补发。
-- 常驻查歌进程会按文件修改时间和大小检测落雪、水鱼、别名及定数统计数据变化，并自动重新加载。
-
-## 常用 MCP 入口
+需要 Rust 1.94：
 
 ```bash
-python -m maimai_mcp.server
-python -m diving_fish_b50_mcp.server
-python -m maimaidx_render_mcp.server
-python -m qq_identity_mcp.server
-python -m maimai_score_mcp.server
-python -m lxns_oauth_mcp.server
+cargo +1.94.0 build --locked --release \
+  -p maimai-stdio --bin maimai-public
 ```
 
-## MCP 客户端配置示例
+产物位于 `target/release/maimai-public`。
 
-把路径替换成你的本地绝对路径：
+## 数据与绘图资源
+
+仓库内置 Public 运行所需的水鱼、落雪、别名、统计和牌子数据快照。默认数据目录为 `./data`，也可设置：
+
+```bash
+export MAIMAI_DATA_DIR=/srv/maimai/data
+export MAIMAI_STATE_DB=/srv/maimai/config/maimai-local.db
+```
+
+大型 Yuzu 字体和 UI 图片不进入公开 Git 历史。请从 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX) 的资源包取得 `Resource/static`，然后设置：
+
+```bash
+export MAIMAIDX_STATIC_DIR=/srv/maimai/yuzu/Resource/static
+export MAIMAIDX_COVER_CACHE_DIR=/srv/maimai/covers
+export MAIMAIDX_RENDER_OUTPUT_DIR=/srv/maimai/images
+```
+
+兼容变量 `B50_IMAGE_YUZU_STATIC_DIR`、`B50_IMAGE_STATIC_DIR`、`B50_IMAGE_COVER_CACHE_DIR` 和 `B50_IMAGE_OUTPUT_DIR` 仍可使用。
+
+## MCP 配置
 
 ```json
 {
   "mcpServers": {
-    "maimai-local-search": {
-      "command": "python",
-      "args": ["-m", "maimai_mcp.server"],
-      "cwd": "/path/to/maimai"
-    },
-    "maimaidx-render": {
-      "command": "python",
-      "args": ["-m", "maimaidx_render_mcp.server"],
-      "cwd": "/path/to/maimai"
-    },
-    "diving-fish-b50": {
-      "command": "python",
-      "args": ["-m", "diving_fish_b50_mcp.server"],
-      "cwd": "/path/to/maimai"
+    "maimai-public": {
+      "command": "/absolute/path/to/maimai-public",
+      "cwd": "/absolute/path/to/maimai"
     }
   }
 }
 ```
 
-## 落雪 OAuth 绑定
+stdio 的 stdout 只输出 MCP 协议帧，诊断写入 stderr。
 
-AstrBot 插件同时支持回调确认和手工提交两种绑定方式：
+## 外部服务
 
-- 发送 `lxns bind` 生成授权链接。配置回调桥后，插件会轮询回调结果，且只允许原用户在原适配器、原会话中拍一拍当前机器人完成确认。
-- 发送 `lxns bind <code>`、`lxns bind code=...` 或 `lxns bind <完整回调 URL>` 可手工完成绑定。
-- `lxns status` 只返回绑定/待确认状态，`lxns unbind` 会删除对应授权状态、令牌和待确认记录。
+| 变量 | 默认值/说明 |
+| --- | --- |
+| `NAPCAT_BASE_URL` | `http://napcat:3000/` |
+| `NAPCAT_ACCESS_TOKEN` / `NAPCAT_TOKEN` | 可选 NapCat token |
+| `NAPCAT_TIMEOUT_MS` | 默认 `10000` |
+| `DIVING_FISH_API_BASE_URL` | `https://www.diving-fish.com/api/` |
+| `DIVING_FISH_COVER_BASE_URL` | `https://www.diving-fish.com/covers/` |
+| `MAIMAI_DISPLAY_UTC_OFFSET` | 默认 `+08:00` |
 
-落雪 OAuth 客户端 ID、客户端密钥与回调地址只从运行环境读取，仓库不提供实例默认值：
+Provider 正式地址只接受 HTTPS；测试用回环地址可使用 HTTP。客户端禁止重定向并限制超时和响应体。
 
-```dotenv
-LXNS_OAUTH_CLIENT_ID=
-LXNS_OAUTH_CLIENT_SECRET=
-LXNS_OAUTH_REDIRECT_URI=
-```
+## 落雪 OAuth
 
-插件使用 `direct_render_oauth_module` 选择 OAuth MCP 模块。自动回调确认还需设置 `direct_render_lxns_callback_poll_url`、`direct_render_lxns_callback_poll_token` 和 `direct_render_lxns_callback_timeout_seconds`；其中共享 Token 的 UTF-8 编码长度不得少于 32 字节。插件默认把 OAuth SQLite 放在 AstrBot 运行数据目录，部署复制与 Docker 构建会排除源码树内的 OAuth 私密运行目录。回调桥提供通用环境变量、Nginx 和 systemd 部署模板，详细说明见 [docs/usage-details.md](docs/usage-details.md)。
-
-## 数据刷新
-
-```bash
-python scripts/update_all_data.py
-```
-
-## 插件打包
-
-修改 AstrBot 插件源码后，用固定文件白名单重建两个内容一致的可复现 ZIP：
+未配置 OAuth 客户端时，其他 54 个工具仍可启动；需要 OAuth 的操作会返回结构化未配置错误。
 
 ```bash
-python scripts/package_astrbot_plugin.py --force
+export LXNS_OAUTH_CLIENT_ID=
+export LXNS_OAUTH_CLIENT_SECRET=
+export LXNS_OAUTH_REDIRECT_URI=
+export LXNS_OAUTH_SCOPES="write_player read_user_profile read_player"
 ```
 
-## 更多说明
+兼容变量 `LXNS_CLIENT_ID`、`LXNS_CLIENT_SECRET`、`LXNS_REDIRECT_URI`、`LXNS_AUTHORIZE_URL` 与 `LXNS_SCOPES` 仍受支持。
 
-详细部署、参数和 AstrBot 配置见 [docs/usage-details.md](docs/usage-details.md)。
+## 验证
 
-## 静态资源
+```bash
+cargo +1.94.0 fmt --all -- --check
+CARGO_INCREMENTAL=0 cargo +1.94.0 check --locked --workspace --all-targets
+CARGO_INCREMENTAL=0 cargo +1.94.0 test --locked -p maimai-stdio --all-targets
+CARGO_INCREMENTAL=0 cargo +1.94.0 clippy --locked --workspace --all-targets -- -D warnings
+```
 
-公开源码仅内置自定义“雪峰”牌子及其渲染依赖的 20 张图片，其他图片已从当前目录和公开分支历史中移除。绘图所需的字体、评分图等静态资源需从 [maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX) 下载，解压后放入 `maimaidx_render_mcp/static/`；这些本地图片默认会被 Git 忽略：
+真实 stdio 回归会逐项校验 60 个工具的名称、顺序、Schema 和路由，并确认 EOF 后数据库可重开、公共 schema 不含官服私有表。
 
-- [Cloudreve](https://cloud.yuzuchan.moe/f/34s7/Resource%20CN1.55.7z)
-- [OneDrive](https://yuzuai-my.sharepoint.com/:u:/g/personal/yuzu_yuzuchan_moe/IQBGKHie6MAaTZy3rME7Q-ruAVKgXDCKROqz5e25KtMeeVY?e=53eC6a)
+## 架构
+
+```text
+maimai-public
+    └── maimai-stdio
+          └── maimai-mcp / maimai-app
+                ├── maimai-catalog / maimai-core
+                ├── maimai-storage
+                └── maimai-providers / maimai-render
+```
+
+冻结合同位于 `contracts/public/`。共享代码中保留 main contract 的兼容测试资料，但本仓库不包含 `maimai-main` binary 或私有实现。
 
 ## 致谢
 
-- 绘图能力基于 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)（MIT License）
+- 绘图设计和资源接口来自 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)。
+- 项目采用 MIT License，见 [LICENSE](./LICENSE)。

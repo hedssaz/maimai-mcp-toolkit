@@ -1,0 +1,21 @@
+[package]
+name = "maimai-render"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+ab_glyph = "0.2"
+image = { version = "0.25", default-features = false, features = ["png"] }
+imageproc = { version = "0.25", default-features = false }
+maimai-core = { path = "../maimai-core" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true
