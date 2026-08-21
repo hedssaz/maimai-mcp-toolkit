@@ -115,4 +115,5 @@ maimai-public
 ## 致谢
 
 - 绘图设计和资源接口来自 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)。
-- 项目采用 MIT License，见 [LICENSE](./LICENSE)。
+- 项目采用 [MIT License](LICENSE)，第三方许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+- 参与开发前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。

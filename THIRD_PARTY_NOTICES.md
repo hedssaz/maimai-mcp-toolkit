@@ -1,6 +1,8 @@
-MIT License
+# Third-party notices
 
-Copyright (c) 2026 hedssaz
+部分绘图实现参考并移植自 [Yuri-YuzuChaN/maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX)，原项目采用 MIT License：
+
+Copyright (c) 2021 Yuri-YuzuChaN
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +21,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+测试字体许可见 `crates/maimai-render/tests/fixtures/LICENSE_DEJAVU`。
