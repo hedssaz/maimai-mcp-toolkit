@@ -57,6 +57,7 @@ fn grade(record: &B50Chart) -> Option<String> {
     record
         .grade
         .as_deref()
+        .filter(|value| !value.trim().is_empty())
         .map(display_grade)
         .or_else(|| {
             record

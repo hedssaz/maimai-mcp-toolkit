@@ -110,7 +110,7 @@ impl StateStore {
                     .push_bind(&encoded.source_value)
                     .push_bind(generation_db(record.chart.generation()))
                     .push_bind(difficulty_db(record.chart.difficulty()))
-                    .push_bind(record.title.trim())
+                    .push_bind(&record.title)
                     .push_bind(&record.level)
                     .push_bind(&record.level_label)
                     .push_bind(&encoded.constant)
@@ -244,7 +244,6 @@ fn validate_snapshot(
     )?;
     let mut keys = HashSet::new();
     for record in records {
-        require_non_empty(&record.title, "title")?;
         require_non_empty(&record.updated_at, "updated_at")?;
         if record.qq != profile.qq {
             return Err(StorageError::InvalidStoredValue {

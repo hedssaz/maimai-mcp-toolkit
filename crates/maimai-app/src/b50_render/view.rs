@@ -13,8 +13,6 @@ pub(super) fn prepare(
         .player
         .nickname
         .as_deref()
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
         .ok_or(B50RenderError::PlayerNotFound)?;
     let rating = if result.mode == RatingMode::Fit {
         Some(result.rating_breakdown.total)

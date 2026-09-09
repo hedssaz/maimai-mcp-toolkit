@@ -6,6 +6,7 @@ use maimai_app::{
     score_service::PlayerScoreService,
 };
 use maimai_catalog::{CatalogFiles, CatalogStore};
+use maimai_core::{ChartGeneration, Difficulty, QqId, ScoreSource, SongIdNamespace, SourceSongId};
 use maimai_mcp::render_tools::{
     MAIN_CONTRACT_JSON, PUBLIC_CONTRACT_JSON,
     score_list::{ScoreListDispatcher, ScoreListSurface, TOOL_NAME, score_list_server},
@@ -24,7 +25,7 @@ use tokio::{
 };
 
 #[tokio::test]
-async fn main_and_public_duplex_keep_contract_output_and_public_source_is_invalid()
+async fn main_and_public_render_full_diving_fish_snapshot_with_real_title_and_utage()
 -> Result<(), Box<dyn Error + Send + Sync>> {
     let temp = TempDir::new()?;
     let api_base = response_server(2).await?;
@@ -39,7 +40,7 @@ async fn main_and_public_duplex_keep_contract_output_and_public_source_is_invali
         )
         .await?;
     let scores = Arc::new(PlayerScoreService::diving_fish_only(
-        store,
+        store.clone(),
         Arc::clone(&catalog),
         DivingFishScoreClient::new(DivingFishClient::with_base_urls(
             &api_base,
@@ -60,7 +61,7 @@ async fn main_and_public_duplex_keep_contract_output_and_public_source_is_invali
         MAIN_CONTRACT_JSON,
         ScoreListSurface::Main,
         Arc::clone(&service),
-        json!({"qq":"10001","level":"12","source":"sy"}),
+        json!({"qq":"10001","level":"10","source":"sy"}),
     )
     .await?;
     assert_eq!(main["result"]["isError"], false, "{main}");
@@ -71,11 +72,50 @@ async fn main_and_public_duplex_keep_contract_output_and_public_source_is_invali
     assert!(main_payload["caption"].as_str().is_some());
     assert_image(&main_payload)?;
 
+    let saved = store
+        .full_score_snapshot(&QqId::new("10001")?, ScoreSource::DivingFish, fixed_now())
+        .await?
+        .ok_or("complete score snapshot missing")?;
+    assert_eq!(saved.records().len(), 1_450);
+    assert_eq!(saved.profile().nickname.as_deref(), Some("　"));
+    let blank_title = saved
+        .records()
+        .iter()
+        .find(|record| {
+            record.chart.song() == &SourceSongId::numeric(SongIdNamespace::Lxns, 1_422)
+                && record.chart.difficulty() == Difficulty::Expert
+        })
+        .ok_or("real U+3000 title score missing")?;
+    assert_eq!(blank_title.title, "　");
+    assert_eq!(blank_title.payload["title"], "　");
+    assert_eq!(
+        blank_title
+            .achievements
+            .map(|value| value.ten_thousandths()),
+        Some(983_999)
+    );
+    for (id, units) in [(111_714, 1_994_804), (111_355, 1_535_756)] {
+        let utage = saved
+            .records()
+            .iter()
+            .find(|record| record.chart.song() == &SourceSongId::numeric(SongIdNamespace::Lxns, id))
+            .ok_or("historical DX Utage score missing")?;
+        assert_eq!(utage.chart.generation(), ChartGeneration::UtageTwoPlayer);
+        assert_eq!(utage.chart.difficulty(), Difficulty::Utage);
+        assert_eq!(
+            utage
+                .achievements
+                .and_then(|value| value.utage())
+                .map(|value| value.ten_thousandths()),
+            Some(units)
+        );
+    }
+
     let public = duplex_call(
         PUBLIC_CONTRACT_JSON,
         ScoreListSurface::Public,
         Arc::clone(&service),
-        json!({"qq":"10001","rating":"12"}),
+        json!({"qq":"10001","rating":"10"}),
     )
     .await?;
     assert_eq!(public["result"]["isError"], false, "{public}");
@@ -91,7 +131,7 @@ async fn main_and_public_duplex_keep_contract_output_and_public_source_is_invali
         PUBLIC_CONTRACT_JSON,
         ScoreListSurface::Public,
         service,
-        json!({"qq":"10001","level":"12","dataSource":null}),
+        json!({"qq":"10001","level":"10","dataSource":null}),
     )
     .await?;
     assert_eq!(invalid["result"]["isError"], true);
@@ -158,15 +198,7 @@ async fn duplex_call(
 async fn response_server(count: usize) -> Result<String, Box<dyn Error + Send + Sync>> {
     let listener = TcpListener::bind("127.0.0.1:0").await?;
     let address = listener.local_addr()?;
-    let body = json!({
-        "nickname":"Score List User","rating":15000,
-        "records":[{
-            "id":8,"title":"True Love Song","type":"SD","level":"12",
-            "level_index":3,"ds":"12.4","achievements":"99.5000",
-            "dx_score":850,"ra":200,"version":"maimai PLUS"
-        }]
-    })
-    .to_string();
+    let body = full_records_fixture()?.to_string();
     tokio::spawn(async move {
         for _ in 0..count {
             let Ok((mut stream, _)) = listener.accept().await else {
@@ -185,6 +217,62 @@ async fn response_server(count: usize) -> Result<String, Box<dyn Error + Send + 
         }
     });
     Ok(format!("http://{address}/api/"))
+}
+
+fn full_records_fixture() -> Result<Value, Box<dyn Error + Send + Sync>> {
+    // Public catalog metadata plus synthetic scores: no private player dump.
+    // Only 11422 has level 10 in this batch, so the rendered page must contain it.
+    let songs: Vec<Value> = serde_json::from_str(&std::fs::read_to_string(
+        workspace_root().join("data/divingfish_song_list.json"),
+    )?)?;
+    let mut records = Vec::new();
+    for song in &songs {
+        let id: u32 = song["id"].as_str().ok_or("catalog id missing")?.parse()?;
+        if id >= 100_000 || id == 11_422 {
+            continue;
+        }
+        for (index, level) in song["level"]
+            .as_array()
+            .ok_or("levels missing")?
+            .iter()
+            .enumerate()
+        {
+            if level == "10" {
+                continue;
+            }
+            records.push(json!({
+                "song_id": id, "title": song["title"], "type": song["type"],
+                "level": "", "level_index": index, "level_label": "historical label",
+                "ds": song["ds"][index], "achievements": "97.0000",
+                "ra": 0, "rate": "", "fc": "", "fs": "SYNC", "version": "\t"
+            }));
+            if records.len() == 1_447 {
+                break;
+            }
+        }
+        if records.len() == 1_447 {
+            break;
+        }
+    }
+    assert_eq!(records.len(), 1_447);
+    records.extend([
+        json!({
+            "song_id": 11422, "title": "　", "type": "DX", "level": "10",
+            "level_index": 2, "level_label": "Expert", "ds": 10.5,
+            "achievements": 98.3999, "fc": "", "fs": "sync"
+        }),
+        json!({
+            "song_id": 111714, "title": "[匿]匿名M", "type": "DX", "level": "13+?",
+            "level_index": 0, "level_label": "Utage", "ds": 13.7,
+            "achievements": 199.4804, "ra": 0, "fc": "", "fs": "sync"
+        }),
+        json!({
+            "song_id": 111355, "title": "[協]ラグトレイン", "type": "dx", "level": "13?",
+            "level_index": 0, "level_label": "uTaGe", "ds": 13.0,
+            "achievements": 153.5756, "ra": 0, "fc": "None", "fs": "sync"
+        }),
+    ]);
+    Ok(json!({"nickname": "　", "rating": 15000, "records": records}))
 }
 
 async fn read_request(stream: &mut tokio::net::TcpStream) -> Result<(), io::Error> {
@@ -236,7 +324,8 @@ fn assert_image(payload: &Value) -> Result<(), Box<dyn Error + Send + Sync>> {
     assert_eq!(payload["mimeType"], "image/png");
     assert_eq!(payload["width"], 1_400);
     assert_eq!(payload["height"], 726);
-    assert!(PathBuf::from(payload["imagePath"].as_str().ok_or("path missing")?).is_file());
+    let path = PathBuf::from(payload["imagePath"].as_str().ok_or("path missing")?);
+    assert_eq!(image::image_dimensions(&path)?, (1_400, 726));
     Ok(())
 }
 

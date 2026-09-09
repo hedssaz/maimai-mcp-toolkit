@@ -110,7 +110,11 @@ fn numeric_id(card: &ScoreCard) -> Option<u32> {
 
 fn static_candidates(id: u32) -> Vec<String> {
     let mut values = vec![id.to_string(), format!("{id:05}")];
-    if (10_001..100_000).contains(&id) {
+    if (1..10_000).contains(&id) {
+        let shifted = id + 10_000;
+        values.push(shifted.to_string());
+        values.push(format!("{shifted:05}"));
+    } else if (10_001..100_000).contains(&id) {
         let shifted = id - 10_000;
         values.push(shifted.to_string());
         values.push(format!("{shifted:05}"));
@@ -165,6 +169,10 @@ mod tests {
         assert_eq!(
             static_candidates(11_986),
             ["11986.png", "1986.png", "01986.png"]
+        );
+        assert_eq!(
+            static_candidates(1_310),
+            ["1310.png", "01310.png", "11310.png"]
         );
     }
 }

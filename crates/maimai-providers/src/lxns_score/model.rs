@@ -317,7 +317,11 @@ struct LxnsScoreWire {
     achievements: Value,
     #[serde(default, alias = "dxScore")]
     dx_score: u32,
-    #[serde(default, alias = "dxRating")]
+    #[serde(
+        default,
+        alias = "dxRating",
+        deserialize_with = "super::codec::optional_legacy_dx_rating::deserialize"
+    )]
     dx_rating: Option<u32>,
     #[serde(default, alias = "songName")]
     song_name: Option<String>,

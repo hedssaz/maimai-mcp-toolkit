@@ -99,6 +99,7 @@ impl DivingFishPlayer {
 
 fn player(root: &Map<String, Value>) -> Result<DivingFishPlayer, DivingFishScoreError> {
     let username = optional_string(get(root, &["username"]), "player.username")?
+        .filter(|value| !value.trim().is_empty())
         .map(PlayerUsername::new)
         .transpose()
         .map_err(|_| invalid("player.username 无效"))?;
@@ -126,12 +127,17 @@ fn scores(value: &Value, field: &str) -> Result<Vec<DivingFishScore>, DivingFish
 
 fn score(value: &Value, field: &str) -> Result<DivingFishScore, DivingFishScoreError> {
     let value = object(value, field)?;
-    let generation = generation(required(
+    let declared_generation = generation(required(
         value,
         &["type", "chart_type", "chartType"],
         "score.type",
     )?)?;
-    let difficulty = difficulty(value, generation)?;
+    let difficulty = difficulty(value, declared_generation)?;
+    let generation = if difficulty == Difficulty::Utage {
+        DivingFishChartGeneration::Utage
+    } else {
+        declared_generation
+    };
     let achievement_kind = if difficulty == Difficulty::Utage {
         PlayAchievementKind::Utage
     } else {
@@ -143,7 +149,8 @@ fn score(value: &Value, field: &str) -> Result<DivingFishScore, DivingFishScoreE
             &["song_id", "songId", "music_id", "musicId", "id"],
             "score.songId",
         )?)?,
-        title: string(required(value, &["title"], "score.title")?, "score.title")?,
+        // Titles are display text, not identity. In particular, U+3000 is a real title.
+        title: optional_string(get(value, &["title"]), "score.title")?.unwrap_or_default(),
         generation,
         difficulty,
         level: string(required(value, &["level"], "score.level")?, "score.level")?,
@@ -178,19 +185,21 @@ fn optional_marker<T>(
 ) -> Result<Option<T>, DivingFishScoreError>
 where
     T: std::str::FromStr,
-    T::Err: std::fmt::Display,
 {
     optional_string(value, field)?
-        .map(|value| {
-            value
-                .parse()
-                .map_err(|error| invalid(format!("{field} 无效: {error}")))
+        // The legacy Diving-Fish renderer treats these as an absent marker.
+        .filter(|value| {
+            !matches!(
+                value.trim().to_ascii_lowercase().as_str(),
+                "" | "none" | "null" | "nan"
+            )
         })
+        .map(|value| value.parse().map_err(|_| invalid(format!("{field} 无效"))))
         .transpose()
 }
 
 fn generation(value: &Value) -> Result<DivingFishChartGeneration, DivingFishScoreError> {
-    let value = string(value, "score.type")?.to_ascii_lowercase();
+    let value = string(value, "score.type")?.trim().to_ascii_lowercase();
     match value.as_str() {
         "sd" | "st" | "standard" => Ok(DivingFishChartGeneration::Standard),
         "dx" | "deluxe" => Ok(DivingFishChartGeneration::Deluxe),
@@ -203,26 +212,25 @@ fn difficulty(
     value: &Map<String, Value>,
     generation: DivingFishChartGeneration,
 ) -> Result<Difficulty, DivingFishScoreError> {
-    if let Some(label) = optional_string(
+    let label = optional_string(
         get(value, &["level_label", "levelLabel", "difficulty"]),
         "score.difficulty",
-    )? {
-        let normalized = label.to_ascii_lowercase().replace([':', '-', '_', ' '], "");
-        return match normalized.as_str() {
-            "basic" => Ok(Difficulty::Basic),
-            "advanced" => Ok(Difficulty::Advanced),
-            "expert" => Ok(Difficulty::Expert),
-            "master" => Ok(Difficulty::Master),
-            "remaster" => Ok(Difficulty::ReMaster),
-            "utage" | "宴" if generation == DivingFishChartGeneration::Utage => {
-                Ok(Difficulty::Utage)
-            }
-            _ => Err(invalid("score.difficulty 未知或与 type 不一致")),
-        };
-    }
-    if generation == DivingFishChartGeneration::Utage {
+    )?
+    .map(|label| {
+        label
+            .trim()
+            .to_ascii_lowercase()
+            .replace([':', '-', '_', ' '], "")
+    });
+    // Historical Utage records use type=DX and an ordinary level_index. The label
+    // selects Utage semantics; the catalog later resolves the exact chart identity.
+    if generation == DivingFishChartGeneration::Utage
+        || matches!(label.as_deref(), Some("utage" | "宴"))
+    {
         return Ok(Difficulty::Utage);
     }
+    // Ordinary records use the numeric index. The display label is only needed
+    // when older responses omit that index.
     match optional_u32(
         get(value, &["level_index", "levelIndex"]),
         "score.levelIndex",
@@ -232,7 +240,15 @@ fn difficulty(
         Some(2) => Ok(Difficulty::Expert),
         Some(3) => Ok(Difficulty::Master),
         Some(4) => Ok(Difficulty::ReMaster),
-        _ => Err(invalid("score.difficulty 缺失或 levelIndex 越界")),
+        Some(_) => Err(invalid("score.levelIndex 越界")),
+        None => match label.as_deref() {
+            Some("basic") => Ok(Difficulty::Basic),
+            Some("advanced") => Ok(Difficulty::Advanced),
+            Some("expert") => Ok(Difficulty::Expert),
+            Some("master") => Ok(Difficulty::Master),
+            Some("remaster") => Ok(Difficulty::ReMaster),
+            _ => Err(invalid("score.difficulty 缺失或无法解析")),
+        },
     }
 }
 
@@ -325,24 +341,17 @@ fn optional_string(
     value: Option<&Value>,
     field: &str,
 ) -> Result<Option<String>, DivingFishScoreError> {
-    value
-        .filter(|value| !value.is_null())
-        .map(|value| string(value, field))
-        .transpose()
+    match value {
+        None | Some(Value::Null) => Ok(None),
+        Some(value) => string(value, field).map(Some),
+    }
 }
 
 fn string(value: &Value, field: &str) -> Result<String, DivingFishScoreError> {
-    let value = value
+    value
         .as_str()
-        .ok_or_else(|| invalid(format!("{field} 必须是字符串")))?;
-    if value.chars().any(char::is_control) {
-        return Err(invalid(format!("{field} 不能包含控制字符")));
-    }
-    let value = value.trim();
-    if value.is_empty() {
-        return Err(invalid(format!("{field} 不能为空")));
-    }
-    Ok(value.to_owned())
+        .map(str::to_owned)
+        .ok_or_else(|| invalid(format!("{field} 必须是字符串")))
 }
 
 fn object<'a>(

@@ -433,6 +433,13 @@ async fn lxns_401_refreshes_generation_and_retries_exactly_once() -> TestResult 
             }})
             .to_string(),
         },
+        MockResponse {
+            status: 200,
+            body: json!({"success":true,"data":{
+                "name":"LXNS Fresh","rating":15602
+            }})
+            .to_string(),
+        },
     ])
     .await?;
     let (oauth_url, mut oauth_requests) = mock_server(vec![MockResponse {
@@ -455,7 +462,9 @@ async fn lxns_401_refreshes_generation_and_retries_exactly_once() -> TestResult 
         })
         .await?;
     assert_eq!(result.source, ScoreSource::Lxns);
-    let requests = receive(&mut lxns_requests, 2).await?;
+    assert_eq!(result.player.nickname.as_deref(), Some("LXNS Fresh"));
+    assert_eq!(result.player.rating, Some(15_602));
+    let requests = receive(&mut lxns_requests, 3).await?;
     assert!(
         requests[0]
             .to_ascii_lowercase()
@@ -463,6 +472,12 @@ async fn lxns_401_refreshes_generation_and_retries_exactly_once() -> TestResult 
     );
     assert!(
         requests[1]
+            .to_ascii_lowercase()
+            .contains("bearer new-token")
+    );
+    assert!(requests[2].starts_with("GET /api/v0/user/maimai/player HTTP/1.1"));
+    assert!(
+        requests[2]
             .to_ascii_lowercase()
             .contains("bearer new-token")
     );

@@ -8,6 +8,36 @@ use super::ResourceOverridePolicy;
 use super::service::local_computed_at;
 
 #[test]
+fn whitespace_nickname_is_a_present_player() -> Result<(), Box<dyn Error>> {
+    use crate::scores::{B50Result, FitIndex, Lookup, PlayerScoreProfile, RatingMode};
+    use maimai_core::{QqId, RatingBreakdown, ScoreSource};
+
+    for nickname in ["", "　", " Name \t\n"] {
+        let result = B50Result {
+            lookup: Lookup::Qq(QqId::new("10001")?),
+            source: ScoreSource::DivingFish,
+            player: PlayerScoreProfile {
+                nickname: Some(nickname.to_owned()),
+                ..Default::default()
+            },
+            rating_breakdown: RatingBreakdown {
+                b35: 0,
+                b15: 0,
+                total: 0,
+            },
+            b35: vec![],
+            b15: vec![],
+            mode: RatingMode::Actual,
+            computation: None,
+            fit_index: FitIndex::default(),
+        };
+        let view = super::view::prepare(&result, None)?;
+        assert_eq!(view.player().nickname(), nickname);
+    }
+    Ok(())
+}
+
+#[test]
 fn resource_override_policy_allows_canonical_descendants_only() -> Result<(), Box<dyn Error>> {
     let temporary = tempfile::tempdir()?;
     let static_root = temporary.path().join("static");

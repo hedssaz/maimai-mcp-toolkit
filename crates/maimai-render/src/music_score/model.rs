@@ -35,10 +35,7 @@ impl MusicScoreRow {
         rating: Option<u32>,
     ) -> Result<Self, RenderError> {
         let level = safe_text(level.into(), "music_score.level")?;
-        let grade = grade
-            .map(|value| safe_text(value, "music_score.grade"))
-            .transpose()?
-            .filter(|value| !value.is_empty());
+        let grade = grade.filter(|value| !value.is_empty());
         Ok(Self {
             difficulty,
             level,

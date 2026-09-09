@@ -173,7 +173,7 @@ fn diving_fish_chart(
         score.achievements.and_then(PlayAchievement::ranked),
         score.rating,
     )?;
-    let version = preferred_version(score.version, &resolved.version)?;
+    let version = preferred_version(score.version, &resolved.version);
     Ok(chart(
         resolved,
         score.song_id,
@@ -239,7 +239,7 @@ fn local_chart(record: &PlayerRecord, catalog: &ScoreCatalog) -> Result<B50Chart
         record.achievements.and_then(PlayAchievement::ranked),
         provider_rating,
     )?;
-    let version = preferred_version(record.version.clone(), &resolved.version)?;
+    let version = preferred_version(record.version.clone(), &resolved.version);
     Ok(chart(
         resolved,
         record.chart.song().clone(),
@@ -298,15 +298,8 @@ fn chart(
     }
 }
 
-fn preferred_version(value: Option<String>, fallback: &str) -> Result<String, ScoreError> {
-    let Some(value) = value else {
-        return Ok(fallback.to_owned());
-    };
-    if value.chars().any(char::is_control) {
-        return Err(ScoreError::invalid("score.version 不能包含控制字符"));
-    }
-    let value = value.trim();
-    Ok(if value.is_empty() { fallback } else { value }.to_owned())
+fn preferred_version(value: Option<String>, fallback: &str) -> String {
+    value.unwrap_or_else(|| fallback.to_owned())
 }
 
 fn rating(

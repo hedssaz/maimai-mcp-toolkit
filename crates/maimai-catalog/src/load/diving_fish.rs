@@ -141,7 +141,11 @@ fn charts(
         });
     }
     let generation = if is_utage {
-        ChartGeneration::UtageOnePlayer
+        if song.charts.len() == 2 {
+            ChartGeneration::UtageTwoPlayer
+        } else {
+            ChartGeneration::UtageOnePlayer
+        }
     } else {
         match chart_type.as_str() {
             "DX" => ChartGeneration::Deluxe,

@@ -139,6 +139,45 @@ async fn utage_score_round_trips_exact_kind_units_and_decimal() -> TestResult {
 }
 
 #[tokio::test]
+async fn display_titles_round_trip_without_trimming_in_both_write_paths() -> TestResult {
+    let temp = TempDir::new()?;
+    let store = StateStore::open(temp.path().join("state.db")).await?;
+    let qq = QqId::new("10001")?;
+    for title in ["　", "", "   ", " Padded title \t\n"] {
+        let record = player_record(&qq, title, "98.3999")?;
+        let profile = PlayerProfile {
+            qq: qq.clone(),
+            nickname: Some("　".to_owned()),
+            player_rating: None,
+            player_old_rating: None,
+            player_new_rating: None,
+            score_source: Some(record.score_source),
+            source_detail: None,
+            raw: None,
+            updated_at: record.updated_at.clone(),
+        };
+        store
+            .replace_player_score_snapshot(&profile, std::slice::from_ref(&record))
+            .await?;
+        let snapshot = store
+            .full_score_snapshot(&qq, record.score_source, time::OffsetDateTime::UNIX_EPOCH)
+            .await?
+            .ok_or("snapshot missing")?;
+        assert_eq!(snapshot.records()[0].title, title);
+        assert_eq!(snapshot.profile().nickname, profile.nickname);
+        store.upsert_record(&record).await?;
+        let saved = store
+            .record(&qq, &record.chart)
+            .await?
+            .ok_or("record missing")?;
+        assert_eq!(saved.title, title);
+        assert_eq!(saved.payload["title"], title);
+        assert_eq!(store.records_for_player(&qq).await?.len(), 1);
+    }
+    Ok(())
+}
+
+#[tokio::test]
 async fn stored_achievement_kind_and_units_must_match_chart_and_domain() -> TestResult {
     let temp = TempDir::new()?;
     let database = temp.path().join("dirty-achievement.db");

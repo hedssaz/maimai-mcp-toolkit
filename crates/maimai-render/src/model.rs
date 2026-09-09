@@ -94,11 +94,10 @@ impl PlayerHeader {
         rating: Option<u32>,
         plate: Option<String>,
     ) -> Result<Self, RenderError> {
-        let nickname = required_text(nickname.into(), "player.nickname")?;
         Ok(Self {
-            nickname,
+            nickname: nickname.into(),
             rating,
-            plate: optional_text(plate, "player.plate")?,
+            plate,
         })
     }
 
@@ -143,14 +142,12 @@ impl ScoreCard {
         achievements: Option<AchievementRate>,
         rating: u32,
     ) -> Result<Self, RenderError> {
-        let title = required_text(title.into(), "score.title")?;
-        let level = required_text(level.into(), "score.level")?;
         Ok(Self {
             song_id,
-            title,
+            title: title.into(),
             chart_type,
             difficulty,
-            level,
+            level: level.into(),
             constant,
             achievements,
             rating,
@@ -167,9 +164,9 @@ impl ScoreCard {
         combo: Option<String>,
         sync: Option<String>,
     ) -> Result<Self, RenderError> {
-        self.grade = optional_text(grade, "score.grade")?;
-        self.combo = optional_text(combo, "score.combo")?;
-        self.sync = optional_text(sync, "score.sync")?;
+        self.grade = grade;
+        self.combo = combo;
+        self.sync = sync;
         Ok(self)
     }
 
@@ -329,24 +326,4 @@ fn required_text(value: String, field: &'static str) -> Result<String, RenderErr
         ));
     }
     Ok(value)
-}
-
-fn optional_text(
-    value: Option<String>,
-    field: &'static str,
-) -> Result<Option<String>, RenderError> {
-    let Some(value) = value else {
-        return Ok(None);
-    };
-    let value = value.trim().to_owned();
-    if value.is_empty() {
-        return Ok(None);
-    }
-    if value.chars().any(char::is_control) {
-        return Err(RenderError::invalid(
-            field,
-            "must contain no control characters",
-        ));
-    }
-    Ok(Some(value))
 }

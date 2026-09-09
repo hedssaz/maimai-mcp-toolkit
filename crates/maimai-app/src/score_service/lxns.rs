@@ -136,12 +136,16 @@ async fn request_bests(
     client: &LxnsScoreClient,
     include_raw: bool,
 ) -> Result<(LxnsPlayerBests, Option<RawJsonPayload>), LxnsScoreError> {
-    if include_raw {
+    let (mut bests, raw) = if include_raw {
         let (data, raw) = client.bests_with_raw().await?.into_parts();
-        Ok((data, Some(raw)))
+        (data, Some(raw))
     } else {
-        client.bests().await.map(|data| (data, None))
+        (client.bests().await?, None)
+    };
+    if bests.player.is_none() {
+        bests.player = Some(client.player().await?);
     }
+    Ok((bests, raw))
 }
 
 async fn request_scores(

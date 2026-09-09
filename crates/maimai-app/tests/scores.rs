@@ -43,6 +43,55 @@ fn source_selection_has_no_implicit_fallback() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
+fn canonical_whitespace_title_survives_diving_fish_lxns_and_local_normalization()
+-> Result<(), Box<dyn Error>> {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let catalog = CatalogFiles::from_data_dir(root.join("data")).load()?;
+    let mut score = df_score(
+        11_422,
+        "　",
+        DivingFishChartGeneration::Deluxe,
+        "10.5",
+        "98.3999",
+        200,
+    )?;
+    score.difficulty = Difficulty::Expert;
+    score.version = Some(" Version \t\n".to_owned());
+    let df = from_diving_fish_records(
+        DivingFishPlayerRecords {
+            lookup: PlayerSelector::Qq(QqId::new("10001")?),
+            player: df_player(),
+            records: vec![score],
+        },
+        &catalog,
+    )?;
+    assert_eq!(df.records[0].title, "　");
+    assert_eq!(df.records[0].version, " Version \t\n");
+    let lxns = from_lxns_scores(
+        qq_lookup()?,
+        LxnsPlayerScores {
+            player: None,
+            scores: vec![lxns_score(1_422, "dx", 2, "10.5", "98.3999")?],
+        },
+        &catalog,
+    )?;
+    assert_eq!(lxns.records[0].title, "　");
+    let mut record = local_record(
+        ChartGeneration::Deluxe,
+        Difficulty::Expert,
+        "10.5",
+        "98.3999",
+        200,
+        false,
+    )?;
+    record.chart = df.records[0].key.clone();
+    record.title = "　".to_owned();
+    let local = from_local_records(qq_lookup()?, &[record], None, &catalog)?;
+    assert_eq!(local.records[0].title, "　");
+    Ok(())
+}
+
+#[test]
 fn fit_index_keeps_fifty_charts_sixteen_decimal_places_and_negative_delta_exact()
 -> Result<(), Box<dyn Error>> {
     let charts = (1..=50).map(fit_chart).collect::<Result<Vec<_>, _>>()?;

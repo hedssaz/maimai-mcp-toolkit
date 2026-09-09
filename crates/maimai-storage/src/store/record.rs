@@ -15,7 +15,6 @@ use crate::{PlayerRecord, StorageError};
 
 impl StateStore {
     pub async fn upsert_record(&self, record: &PlayerRecord) -> Result<(), StorageError> {
-        require_non_empty(&record.title, "title")?;
         require_non_empty(&record.updated_at, "updated_at")?;
         let source_value = source_value_db(record.chart.song().value());
         let raw_json = encode_optional_json(record.raw.as_ref(), "player_records_v3.raw_json")?;
@@ -67,7 +66,7 @@ impl StateStore {
         .bind(source_value)
         .bind(generation_db(record.chart.generation()))
         .bind(difficulty_db(record.chart.difficulty()))
-        .bind(record.title.trim())
+        .bind(&record.title)
         .bind(&record.level)
         .bind(&record.level_label)
         .bind(record.ds.map(chart_constant_db))

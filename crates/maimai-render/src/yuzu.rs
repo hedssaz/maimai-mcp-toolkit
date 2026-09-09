@@ -408,7 +408,7 @@ fn rating_asset(rating: u32) -> &'static str {
 }
 
 fn rank_asset(value: Option<&str>) -> Option<String> {
-    let code = match value?.to_ascii_lowercase().as_str() {
+    let code = match value?.trim().to_ascii_lowercase().as_str() {
         "d" => "D",
         "c" => "C",
         "b" => "B",
@@ -429,7 +429,7 @@ fn rank_asset(value: Option<&str>) -> Option<String> {
 }
 
 fn combo_asset(value: Option<&str>, small: bool) -> Option<String> {
-    let code = match value?.to_ascii_lowercase().as_str() {
+    let code = match value?.trim().to_ascii_lowercase().as_str() {
         "fc" => "FC",
         "fcp" => "FCp",
         "ap" => "AP",

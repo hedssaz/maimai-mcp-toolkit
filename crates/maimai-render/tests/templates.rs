@@ -182,6 +182,58 @@ fn cover_placeholder_corruption_limits_and_long_text_are_safe() -> Result<(), Bo
 }
 
 #[test]
+fn all_b50_styles_render_real_whitespace_title_and_unformatted_display_text()
+-> Result<(), Box<dyn Error>> {
+    let temporary = tempfile::tempdir()?;
+    let static_root = create_assets(temporary.path())?;
+    let covers = CoverResolver::new(&static_root, temporary.path().join("cache"));
+    let card = ScoreCard::new(
+        Some(SourceSongId::numeric(SongIdNamespace::DivingFish, 11_422)),
+        "　",
+        ChartType::Deluxe,
+        Difficulty::Expert,
+        "",
+        None,
+        Some(AchievementRate::from_decimal_str("98.3999")?),
+        200,
+    )?
+    .with_markers(
+        Some(" unknown\ngrade ".to_owned()),
+        None,
+        Some("sync".to_owned()),
+    )?;
+    assert_eq!(card.title(), "　");
+    assert_eq!(card.level(), "");
+    let header = PlayerHeader::new("　", Some(200), Some("\t".to_owned()))?;
+    assert_eq!(header.nickname(), "　");
+    assert_eq!(header.plate(), Some("\t"));
+    let view = B50View::new(
+        "Display text regression",
+        header,
+        RatingBreakdown {
+            b35: 200,
+            b15: 0,
+            total: 200,
+        },
+        vec![card],
+        vec![],
+    )?;
+    let legacy = legacy()?;
+    for rendered in [
+        legacy.render_with_covers(&view, &covers)?,
+        YuzuRenderer::new(&static_root)?.render(&view, &covers)?,
+        MaibotRenderer::new(&static_root, &legacy)?.render(&view, &covers)?,
+    ] {
+        assert_eq!(rendered.metadata.card_count, 1);
+        assert_eq!(rendered.metadata.missing_covers[0].title, "　");
+        let png = image::load_from_memory_with_format(&rendered.bytes, ImageFormat::Png)?;
+        assert_eq!(png.width(), rendered.metadata.width);
+        assert_eq!(png.height(), rendered.metadata.height);
+    }
+    Ok(())
+}
+
+#[test]
 fn real_maibot_assets_render_the_original_canvas() -> Result<(), Box<dyn Error>> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let static_root = root.join("maimaidx_render_mcp/static");

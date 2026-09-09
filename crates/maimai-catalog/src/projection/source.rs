@@ -84,7 +84,12 @@ pub(super) fn diving_fish(
     };
     let generation = if matches!(id.value(), maimai_core::SongIdValue::Numeric(value) if *value >= 100_000)
     {
-        ChartGeneration::UtageOnePlayer
+        // Diving-Fish represents the two sides of a buddy chart as two entries.
+        if raw.charts.len() == 2 {
+            ChartGeneration::UtageTwoPlayer
+        } else {
+            ChartGeneration::UtageOnePlayer
+        }
     } else {
         source_generation
     };

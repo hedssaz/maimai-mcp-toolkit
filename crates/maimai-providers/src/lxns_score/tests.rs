@@ -66,6 +66,16 @@ fn typed_ids_chart_types_and_camel_fields_follow_legacy_rules() -> TestResult {
     assert_eq!(score.level_index, LxnsDifficulty::Master);
     assert_eq!(score.achievements.ten_thousandths(), 1_001_234);
     assert_eq!(score.dx_score, 1_234);
+    assert_eq!(score.dx_rating, Some(321));
+    let current_bests_score: LxnsScore = serde_json::from_value(json!({
+        "id": 8,
+        "type": "dx",
+        "level_index": 3,
+        "achievements": 100.1234,
+        "dx_score": 1234,
+        "dx_rating": 324.1728
+    }))?;
+    assert_eq!(current_bests_score.dx_rating, None);
     assert!(
         serde_json::from_value::<LxnsScore>(json!({
             "id": 8, "type": "dx", "level_index": 5,

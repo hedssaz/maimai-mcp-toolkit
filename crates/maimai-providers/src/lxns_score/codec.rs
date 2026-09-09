@@ -37,6 +37,24 @@ pub(super) mod optional_chart_constant {
     }
 }
 
+pub(super) mod optional_legacy_dx_rating {
+    use super::*;
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<u32>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = Option::<Value>::deserialize(deserializer)?;
+        Ok(match value {
+            Some(Value::Number(value)) => {
+                value.as_u64().and_then(|value| u32::try_from(value).ok())
+            }
+            Some(Value::String(value)) => value.trim().parse::<u32>().ok(),
+            None | Some(Value::Null) | Some(_) => None,
+        })
+    }
+}
+
 pub(super) fn play_achievement(
     value: Value,
     kind: PlayAchievementKind,

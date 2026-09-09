@@ -82,6 +82,44 @@ async fn query_b50_matches_legacy_body_and_exact_decimal_normalization()
     Ok(())
 }
 
+#[tokio::test]
+async fn query_b50_preserves_display_text_and_treats_blank_markers_as_absent()
+-> Result<(), Box<dyn Error>> {
+    let (api_base, _captured) = server(MockResponse {
+        status: 200,
+        body: json!({
+            "nickname": "Blank Markers",
+            "rating": 300,
+            "plate": "",
+            "charts": {
+                "sd": [{
+                    "song_id": 1,
+                    "title": "Static Song",
+                    "type": "SD",
+                    "level": "13",
+                    "level_index": 3,
+                    "ra": 300,
+                    "rate": "",
+                    "fc": "",
+                    "fs": "   ",
+                    "version": " "
+                }],
+                "dx": []
+            }
+        })
+        .to_string(),
+    })
+    .await?;
+
+    let result = client(&api_base)?.query_b50(qq("10001")?).await?;
+    assert_eq!(result.player.plate.as_deref(), Some(""));
+    assert_eq!(result.sd[0].grade.as_deref(), Some(""));
+    assert_eq!(result.sd[0].full_combo, None);
+    assert_eq!(result.sd[0].full_sync, None);
+    assert_eq!(result.sd[0].version.as_deref(), Some(" "));
+    Ok(())
+}
+
 #[test]
 fn selector_requires_exactly_one_typed_identity() -> Result<(), Box<dyn Error>> {
     let qq = QqId::new("10001")?;
@@ -174,6 +212,65 @@ async fn developer_records_reuse_auth_client_and_normalize_snake_case() -> Resul
 }
 
 #[tokio::test]
+async fn developer_records_preserve_real_title_and_explicit_utage_labels()
+-> Result<(), Box<dyn Error>> {
+    let (api_base, _captured) = server(MockResponse {
+        status: 200,
+        body: json!({
+            "nickname": "Current Response",
+            "records": [
+                {
+                    "song_id": 11422,
+                    "title": "　",
+                    "type": "DX",
+                    "level": "10",
+                    "level_index": 2,
+                    "level_label": "Expert",
+                    "achievements": 98.3999,
+                    "fc": "",
+                    "fs": "sync"
+                },
+                {
+                    "song_id": 111714,
+                    "title": "[匿]匿名M",
+                    "type": "DX",
+                    "level": "13+?",
+                    "level_index": 0,
+                    "level_label": "Utage",
+                    "achievements": 199.4804,
+                    "ra": 0,
+                    "fc": "",
+                    "fs": "sync"
+                }
+            ]
+        })
+        .to_string(),
+    })
+    .await?;
+    let credentials =
+        DivingFishCredentials::new().with_developer_token(SecretString::from("token"));
+
+    let result = client(&api_base)?
+        .query_developer_records(qq("10001")?, credentials)
+        .await?;
+
+    assert_eq!(result.records[0].title, "　");
+    assert_eq!(
+        result.records[1].generation,
+        DivingFishChartGeneration::Utage
+    );
+    assert_eq!(result.records[1].difficulty, Difficulty::Utage);
+    assert_eq!(
+        result.records[1]
+            .achievements
+            .and_then(|value| value.utage())
+            .map(maimai_core::UtageScore::ten_thousandths),
+        Some(1_994_804)
+    );
+    Ok(())
+}
+
+#[tokio::test]
 async fn rating_ranking_accepts_legacy_names_and_numeric_strings() -> Result<(), Box<dyn Error>> {
     let (api_base, captured) = server(MockResponse {
         status: 200,
@@ -192,6 +289,108 @@ async fn rating_ranking_accepts_legacy_names_and_numeric_strings() -> Result<(),
     );
     assert_eq!(result[0].username.as_str(), "middle");
     assert_eq!(result[1].rating, 16_000);
+    Ok(())
+}
+
+#[test]
+fn display_strings_are_lossless_while_chart_indices_determine_ordinary_difficulty()
+-> Result<(), Box<dyn Error>> {
+    for text in ["", "　", "   ", " Title \t\n", "Mixed CASE"] {
+        let result = super::decode::records(
+            &json!({
+                "nickname": text, "plate": text, "username": " ",
+                "records": [{
+                    "id": "11422", "title": text, "type": " dX ", "level": text,
+                    "level_label": text, "level_index": 2,
+                    "rate": text, "version": text, "fc": " FC+ ", "fs": "FDX+"
+                }]
+            }),
+            qq("10001")?,
+        )?;
+        assert_eq!(result.player.nickname.as_deref(), Some(text));
+        assert_eq!(result.player.plate.as_deref(), Some(text));
+        assert_eq!(result.player.username, None);
+        let score = &result.records[0];
+        assert_eq!(score.title, text);
+        assert_eq!(score.level, text);
+        assert_eq!(score.grade.as_deref(), Some(text));
+        assert_eq!(score.version.as_deref(), Some(text));
+        assert_eq!(score.difficulty, Difficulty::Expert);
+        assert_eq!(score.generation, DivingFishChartGeneration::Deluxe);
+        assert_eq!(
+            score.full_combo,
+            Some(maimai_core::FullComboStatus::FullComboPlus)
+        );
+        assert_eq!(
+            score.full_sync,
+            Some(maimai_core::FullSyncStatus::FullSyncDeluxePlus)
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn historical_labels_and_empty_markers_keep_their_semantics() -> Result<(), Box<dyn Error>> {
+    for (kind, label, index, expected) in [
+        ("DX", "Basic", Some(3), Difficulty::Master),
+        ("DX", "Re:MASTER", None, Difficulty::ReMaster),
+        ("dX", " uTaGe ", Some(0), Difficulty::Utage),
+        ("Utage", "Basic", Some(0), Difficulty::Utage),
+    ] {
+        for marker in ["", "　", " NoNe ", "NULL", "nAn"] {
+            let result = super::decode::records(
+                &json!({"records": [{
+                    "id": 1, "title": "", "type": kind, "level": "",
+                    "level_label": label, "level_index": index,
+                    "fc": marker, "fs": marker
+                }]}),
+                qq("10001")?,
+            )?;
+            assert_eq!(result.records[0].difficulty, expected);
+            assert_eq!(result.records[0].full_combo, None);
+            assert_eq!(result.records[0].full_sync, None);
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn display_leniency_keeps_json_types_numbers_and_identities_checked() -> Result<(), Box<dyn Error>>
+{
+    for (field, value) in [
+        ("title", json!(7)),
+        ("level", json!([])),
+        ("level_label", json!(false)),
+        ("version", json!({})),
+        ("fc", json!(true)),
+        ("fs", json!("unknown")),
+        ("type", json!("unknown")),
+        ("song_id", json!("　")),
+        ("song_id", json!(-1)),
+        ("level_index", json!(5)),
+        ("level_index", json!(-1)),
+        ("level_index", json!("expert")),
+        ("achievements", json!("101.0001")),
+        ("achievements", json!("NaN")),
+        ("achievements", json!(-1)),
+        ("dx_score", json!(4294967296_u64)),
+        ("ra", json!(1.5)),
+        ("ds", json!(-1)),
+    ] {
+        let mut score = json!({
+            "song_id": 11422, "title": "　", "type": "DX", "level": "",
+            "level_index": 2, "level_label": "Expert"
+        });
+        score[field] = value;
+        let error = super::decode::records(&json!({"records": [score]}), qq("10001")?)
+            .err()
+            .ok_or("invalid semantic field should fail")?;
+        assert_eq!(
+            error.code(),
+            DivingFishScoreErrorCode::InvalidResponse,
+            "{field}"
+        );
+    }
     Ok(())
 }
 

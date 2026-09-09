@@ -52,7 +52,7 @@ fn five_rows_use_stable_best_record_and_zero_notes_stay_safe() -> Result<(), Box
     };
     let lower = record(keys[3].clone(), "99.9999", 900, 280)?;
     let best = record(keys[3].clone(), "100.0000", 800, 281)?;
-    let records = vec![lower, best];
+    let mut records = vec![lower, best];
     let selected = best_by_chart(&records);
     let rendered = view(&prepared, &selected)?;
     assert_eq!(rendered.rows.len(), 5);
@@ -61,6 +61,18 @@ fn five_rows_use_stable_best_record_and_zero_notes_stay_safe() -> Result<(), Box
     assert_eq!(rendered.rows[3].rating, Some(281));
     assert_eq!(rendered.rows[3].theoretical_dx_score(), None);
     assert_eq!(rendered.rows[3].stars(), None);
+    for (grade, expected) in [
+        ("", "SSS"),
+        ("　", "SSS"),
+        ("\t", "SSS"),
+        (" SSSP ", "SSS+"),
+        ("future\ngrade", "future\ngrade"),
+    ] {
+        records[1].grade = Some(grade.to_owned());
+        let rendered = view(&prepared, &best_by_chart(&records))?;
+        assert_eq!(rendered.rows[3].grade.as_deref(), Some(expected));
+        assert_eq!(records[1].grade.as_deref(), Some(grade));
+    }
     Ok(())
 }
 

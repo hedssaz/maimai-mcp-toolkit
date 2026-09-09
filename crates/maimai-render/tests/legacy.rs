@@ -236,24 +236,7 @@ fn oversized_cover_and_background_are_rejected_before_decode_allocation()
 }
 
 #[test]
-fn invalid_model_and_utage_are_rejected() -> Result<(), Box<dyn std::error::Error>> {
-    assert!(PlayerHeader::new("\n", None, None).is_err());
-    assert!(PlayerHeader::new("Player", None, Some("bad\nplate".to_owned())).is_err());
-
-    let marker_error = score_card(
-        1,
-        "Song",
-        ChartType::Standard,
-        "13",
-        "13.0",
-        "100.0000",
-        200,
-    )?
-    .with_markers(Some("bad\ngrade".to_owned()), None, None)
-    .err()
-    .ok_or("expected invalid marker")?;
-    assert!(matches!(marker_error, RenderError::InvalidModel { .. }));
-
+fn b50_card_limits_and_utage_are_rejected() -> Result<(), Box<dyn std::error::Error>> {
     let card = score_card(
         1,
         "Song",

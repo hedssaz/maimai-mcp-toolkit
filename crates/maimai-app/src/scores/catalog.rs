@@ -111,6 +111,22 @@ impl ScoreCatalog {
                 })
             })
             .collect::<Vec<_>>();
+        let projection_matches = matches
+            .iter()
+            .copied()
+            .filter(|entry| {
+                aliases.iter().any(|candidate| {
+                    entry.chart_ids.contains(candidate)
+                        || entry
+                            .source_versions
+                            .iter()
+                            .any(|(source_id, _)| source_id == candidate)
+                })
+            })
+            .collect::<Vec<_>>();
+        if !projection_matches.is_empty() {
+            matches = projection_matches;
+        }
         matches.sort_by(|left, right| left.resolved.key.cmp(&right.resolved.key));
         matches.dedup_by(|left, right| left.resolved.key == right.resolved.key);
         match matches.as_slice() {
@@ -213,5 +229,54 @@ fn source_aliases(source_id: &SourceSongId, generation: GenerationMatch) -> Vec<
 fn push_unique<T: Eq>(values: &mut Vec<T>, value: T) {
     if !values.contains(&value) {
         values.push(value);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use maimai_core::{ChartGeneration, ChartKey, Difficulty, SongIdNamespace, SourceSongId};
+
+    use super::{CatalogChart, GenerationMatch, ResolvedChart, ScoreCatalog};
+
+    #[test]
+    fn exact_source_projection_disambiguates_utage_generation()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let source_id = SourceSongId::numeric(SongIdNamespace::Lxns, 111_355);
+        let catalog = ScoreCatalog {
+            charts: vec![
+                entry(&source_id, ChartGeneration::UtageOnePlayer, false)?,
+                entry(&source_id, ChartGeneration::UtageTwoPlayer, true)?,
+            ],
+        };
+
+        let resolved =
+            catalog.resolve_chart(&source_id, GenerationMatch::Utage, Difficulty::Utage)?;
+
+        assert_eq!(resolved.key.generation(), ChartGeneration::UtageTwoPlayer);
+        Ok(())
+    }
+
+    fn entry(
+        source_id: &SourceSongId,
+        generation: ChartGeneration,
+        projected: bool,
+    ) -> Result<CatalogChart, maimai_core::ValidationError> {
+        Ok(CatalogChart {
+            song_ids: vec![source_id.clone()],
+            chart_ids: projected.then(|| source_id.clone()).into_iter().collect(),
+            source_versions: projected
+                .then(|| (source_id.clone(), "PRiSM".to_owned()))
+                .into_iter()
+                .collect(),
+            resolved: ResolvedChart {
+                key: ChartKey::new(source_id.clone(), generation, Difficulty::Utage)?,
+                title: "[協]ラグトレイン".to_owned(),
+                level: "13?".to_owned(),
+                constant: None,
+                fit_constant: None,
+                version: "PRiSM".to_owned(),
+                is_current: false,
+            },
+        })
     }
 }
